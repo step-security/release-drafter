@@ -16,7 +16,7 @@
     "generate-schema": "node ./bin/generate-schema.js print",
     "generate-fixtures": "node ./bin/generate-fixtures.js",
     "lint": "eslint bin/*.js lib/*.js action.js index.js test/**/*.js",
-    "prettier": "prettier --write **/*.{js,md,json,yml}",
+    "prettier": "prettier --write **/*.{js,md,json}",
     "postversion": "npm run test && git push && git push --tags",
     "open-releases": "open \"$(node -e 'console.log(`${require(\"./package.json\").repository}/releases`)')\""
   },

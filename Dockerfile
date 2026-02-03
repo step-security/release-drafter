@@ -10,6 +10,7 @@ LABEL "com.github.actions.icon"="edit-2"
 LABEL "com.github.actions.color"="orange"
 WORKDIR /app
 COPY . .
+RUN npm install -g npm@11.5.2
 RUN npm ci
 ENTRYPOINT [ "/app/node_modules/.bin/probot" ]
 CMD [ "receive", "/app/index.js" ]

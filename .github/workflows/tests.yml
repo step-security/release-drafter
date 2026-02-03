@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/common-setup
       - run: npm run test
-      - run: npm run lint --fix
+      - run: npm run lint -- --fix
       - run: npm run prettier
       - run: npm run build
       - name: correct vercel/ncc crlf output

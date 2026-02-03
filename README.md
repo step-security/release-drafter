@@ -395,10 +395,3 @@ The Release Drafter GitHub Action sets a couple of outputs which can be used as 
 | `major_version`    | Major part of resolved version by [Version Resolver](#version-resolver). i.e. `6` for version `6.3.1`                                                                                                                         |
 | `minor_version`    | Minor part of resolved version by [Version Resolver](#version-resolver). i.e. `3` for version `6.3.1`                                                                                                                         |
 | `patch_version`    | Patch part of resolved version by [Version Resolver](#version-resolver). i.e. `1` for version `6.3.1`                                                                                                                         |
-
-
-
-
-
-
-

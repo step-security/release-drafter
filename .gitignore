@@ -28,4 +28,3 @@ dist/views/
 *.launch
 .settings/
 *.sublime-workspace
-lib

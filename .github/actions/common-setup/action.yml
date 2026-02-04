@@ -1,5 +1,4 @@
 name: Node & npm setup
-author: Clément Chanchevrier @cchanche
 description: 'Common job setup for npm managed repo'
 
 runs:

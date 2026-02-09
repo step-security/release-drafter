@@ -46,7 +46,7 @@ Pc6zWtW2XuNIGHw9pDj7v1yDolm7feBXLg8/u9APwHDy
 
 describe('release-drafter', () => {
   let probot
-  let logger
+  let logger = []
   let restoreEnvironment
 
   const streamLogsToOutput = new Stream.Writable({ objectMode: true })
@@ -59,10 +59,12 @@ describe('release-drafter', () => {
     appId: 179_208,
     privateKey,
     githubToken: 'test',
-    Octokit: ProbotOctokit.defaults({
+    // v13: Must use closure function instead of object for ProbotOctokit.defaults()
+    Octokit: ProbotOctokit.defaults((instanceOptions) => ({
+      ...instanceOptions,
       retry: { enabled: false },
       throttle: { enabled: false },
-    }),
+    })),
     log: pino(streamLogsToOutput),
   })
   probot.load(releaseDrafter)
@@ -2585,10 +2587,11 @@ describe('release-drafter', () => {
       })
       expect(logger[0]).toEqual(
         expect.objectContaining({
-          msg: expect.stringContaining('Invalid config file'),
-          stack: expect.stringContaining(
-            '"search" is required and must be a regexp or a string'
-          ),
+          err: expect.objectContaining({
+            message: expect.stringContaining(
+              '"search" is required and must be a regexp or a string'
+            ),
+          }),
         })
       )
     })
@@ -2604,10 +2607,11 @@ describe('release-drafter', () => {
       })
       expect(logger[0]).toEqual(
         expect.objectContaining({
-          msg: expect.stringContaining('Invalid config file'),
-          stack: expect.stringContaining(
-            'Configuration could not be parsed from'
-          ),
+          err: expect.objectContaining({
+            message: expect.stringContaining(
+              'Configuration could not be parsed from'
+            ),
+          }),
         })
       )
     })

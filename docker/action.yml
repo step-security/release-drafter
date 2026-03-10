@@ -3,7 +3,7 @@ description: 'Drafts your next release notes as pull requests are merged into ma
 author: 'step-security'
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/step-security/release-drafter:v6.2.1@sha256:b841711d85c32528c25f434893682b351443d152b1139f9ddf0d26596464aec3' #v6.2.1
+  image: 'docker://ghcr.io/step-security/release-drafter:v6.2.1@sha256:0e036ea293cebbe8d76981cd06b9321518cd8a9094df366157ef6f5746b8e8bc' #v6.2.1
 branding:
   icon: edit-2
   color: orange

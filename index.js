@@ -13,10 +13,15 @@ const core = require('@actions/core')
 const { runnerIsActions } = require('./lib/utils')
 const ignore = require('ignore')
 const axios = require('axios')
-const github = require('@actions/github')
 
 async function validateSubscription() {
-  const repoPrivate = github.context?.payload?.repository?.private
+   let repoPrivate;
+  const eventPath = process.env.GITHUB_EVENT_PATH;
+  if (eventPath && existsSync(eventPath)) {
+    const payload = JSON.parse(readFileSync(eventPath, "utf8"));
+    repoPrivate = payload?.repository?.private;
+  }
+  
   const upstream = 'release-drafter/release-drafter'
   const action = process.env.GITHUB_ACTION_REPOSITORY
   const docsUrl =

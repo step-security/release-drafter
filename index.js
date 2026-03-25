@@ -9,6 +9,7 @@ const {
 const { findCommitsWithAssociatedPullRequests } = require('./lib/commits')
 const { sortPullRequests } = require('./lib/sort-pull-requests')
 const { log } = require('./lib/log')
+const { existsSync, readFileSync } = require('node:fs')
 const core = require('@actions/core')
 const { runnerIsActions } = require('./lib/utils')
 const ignore = require('ignore')

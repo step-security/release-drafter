@@ -256361,6 +256361,7 @@ const {
 const { findCommitsWithAssociatedPullRequests } = __nccwpck_require__(95023)
 const { sortPullRequests } = __nccwpck_require__(65472)
 const { log } = __nccwpck_require__(87707)
+const { existsSync, readFileSync } = __nccwpck_require__(73024)
 const core = __nccwpck_require__(37484)
 const { runnerIsActions } = __nccwpck_require__(13008)
 const ignore = __nccwpck_require__(70298)

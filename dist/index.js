@@ -256367,13 +256367,13 @@ const ignore = __nccwpck_require__(70298)
 const axios = __nccwpck_require__(87269)
 
 async function validateSubscription() {
-   let repoPrivate;
-  const eventPath = process.env.GITHUB_EVENT_PATH;
+  let repoPrivate
+  const eventPath = process.env.GITHUB_EVENT_PATH
   if (eventPath && existsSync(eventPath)) {
-    const payload = JSON.parse(readFileSync(eventPath, "utf8"));
-    repoPrivate = payload?.repository?.private;
+    const payload = JSON.parse(readFileSync(eventPath, 'utf8'))
+    repoPrivate = payload?.repository?.private
   }
-  
+
   const upstream = 'release-drafter/release-drafter'
   const action = process.env.GITHUB_ACTION_REPOSITORY
   const docsUrl =

@@ -202,21 +202,17 @@ module.exports = (app, { getRouter }) => {
     const {
       'filter-by-commitish': filterByCommitish,
       'include-pre-releases': includePreReleases,
-      'prerelease-identifier': preReleaseIdentifier,
       'tag-prefix': tagPrefix,
       latest,
       prerelease,
     } = config
 
-    const shouldIncludePreReleases = Boolean(
-      includePreReleases || preReleaseIdentifier
-    )
-
     const { draftRelease, lastRelease } = await findReleases({
       context,
       targetCommitish,
       filterByCommitish,
-      includePreReleases: shouldIncludePreReleases,
+      includePreReleases,
+      isPreRelease: prerelease,
       tagPrefix,
     })
 
@@ -327,6 +323,10 @@ function updateConfigFromInput(config, input) {
 
   if (input.preReleaseIdentifier) {
     config['prerelease-identifier'] = input.preReleaseIdentifier
+  }
+
+  if (!config.prerelease && config['prerelease-identifier']) {
+    config.prerelease = true
   }
 
   config.latest = config.prerelease

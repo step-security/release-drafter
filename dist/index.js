@@ -256517,21 +256517,17 @@ module.exports = (app, { getRouter }) => {
     const {
       'filter-by-commitish': filterByCommitish,
       'include-pre-releases': includePreReleases,
-      'prerelease-identifier': preReleaseIdentifier,
       'tag-prefix': tagPrefix,
       latest,
       prerelease,
     } = config
 
-    const shouldIncludePreReleases = Boolean(
-      includePreReleases || preReleaseIdentifier
-    )
-
     const { draftRelease, lastRelease } = await findReleases({
       context,
       targetCommitish,
       filterByCommitish,
-      includePreReleases: shouldIncludePreReleases,
+      includePreReleases,
+      isPreRelease: prerelease,
       tagPrefix,
     })
 
@@ -256642,6 +256638,10 @@ function updateConfigFromInput(config, input) {
 
   if (input.preReleaseIdentifier) {
     config['prerelease-identifier'] = input.preReleaseIdentifier
+  }
+
+  if (!config.prerelease && config['prerelease-identifier']) {
+    config.prerelease = true
   }
 
   config.latest = config.prerelease
@@ -256816,13 +256816,29 @@ const findCommitsWithAssociatedPullRequests = async ({
     : config['initial-commits-since']
   const validationResult = Joi.date().iso().validate(since)
 
-  core.debug(' since value: ' + since)
-  core.debug(
-    ' since value validation.value: ' +
-      validationResult.value +
-      ' error: ' +
-      validationResult.error
-  )
+  log({
+    context,
+    message: `since value: ${since}`,
+    debug: true,
+  })
+  log({
+    context,
+    message: `since value validation.value: ${JSON.stringify(
+      validationResult,
+      null,
+      2
+    )}`,
+    debug: true,
+  })
+  log({
+    context,
+    message: `since value validation.error: ${JSON.stringify(
+      validationResult.error,
+      null,
+      2
+    )}`,
+    debug: true,
+  })
 
   // The validation result contains either an error or the validated value
   if (validationResult.error) {
@@ -257028,12 +257044,16 @@ exports.DEFAULT_CONFIG = DEFAULT_CONFIG
 /***/ 87707:
 /***/ ((__unused_webpack_module, exports) => {
 
-const log = ({ context, message, error }) => {
+const log = ({ context, message, error, debug }) => {
   const repo = context.payload.repository
   const prefix = repo ? `${repo.full_name}: ` : ''
   const logString = `${prefix}${message}`
   if (error) {
     context.log.warn(error, logString)
+  } else if (debug) {
+    typeof debug === 'object'
+      ? context.log.debug({ ...debug }, logString)
+      : context.log.debug({}, logString)
   } else {
     context.log.info(logString)
   }
@@ -257107,7 +257127,6 @@ exports.paginate = paginate
 
 const compareVersions = __nccwpck_require__(28595)
 const regexEscape = __nccwpck_require__(31199)
-const core = __nccwpck_require__(37484)
 
 const { getVersionInfo } = __nccwpck_require__(1608)
 const { template } = __nccwpck_require__(96575)
@@ -257137,9 +257156,13 @@ const findReleases = async ({
   targetCommitish,
   filterByCommitish,
   includePreReleases,
+  isPreRelease,
   tagPrefix,
 }) => {
   let releaseCount = 0
+  /**
+   * @type {object[]}
+   */
   let releases = await context.octokit.paginate(
     context.octokit.repos.listReleases.endpoint.merge(
       context.repo({
@@ -257157,8 +257180,8 @@ const findReleases = async ({
 
   log({ context, message: `Found ${releases.length} releases` })
 
-  // `refs/heads/branch` and `branch` are the same thing in this context
-  const headRefRegex = /^refs\/heads\//
+  // Filter releases
+  const headRefRegex = /^refs\/heads\// // `refs/heads/branch` and `branch` are the same thing in this context
   const targetCommitishName = targetCommitish.replace(headRefRegex, '')
   const commitishFilteredReleases = filterByCommitish
     ? releases.filter(
@@ -257169,18 +257192,42 @@ const findReleases = async ({
   const filteredReleases = tagPrefix
     ? commitishFilteredReleases.filter((r) => r.tag_name.startsWith(tagPrefix))
     : commitishFilteredReleases
-  const sortedSelectedReleases = sortReleases(
-    filteredReleases.filter(
-      (r) => !r.draft && (!r.prerelease || includePreReleases)
-    ),
-    tagPrefix
+
+  // Split drafts and published releases
+  let publishedReleases = filteredReleases.filter((r) => !r.draft)
+  let draftReleases = filteredReleases.filter((r) => r.draft)
+
+  // Handle prereleases
+  publishedReleases = publishedReleases.filter(
+    (publishedRelease) =>
+      isPreRelease || includePreReleases // `includePreReleases` will be removed in future versions
+        ? publishedRelease.prerelease || !publishedRelease.prerelease // Both prerelease and regular published-releases
+        : !publishedRelease.prerelease // Only regular published-releases
   )
-  const draftRelease = filteredReleases.find(
-    (r) => r.draft && r.prerelease === includePreReleases
+  draftReleases = draftReleases.filter(
+    (draftRelease) =>
+      isPreRelease
+        ? draftRelease.prerelease // Only pre-releases drafts
+        : !draftRelease.prerelease // Only regular drafts
   )
-  const lastRelease = sortedSelectedReleases[sortedSelectedReleases.length - 1]
+
+  // Sort results
+  const draftRelease = draftReleases[0] // Should this be sorted ?
+  const lastRelease = sortReleases(publishedReleases, tagPrefix)?.at(-1)
 
   if (draftRelease) {
+    if (draftReleases.length > 1) {
+      log({
+        context,
+        message: `Multiple draft releases found : ${draftReleases
+          .map((r) => r.tag_name)
+          .join(', ')}`,
+      })
+      log({
+        context,
+        message: `Returning the first one (octokit response order)`,
+      })
+    }
     log({ context, message: `Draft release: ${draftRelease.tag_name}` })
   } else {
     log({ context, message: `No draft release found` })
@@ -257189,9 +257236,9 @@ const findReleases = async ({
   if (lastRelease) {
     log({
       context,
-      message: `Last release${
-        includePreReleases ? ' (including prerelease)' : ''
-      }: ${lastRelease.tag_name}`,
+      message: `Last release${isPreRelease ? ' (including prerelease)' : ''}: ${
+        lastRelease.tag_name
+      }`,
     })
   } else {
     log({ context, message: `No last release found` })
@@ -257421,7 +257468,8 @@ const generateChangeLog = (mergedPullRequests, config) => {
 const resolveVersionKeyIncrement = (
   mergedPullRequests,
   config,
-  isPreRelease
+  isPreRelease,
+  context
 ) => {
   const priorityMap = {
     patch: 1,
@@ -257437,7 +257485,11 @@ const resolveVersionKeyIncrement = (
       .flat()
   )
 
-  core.debug('labelToKeyMap: ' + JSON.stringify(labelToKeyMap))
+  log({
+    context,
+    message: `labelToKeyMap`,
+    debug: labelToKeyMap,
+  })
 
   const keys = mergedPullRequests
     .filter(getFilterExcludedPullRequests(config['exclude-labels']))
@@ -257445,7 +257497,11 @@ const resolveVersionKeyIncrement = (
     .flatMap((pr) => pr.labels.nodes.map((node) => labelToKeyMap[node.name]))
     .filter(Boolean)
 
-  core.debug('keys: ' + JSON.stringify(keys))
+  log({
+    context,
+    message: `keys`,
+    debug: keys,
+  })
 
   const keyPriorities = keys.map((key) => priorityMap[key])
   const priority = Math.max(...keyPriorities)
@@ -257453,7 +257509,11 @@ const resolveVersionKeyIncrement = (
     (key) => priorityMap[key] === priority
   )
 
-  core.debug('versionKey: ' + versionKey)
+  log({
+    context,
+    message: `versionKey`,
+    debug: versionKey,
+  })
 
   const versionKeyIncrement = versionKey || config['version-resolver'].default
 
@@ -257503,10 +257563,15 @@ const generateReleaseInfo = ({
   const versionKeyIncrement = resolveVersionKeyIncrement(
     mergedPullRequests,
     config,
-    isPreRelease
+    isPreRelease,
+    context
   )
 
-  core.debug('versionKeyIncrement: ' + versionKeyIncrement)
+  log({
+    context,
+    message: `versionKeyIncrement`,
+    debug: versionKeyIncrement,
+  })
 
   const versionInfo = getVersionInfo(
     lastRelease,
@@ -257519,7 +257584,11 @@ const generateReleaseInfo = ({
     config['prerelease-identifier']
   )
 
-  core.debug('versionInfo: ' + JSON.stringify(versionInfo, null, 2))
+  log({
+    context,
+    message: `versionInfo`,
+    debug: versionInfo,
+  })
 
   if (versionInfo) {
     body = template(body, versionInfo)
@@ -257531,7 +257600,11 @@ const generateReleaseInfo = ({
     tag = template(tag, versionInfo)
   }
 
-  core.debug('tag: ' + tag)
+  log({
+    context,
+    message: `tag: ${tag}`,
+    debug: true,
+  })
 
   if (name === undefined) {
     name = versionInfo
@@ -257541,7 +257614,11 @@ const generateReleaseInfo = ({
     name = template(name, versionInfo)
   }
 
-  core.debug('name: ' + name)
+  log({
+    context,
+    message: `name: ${name}`,
+    debug: true,
+  })
 
   // Tags are not supported as `target_commitish` by Github API.
   // GITHUB_REF or the ref from webhook start with `refs/tags/`, so we handle
@@ -257863,6 +257940,12 @@ const validateSchema = (context, repoConfig) => {
     })
   } catch {
     config.autolabeler = []
+  }
+
+  if (config['include-pre-releases']) {
+    context.log.info(
+      "'include-pre-releases' will be deprecated in next version. Use 'prerelease: true' instead. See PR #1515 for more"
+    )
   }
 
   return config

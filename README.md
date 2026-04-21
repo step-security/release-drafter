@@ -362,14 +362,14 @@ jobs:
   update_full_release_draft:
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v6
+      - uses: step-security/release-drafter@v6
         with:
           prerelease: false # the default
           # ... rest of your config
   update_prerelease_draft:
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v6
+      - uses: step-security/release-drafter@v6
         with:
           prerelease: true
           prerelease-identifier: 'rc' # Use semver identifiers : alpha, beta, rc, etc

@@ -256610,6 +256610,10 @@ function getInput() {
         ? core.getInput('prerelease').toLowerCase() === 'true'
         : undefined,
     preReleaseIdentifier: core.getInput('prerelease-identifier') || undefined,
+    includePreReleases:
+      core.getInput('include-pre-releases') !== ''
+        ? core.getInput('include-pre-releases').toLowerCase() === 'true'
+        : undefined,
     latest: core.getInput('latest')?.toLowerCase() || undefined,
     commitsSince: core.getInput('initial-commits-since') || undefined,
   }
@@ -256651,6 +256655,10 @@ function updateConfigFromInput(config, input) {
   if (input.commitsSince) {
     config['initial-commits-since'] = input.commitsSince
   }
+
+  if (input.includePreReleases !== undefined) {
+    config['include-pre-releases'] = input.includePreReleases
+  }
 }
 
 function setActionOutput(
@@ -256691,6 +256699,9 @@ const { paginate } = __nccwpck_require__(50345)
 const Joi = __nccwpck_require__(81154)
 const core = __nccwpck_require__(37484)
 
+/**
+ * @see https://docs.github.com/en/graphql/reference/objects#commit
+ */
 const findCommitsWithPathChangesQuery = /* GraphQL */ `
   query findCommitsWithPathChangesQuery(
     $name: String!
@@ -256804,12 +256815,11 @@ const findCommitsWithAssociatedPullRequests = async ({
     historyLimit: config['history-limit'],
   }
   const includePaths = config['include-paths']
+  const excludePaths = config['exclude-paths']
   const dataPath = ['repository', 'object', 'history']
   const repoNameWithOwner = `${owner}/${repo}`
 
-  let data,
-    allCommits,
-    includedIds = {}
+  let data, allCommits
 
   const since = lastRelease
     ? lastRelease.created_at
@@ -256846,6 +256856,7 @@ const findCommitsWithAssociatedPullRequests = async ({
     throw new Error(validationResult.error.message)
   }
 
+  const includedIds = new Set()
   if (includePaths.length > 0) {
     var anyChanges = false
     for (const path of includePaths) {
@@ -256855,18 +256866,34 @@ const findCommitsWithAssociatedPullRequests = async ({
         { ...variables, since: since, path },
         dataPath
       )
-      const commitsWithPathChanges = _.get(pathData, [...dataPath, 'nodes'])
+      const nodes = _.get(pathData, [...dataPath, 'nodes'], [])
 
-      includedIds[path] = includedIds[path] || new Set([])
-      for (const { id } of commitsWithPathChanges) {
+      for (const { id } of nodes) {
         anyChanges = true
-        includedIds[path].add(id)
+        includedIds.add(id)
       }
     }
-
     if (!anyChanges) {
       // Short circuit to avoid blowing GraphQL budget
       return { commits: [], pullRequests: [] }
+    }
+  }
+
+  const excludedIds = new Set()
+  if (excludePaths.length > 0) {
+    for (const path of excludePaths) {
+      const pathData = await paginate(
+        context.octokit.graphql,
+        findCommitsWithPathChangesQuery,
+        { ...variables, since: since, path },
+        dataPath
+      )
+
+      const nodes = _.get(pathData, [...dataPath, 'nodes'], [])
+
+      for (const { id } of nodes) {
+        excludedIds.add(id)
+      }
     }
   }
 
@@ -256899,12 +256926,15 @@ const findCommitsWithAssociatedPullRequests = async ({
     allCommits = _.get(data, [...dataPath, 'nodes'])
   }
 
-  const commits =
-    includePaths.length > 0
-      ? allCommits.filter((commit) =>
-          includePaths.some((path) => includedIds[path].has(commit.id))
-        )
-      : allCommits
+  const commits = allCommits.filter((commit) => {
+    if (excludedIds.has(commit.id)) {
+      return false
+    }
+    if (includePaths.length > 0) {
+      return includedIds.has(commit.id)
+    }
+    return true
+  })
 
   const pullRequests = _.uniqBy(
     commits.flatMap((commit) => commit.associatedPullRequests.nodes),
@@ -257017,6 +257047,7 @@ const DEFAULT_CONFIG = Object.freeze({
   'exclude-labels': [],
   'include-labels': [],
   'include-paths': [],
+  'exclude-paths': [],
   'exclude-contributors': [],
   'no-contributors-template': 'No contributors',
   replacers: [],
@@ -257151,6 +257182,14 @@ const sortReleases = (releases, tagPrefix) => {
 // GitHub API currently returns a 500 HTTP response if you attempt to fetch over 1000 releases.
 const RELEASE_COUNT_LIMIT = 1000
 
+/**
+ * Find previous releases in the repo
+ *
+ * The last stable release is used to determine the range of commits to include in the changelog,
+ * and to resolve the next version number.
+ *
+ * The draft release is used to determine if we should create a new release or update the existing one.
+ */
 const findReleases = async ({
   context,
   targetCommitish,
@@ -257200,7 +257239,7 @@ const findReleases = async ({
   // Handle prereleases
   publishedReleases = publishedReleases.filter(
     (publishedRelease) =>
-      isPreRelease || includePreReleases // `includePreReleases` will be removed in future versions
+      isPreRelease || includePreReleases
         ? publishedRelease.prerelease || !publishedRelease.prerelease // Both prerelease and regular published-releases
         : !publishedRelease.prerelease // Only regular published-releases
   )
@@ -257778,6 +257817,10 @@ const schema = (context) => {
         .items(Joi.string())
         .default(DEFAULT_CONFIG['include-paths']),
 
+      'exclude-paths': Joi.array()
+        .items(Joi.string())
+        .default(DEFAULT_CONFIG['exclude-paths']),
+
       'exclude-contributors': Joi.array()
         .items(Joi.string())
         .default(DEFAULT_CONFIG['exclude-contributors']),
@@ -257940,12 +257983,6 @@ const validateSchema = (context, repoConfig) => {
     })
   } catch {
     config.autolabeler = []
-  }
-
-  if (config['include-pre-releases']) {
-    context.log.info(
-      "'include-pre-releases' will be deprecated in next version. Use 'prerelease: true' instead. See PR #1515 for more"
-    )
   }
 
   return config

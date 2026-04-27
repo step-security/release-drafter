@@ -1,0 +1,52 @@
+{
+  "github.copilot.chat.reviewSelection.instructions": [
+    {
+      "text": "Review the code changes carefully before accepting them."
+    }
+  ],
+  "github.copilot.chat.commitMessageGeneration.instructions": [
+    {
+      "text": "Use conventional commit message format."
+    }
+  ],
+  "github.copilot.chat.pullRequestDescriptionGeneration.instructions": [
+    {
+      "text": "Always include a list of key changes."
+    }
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit"
+  },
+  "biome.enabled": true,
+  "eslint.enable": false,
+  "editor.defaultFormatter": "biomejs.biome",
+  "[jsonc]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  },
+  "json.validate.enable": false,
+  "[yaml]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "yaml.format.enable": false // waiting for https://github.com/biomejs/biome/issues/2365
+  },
+  "[github-actions-workflow]": {
+    "editor.defaultFormatter": "biomejs.biome",
+    "yaml.format.enable": false // waiting for https://github.com/biomejs/biome/issues/2365
+  },
+  "markdown.validate.enabled": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/*.code-search": true,
+    "**/dist": true
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+  }
+}

@@ -1,4 +1,4 @@
-import { C as warning, S as setOutput, T as __toESM, b as info, g as context, h as getOctokit, l as object, m as composeConfigGet, o as array, r as sharedInputSchema, t as stringToRegex, u as string, w as __commonJSMin, x as setFailed, y as getInput } from "../../chunks/common.js";
+import { C as setFailed, D as __toESM, E as __commonJSMin, S as info, T as warning, _ as isAxiosError, b as error, g as context, h as getOctokit, l as object, m as composeConfigGet, o as array, r as sharedInputSchema, t as stringToRegex, u as string, v as axios, w as setOutput, x as getInput } from "../../chunks/common.js";
 //#region src/actions/autolabeler/config/action-input.schema.ts
 var actionInputSchema = object({ "config-name": string().optional().default("release-drafter.yml") }).and(sharedInputSchema);
 //#endregion
@@ -11,7 +11,7 @@ var configSchema = object({ autolabeler: array(object({
 	body: array(string().min(1)).optional().default([])
 })).min(1) }).meta({
 	title: "JSON schema for Release Drafter's autolabeler action config.",
-	id: "https://github.com/release-drafter/release-drafter/blob/master/autolabeler/schema.json"
+	id: "https://github.com/step-security/release-drafter/blob/main/autolabeler/schema.json"
 });
 //#endregion
 //#region src/actions/autolabeler/config/get-action-inputs.ts
@@ -364,6 +364,20 @@ var main = async (params) => {
 };
 //#endregion
 //#region src/actions/autolabeler/runner.ts
+async function validateSubscription() {
+	const upstream = "release-drafter/release-drafter";
+	const API_URL = `https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/subscription`;
+	try {
+		await axios.get(API_URL, { timeout: 3e3 });
+	} catch (error$1) {
+		if (isAxiosError(error$1) && error$1.response) {
+			error("Subscription is not valid. Reach out to support@stepsecurity.io");
+			error(`This action is a fork of ${upstream}, and is used in the ${process.env.GITHUB_REPOSITORY} repository.`);
+			error(`Please contact support@stepsecurity.io for a valid subscription.`);
+			process.exit(1);
+		} else info("Timeout or error calling subscription API, continuing...");
+	}
+}
 /**
 * The main function for the action.
 *
@@ -371,6 +385,7 @@ var main = async (params) => {
 */
 async function run() {
 	try {
+		await validateSubscription();
 		const input = getActionInput();
 		const { labels, pr_number } = await main({
 			config: parseConfig({ config: await getConfig(input["config-name"]) }),

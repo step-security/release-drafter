@@ -6,7 +6,7 @@ requires the presence of the [`action.yml`](./action.yml) file
 ```yaml
 steps:
   # targets root `action.yaml` - runs drafter
-  - uses: release-drafter/release-drafter@latest
+  - uses: step-security/release-drafter@v7
   # also runs drafter
-  - uses: release-drafter/release-drafter/drafter@latest
+  - uses: step-security/release-drafter/drafter@v7
 ```

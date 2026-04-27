@@ -1,3 +1,5 @@
+[![StepSecurity Maintained Action](https://raw.githubusercontent.com/step-security/maintained-actions-assets/main/assets/maintained-action-banner.png)](https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions)
+
 <h1 align="center">
   <img src="docs/design/logo.svg" alt="Release Drafter Logo" width="450" />
 </h1>
@@ -5,8 +7,6 @@
 <p align="center">Drafts your next release notes as pull requests are merged into master.</p>
 
 ![CI](https://github.com/release-drafter/release-drafter/actions/workflows/ci.yml/badge.svg)
-![CodeQL](https://github.com/release-drafter/release-drafter/actions/workflows/codeql-analysis.yml/badge.svg)
-![Coverage](./badges/coverage.svg)
 
 ## Usage
 
@@ -35,7 +35,7 @@ jobs:
   update_release_draft:
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v7
+      - uses: step-security/release-drafter@v7
         with:
           config-name: release-drafter.yml # the default, loads '.github/release-drafter.yml'
 ```
@@ -413,7 +413,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # runs autolabeler
-      - uses: release-drafter/release-drafter/autolabeler@v7
+      - uses: step-security/release-drafter/autolabeler@v7
 ```
 
 Available matchers are `files` (glob), `branch` (regex), `title` (regex) and
@@ -466,14 +466,14 @@ jobs:
   update_full_release_draft:
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v6
+      - uses: step-security/release-drafter@v6
         with:
           prerelease: false # the default
           # ... rest of your config
   update_prerelease_draft:
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v6
+      - uses: step-security/release-drafter@v6
         with:
           prerelease: true
           prerelease-identifier: "rc" # Use semver identifiers : alpha, beta, rc, etc
@@ -563,16 +563,3 @@ inputs to other Actions in the workflow
 | `minor_version`    | Minor part of resolved version by [Version Resolver](#version-resolver). i.e. `3` for version `6.3.1`                                                                                                                         |
 | `patch_version`    | Patch part of resolved version by [Version Resolver](#version-resolver). i.e. `1` for version `6.3.1`                                                                                                                         |
 
-## Contributing
-
-Third-party contributions are welcome! 🙏🏼 See
-[CONTRIBUTING.md](docs/CONTRIBUTING.md) for step-by-step instructions.
-
-> [!IMPORTANT]
->
-> Before pushing, run `npm run all` to format, lint, type-check, test, and
-> regenerate all build artifacts. The CI pipeline enforces that no uncommitted
-> changes remain after these steps.
-
-If you need help or have a question, let us know via
-[a GitHub issue](https://github.com/release-drafter/release-drafter/issues/new).

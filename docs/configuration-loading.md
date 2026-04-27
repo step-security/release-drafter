@@ -57,7 +57,7 @@ the file at hand. If the desired file is in your repo, make sure to use
 > Simply use the default `github:` scheme :
 >
 > ```yaml
-> uses: release-drafter/release-drafter@v7
+> uses: step-security/release-drafter@v7
 > with:
 >   config-name: relative/path/to/my/config.yaml
 > ```
@@ -113,7 +113,7 @@ jobs:
           .github/release-drafter-template.yml >
           .github/release-drafter-parsed.yml
       - name: Use dynamic release-drafter configuration
-        uses: release-drafter/release-drafter@v7
+        uses: step-security/release-drafter@v7
         with:
           config-name: file:release-drafter-parsed.yml
 ```
@@ -136,7 +136,7 @@ tag-template: 'backend/v$RESOLVED_VERSION'
 
 ```yaml
 steps:
-  - uses: release-drafter/release-drafter@v7
+  - uses: step-security/release-drafter@v7
     with:
       config-name: release-drafter/backend.yml
 ```
@@ -210,7 +210,7 @@ jobs:
   release-drafter:
     runs-on: ubuntu-latest
     steps:
-      - uses: release-drafter/release-drafter@v7
+      - uses: step-security/release-drafter@v7
         with:
           config-name: release-drafter.yaml
 ```

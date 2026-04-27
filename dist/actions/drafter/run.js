@@ -1,4 +1,4 @@
-import { C as warning, S as setOutput, T as __toESM, _ as debug, a as _enum, b as info, c as number, d as stringbool, f as datetime, g as context, h as getOctokit, i as ZodDefault, l as object, m as composeConfigGet, n as escapeStringRegexp, o as array, p as paginateGraphql, r as sharedInputSchema, s as boolean, t as stringToRegex, u as string, v as error, w as __commonJSMin, x as setFailed, y as getInput } from "../../chunks/common.js";
+import { C as setFailed, D as __toESM, E as __commonJSMin, S as info, T as warning, _ as isAxiosError, a as _enum, b as error, c as number, d as stringbool, f as datetime, g as context, h as getOctokit, i as ZodDefault, l as object, m as composeConfigGet, n as escapeStringRegexp, o as array, p as paginateGraphql, r as sharedInputSchema, s as boolean, t as stringToRegex, u as string, v as axios, w as setOutput, x as getInput, y as debug } from "../../chunks/common.js";
 //#region src/actions/drafter/config/schemas/common-config.schema.ts
 /**
 * Configuration parameters that can be specified in both
@@ -101,7 +101,7 @@ var exclusiveConfigSchema = object({
 	template: string().optional().default("")
 }).meta({
 	title: "JSON schema for Release Drafter yaml files",
-	id: "https://github.com/release-drafter/release-drafter/blob/master/drafter/schema.json"
+	id: "https://github.com/step-security/release-drafter/blob/main/drafter/schema.json"
 });
 var configSchema = exclusiveConfigSchema.and(commonConfigSchema);
 Object.fromEntries(Object.entries({
@@ -1717,9 +1717,9 @@ var sortPullRequests = (params) => {
 	return structuredClone(pullRequests).sort((a, b) => {
 		try {
 			return sort(getSortField(a), getSortField(b));
-		} catch (error$1) {
+		} catch (error$2) {
 			warning(`Failed to sort pull-requests ${a.number} and ${b.number} by ${sortBy} in ${sortDirection} order. Returning unsorted.`);
-			error(error$1);
+			error(error$2);
 			return 0;
 		}
 	});
@@ -2230,6 +2230,20 @@ var main = async (params) => {
 };
 //#endregion
 //#region src/actions/drafter/runner.ts
+async function validateSubscription() {
+	const upstream = "release-drafter/release-drafter";
+	const API_URL = `https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/subscription`;
+	try {
+		await axios.get(API_URL, { timeout: 3e3 });
+	} catch (error$1) {
+		if (isAxiosError(error$1) && error$1.response) {
+			error("Subscription is not valid. Reach out to support@stepsecurity.io");
+			error(`This action is a fork of ${upstream}, and is used in the ${process.env.GITHUB_REPOSITORY} repository.`);
+			error(`Please contact support@stepsecurity.io for a valid subscription.`);
+			process.exit(1);
+		} else info("Timeout or error calling subscription API, continuing...");
+	}
+}
 /**
 * The main function for the action.
 *
@@ -2237,6 +2251,7 @@ var main = async (params) => {
 */
 async function run() {
 	try {
+		await validateSubscription();
 		info("Parsing inputs and configuration...");
 		const input = getActionInput();
 		const { upsertedRelease, releasePayload } = await main({

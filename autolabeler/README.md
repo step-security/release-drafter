@@ -6,7 +6,7 @@ requires the presence of the [`action.yml`](./action.yml) file
 ```yaml
 steps:
   # runs autolabeler
-  - uses: release-drafter/release-drafter/autolabeler@latest
+  - uses: step-security/release-drafter/autolabeler@v7
   # ⚠️ targets root `action.yaml` - runs drafter
-  - uses: release-drafter/release-drafter@latest
+  - uses: step-security/release-drafter@v7
 ```

@@ -1,6 +1,6 @@
 name: 'Release Drafter - Auto Labeler'
 description: 'Automatically labels pull requests based on your configuration.'
-author: release-drafter
+author: step-security
 branding:
   icon: edit-2
   color: orange

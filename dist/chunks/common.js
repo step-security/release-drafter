@@ -1,9 +1,10 @@
 import { createRequire } from "node:module";
+import { existsSync, readFileSync } from "node:fs";
 import * as os$1 from "node:os";
 import os, { EOL } from "node:os";
 import * as crypto from "node:crypto";
 import * as fs from "node:fs";
-import { constants, existsSync, promises, readFileSync } from "node:fs";
+import { constants, existsSync as existsSync$1, promises, readFileSync as readFileSync$1 } from "node:fs";
 import * as path$1 from "node:path";
 import * as http$1 from "node:http";
 import * as https$1 from "node:https";
@@ -12,7 +13,6 @@ import { StringDecoder } from "node:string_decoder";
 import * as child from "node:child_process";
 import { setTimeout as setTimeout$1 } from "node:timers";
 import path, { basename, dirname, isAbsolute, join, normalize } from "node:path";
-import { existsSync as existsSync$1, readFileSync as readFileSync$1 } from "node:fs";
 import process$1 from "node:process";
 //#region \0rolldown/runtime.js
 var __create = Object.create;
@@ -26701,10 +26701,10 @@ var getConfigFileFromFs = (normalizedFilepath) => {
 	const repoRoot = process$1.env.GITHUB_WORKSPACE;
 	const configPath = path.join(repoRoot, normalizedFilepath);
 	info(`Looking for config locally at ${configPath}...`);
-	if (!existsSync$1(repoRoot)) throw new Error(`Root repo path does not exist: ${repoRoot}`);
-	if (!existsSync$1(configPath)) throw new Error(`Config file not found: ${configPath}. Did you clone your sources ? (ex: using @actions/checkout)`);
+	if (!existsSync(repoRoot)) throw new Error(`Root repo path does not exist: ${repoRoot}`);
+	if (!existsSync(configPath)) throw new Error(`Config file not found: ${configPath}. Did you clone your sources ? (ex: using @actions/checkout)`);
 	info(`Loading from file: ${configPath}`);
-	return readFileSync$1(configPath, "utf8");
+	return readFileSync(configPath, "utf8");
 };
 //#endregion
 //#region node_modules/@actions/github/lib/context.js
@@ -26715,7 +26715,7 @@ var Context = class {
 	constructor() {
 		var _a, _b, _c;
 		this.payload = {};
-		if (process.env.GITHUB_EVENT_PATH) if (existsSync(process.env.GITHUB_EVENT_PATH)) this.payload = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: "utf8" }));
+		if (process.env.GITHUB_EVENT_PATH) if (existsSync$1(process.env.GITHUB_EVENT_PATH)) this.payload = JSON.parse(readFileSync$1(process.env.GITHUB_EVENT_PATH, { encoding: "utf8" }));
 		else {
 			const path = process.env.GITHUB_EVENT_PATH;
 			process.stdout.write(`GITHUB_EVENT_PATH ${path} does not exist${EOL}`);

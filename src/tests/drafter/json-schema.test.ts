@@ -25,8 +25,6 @@ describe('JSON schema', () => {
    * Fields with defaults should not be required in the JSON schema.
    * YAML LSPs use the JSON schema to validate config files, and marking
    * defaulted fields as required causes false validation errors.
-   *
-   * @see https://github.com/release-drafter/release-drafter/issues/1534
    */
   it('should not mark fields with defaults as required', () => {
     const schema = generateDrafterJSONSchema()

@@ -1,5 +1,5 @@
 name: Node & npm setup
-author: Clément Chanchevrier @cchanche
+author: step-security
 description: 'Common job setup for npm managed repo'
 
 runs:

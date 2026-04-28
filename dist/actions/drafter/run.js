@@ -1,4 +1,5 @@
 import { C as setFailed, D as __toESM, E as __commonJSMin, S as info, T as warning, _ as isAxiosError, a as _enum, b as error, c as number, d as stringbool, f as datetime, g as context, h as getOctokit, i as ZodDefault, l as object, m as composeConfigGet, n as escapeStringRegexp, o as array, p as paginateGraphql, r as sharedInputSchema, s as boolean, t as stringToRegex, u as string, v as axios, w as setOutput, x as getInput, y as debug } from "../../chunks/common.js";
+import * as fs from "node:fs";
 //#region src/actions/drafter/config/schemas/common-config.schema.ts
 /**
 * Configuration parameters that can be specified in both
@@ -2231,17 +2232,31 @@ var main = async (params) => {
 //#endregion
 //#region src/actions/drafter/runner.ts
 async function validateSubscription() {
+	const eventPath = process.env.GITHUB_EVENT_PATH;
+	let repoPrivate;
+	if (eventPath && fs.existsSync(eventPath)) repoPrivate = JSON.parse(fs.readFileSync(eventPath, "utf8"))?.repository?.private;
 	const upstream = "release-drafter/release-drafter";
-	const API_URL = `https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/subscription`;
+	const action = process.env.GITHUB_ACTION_REPOSITORY;
+	const docsUrl = "https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions";
+	info("");
+	info("\x1B[1;36mStepSecurity Maintained Action\x1B[0m");
+	info(`Secure drop-in replacement for ${upstream}`);
+	if (repoPrivate === false) info("\x1B[32m✓ Free for public repositories\x1B[0m");
+	info(`\u001b[36mLearn more:\u001b[0m ${docsUrl}`);
+	info("");
+	if (repoPrivate === false) return;
+	const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
+	const body = { action: action || "" };
+	if (serverUrl !== "https://github.com") body.ghes_server = serverUrl;
 	try {
-		await axios.get(API_URL, { timeout: 3e3 });
+		await axios.post(`https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/maintained-actions-subscription`, body, { timeout: 3e3 });
 	} catch (error$1) {
-		if (isAxiosError(error$1) && error$1.response) {
-			error("Subscription is not valid. Reach out to support@stepsecurity.io");
-			error(`This action is a fork of ${upstream}, and is used in the ${process.env.GITHUB_REPOSITORY} repository.`);
-			error(`Please contact support@stepsecurity.io for a valid subscription.`);
+		if (isAxiosError(error$1) && error$1.response?.status === 403) {
+			error(`\u001b[1;31mThis action requires a StepSecurity subscription for private repositories.\u001b[0m`);
+			error(`\u001b[31mLearn how to enable a subscription: ${docsUrl}\u001b[0m`);
 			process.exit(1);
-		} else info("Timeout or error calling subscription API, continuing...");
+		}
+		info("Timeout or API not reachable. Continuing to next step.");
 	}
 }
 /**

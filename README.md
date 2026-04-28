@@ -6,12 +6,12 @@
 
 <p align="center">Drafts your next release notes as pull requests are merged into master.</p>
 
-![CI](https://github.com/release-drafter/release-drafter/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/step-security/release-drafter/actions/workflows/ci.yml/badge.svg)
 
 ## Usage
 
 You can use the
-[Release Drafter GitHub Action](https://github.com/marketplace/actions/release-drafter)
+[Release Drafter GitHub Action](https://github.com/step-security/release-drafter)
 in a
 [GitHub Actions Workflow](https://help.github.com/en/actions/about-github-actions)
 by configuring a YAML-based workflow file, e.g.
@@ -466,14 +466,14 @@ jobs:
   update_full_release_draft:
     runs-on: ubuntu-latest
     steps:
-      - uses: step-security/release-drafter@v6
+      - uses: step-security/release-drafter@v7
         with:
           prerelease: false # the default
           # ... rest of your config
   update_prerelease_draft:
     runs-on: ubuntu-latest
     steps:
-      - uses: step-security/release-drafter@v6
+      - uses: step-security/release-drafter@v7
         with:
           prerelease: true
           prerelease-identifier: "rc" # Use semver identifiers : alpha, beta, rc, etc

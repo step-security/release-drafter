@@ -37,7 +37,7 @@
     "all": "npm run check && npm run tsc:check && npm run test:run && npm run coverage && npm run schemas && npm run build",
     "check:clean": "npx tsx src/scripts/check-clean.ts"
   },
-  "license": "MIT",
+  "license": "ISC",
   "dependencies": {
     "@actions/core": "^3.0.0",
     "@actions/github": "^9.1.0",

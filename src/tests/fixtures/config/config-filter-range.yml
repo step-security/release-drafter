@@ -1,3 +1,6 @@
 template: |
   # There's new stuff!
 filter-by-range: ^3.0.0
+template: |
+  # There's new stuff!
+filter-by-range: ^3.0.0

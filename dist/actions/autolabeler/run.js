@@ -1,10 +1,22 @@
 import { C as setFailed, D as __toESM, E as __commonJSMin, S as info, T as warning, _ as isAxiosError, b as error, g as context, h as getOctokit, l as object, m as composeConfigGet, o as array, r as sharedInputSchema, t as stringToRegex, u as string, v as axios, w as setOutput, x as getInput } from "../../chunks/common.js";
 import * as fs from "node:fs";
 //#region src/actions/autolabeler/config/action-input.schema.ts
-var actionInputSchema = object({ "config-name": string().optional().default("release-drafter.yml") }).and(sharedInputSchema);
+var actionInputSchema = object({ 
+/**
+* If your workflow requires multiple release-drafter configs it be helpful to override the config-name.
+* The config should still be located inside `.github` as that's where we are looking for config files.
+* @default 'release-drafter.yml'
+*/
+"config-name": string().optional().default("release-drafter.yml") }).and(sharedInputSchema);
 //#endregion
 //#region src/actions/autolabeler/config/config.schema.ts
-var configSchema = object({ autolabeler: array(object({
+var configSchema = object({ 
+/**
+* You can add automatically a label into a pull request.
+* Available matchers are `files` (glob), `branch` (regex), `title` (regex) and `body` (regex).
+* Matchers are evaluated independently; the label will be set if at least one of the matchers meets the criteria.
+*/
+autolabeler: array(object({
 	label: string().min(1),
 	files: array(string().min(1)).optional().default([]),
 	branch: array(string().min(1)).optional().default([]),
@@ -127,7 +139,6 @@ var import_ignore = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((exp
 	var REGEX_REPLACE_TRAILING_WILDCARD = /(^|\\\/)?\\\*$/;
 	var MODE_IGNORE = "regex";
 	var MODE_CHECK_IGNORE = "checkRegex";
-	var UNDERSCORE = "_";
 	var TRAILING_WILD_CARD_REPLACERS = {
 		[MODE_IGNORE](_, p1) {
 			return `${p1 ? `${p1}[^/]+` : "[^/]*"}(?=$|\\/$)`;
@@ -150,12 +161,12 @@ var import_ignore = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((exp
 			define(this, "regexPrefix", prefix);
 		}
 		get regex() {
-			const key = UNDERSCORE + MODE_IGNORE;
+			const key = "_regex";
 			if (this[key]) return this[key];
 			return this._make(MODE_IGNORE, key);
 		}
 		get checkRegex() {
-			const key = UNDERSCORE + MODE_CHECK_IGNORE;
+			const key = "_checkRegex";
 			if (this[key]) return this[key];
 			return this._make(MODE_CHECK_IGNORE, key);
 		}

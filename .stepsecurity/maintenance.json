@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "mode": "derivative",
+  "upstream": "release-drafter/release-drafter",
+  "release_version_type": "vx.x.x",
+  "action_type": "node",
+  "vendor_series_version": "2026.06.1",
+  "last_success": {
+    "upstream_tag": "v7.2.1",
+    "imported_at": "2026-07-01T13:06:13.360Z"
+  },
+  "last_attempt": {
+    "upstream_tag": "v7.2.1",
+    "status": "success",
+    "reason": "ok",
+    "at": "2026-07-01T13:06:13.360Z"
+  },
+  "tier": "A",
+  "policy": {
+    "stepwise_imports": true,
+    "skip_dist_from_upstream": true
+  }
+}

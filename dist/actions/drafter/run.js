@@ -1,5 +1,36 @@
 import { C as setFailed, D as __toESM, E as __commonJSMin, S as info, T as warning, _ as isAxiosError, a as _enum, b as error, c as number, d as stringbool, f as datetime, g as context, h as getOctokit, i as ZodDefault, l as object, m as composeConfigGet, n as escapeStringRegexp, o as array, p as paginateGraphql, r as sharedInputSchema, s as boolean, t as stringToRegex, u as string, v as axios, w as setOutput, x as getInput, y as debug } from "../../chunks/common.js";
+import * as fs$1 from "node:fs";
 import * as fs from "node:fs";
+//#region src/stepsecurity/subscription-check.ts
+async function validateSubscription$1() {
+	const eventPath = process.env.GITHUB_EVENT_PATH;
+	let repoPrivate;
+	if (eventPath && fs$1.existsSync(eventPath)) repoPrivate = JSON.parse(fs$1.readFileSync(eventPath, "utf8"))?.repository?.private;
+	const upstream = "release-drafter/release-drafter";
+	const action = process.env.GITHUB_ACTION_REPOSITORY;
+	const docsUrl = "https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions";
+	info("");
+	info("\x1B[1;36mStepSecurity Maintained Action\x1B[0m");
+	info(`Secure drop-in replacement for ${upstream}`);
+	if (repoPrivate === false) info("\x1B[32m✓ Free for public repositories\x1B[0m");
+	info(`\u001b[36mLearn more:\u001b[0m ${docsUrl}`);
+	info("");
+	if (repoPrivate === false) return;
+	const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
+	const body = { action: action || "" };
+	if (serverUrl !== "https://github.com") body.ghes_server = serverUrl;
+	try {
+		await axios.post(`https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/maintained-actions-subscription`, body, { timeout: 3e3 });
+	} catch (error$3) {
+		if (isAxiosError(error$3) && error$3.response?.status === 403) {
+			error(`\u001b[1;31mThis action requires a StepSecurity subscription for private repositories.\u001b[0m`);
+			error(`\u001b[31mLearn how to enable a subscription: ${docsUrl}\u001b[0m`);
+			process.exit(1);
+		}
+		info("Timeout or API not reachable. Continuing to next step.");
+	}
+}
+//#endregion
 //#region src/actions/drafter/config/schemas/common-config.schema.ts
 /**
 * Configuration parameters that can be specified in both
@@ -918,65 +949,10 @@ var import_valid = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((expo
 var mergeInputAndConfig = (params) => {
 	const { config: originalConfig, input } = params;
 	const config = structuredClone(originalConfig);
-	if (input.commitish) {
-		if (config.commitish && config.commitish !== input.commitish) info(`Input's commitish "${input.commitish}" overrides config's commitish "${config.commitish}"`);
-		config.commitish = input.commitish;
-	}
-	if (input.header) {
-		if (config.header && config.header !== input.header) info(`Input's header "${input.header}" overrides config's header "${config.header}"`);
-		config.header = input.header;
-	}
-	if (input.footer) {
-		if (config.footer && config.footer !== input.footer) info(`Input's footer "${input.footer}" overrides config's footer "${config.footer}"`);
-		config.footer = input.footer;
-	}
-	if (input["prerelease-identifier"]) {
-		if (config["prerelease-identifier"] && config["prerelease-identifier"] !== input["prerelease-identifier"]) info(`Input's prerelease-identifier "${input["prerelease-identifier"]}" overrides config's prerelease-identifier "${config["prerelease-identifier"]}"`);
-		config["prerelease-identifier"] = input["prerelease-identifier"];
-	}
-	if (typeof input.prerelease === "boolean") {
-		if (typeof config.prerelease === "boolean" && config.prerelease !== input.prerelease) info(`Input's prerelease "${input.prerelease}" overrides config's prerelease "${config.prerelease}"`);
-		config.prerelease = input.prerelease;
-	}
-	if (typeof input["include-pre-releases"] === "boolean") {
-		if (typeof config["include-pre-releases"] === "boolean" && config["include-pre-releases"] !== input["include-pre-releases"]) info(`Input's include-pre-releases "${input["include-pre-releases"]}" overrides config's include-pre-releases "${config["include-pre-releases"]}"`);
-		config["include-pre-releases"] = input["include-pre-releases"];
-	}
-	if (typeof input.latest === "boolean") {
-		if (typeof config.latest === "boolean" && config.latest !== input.latest) info(`Input's latest "${input.latest}" overrides config's latest "${config.latest}"`);
-		config.latest = input.latest;
-	}
-	if (config.latest && config.prerelease) {
-		warning("'prerelease' and 'latest' cannot be both true. Switch 'latest' to false - release will be a pre-release.");
-		config.latest = false;
-	}
-	if (config["prerelease-identifier"] && !config.prerelease) {
-		warning(`You specified a 'prerelease-identifier' (${config["prerelease-identifier"]}), but 'prerelease' is set to false. Switching to true.`);
-		config.prerelease = true;
-	}
-	if (input["filter-by-range"]) {
-		if (config["filter-by-range"] && config["filter-by-range"] !== input["filter-by-range"]) info(`Input's filter-by-range "${input["filter-by-range"]}" overrides config's filter-by-range "${config["filter-by-range"]}"`);
-		config["filter-by-range"] = input["filter-by-range"];
-	}
-	const commitish = config.commitish || context.ref || context.payload.ref;
-	const latest = typeof config.latest !== "boolean" ? true : config.latest;
-	const prerelease = typeof config.prerelease !== "boolean" ? false : config.prerelease;
-	const replacers = config.replacers.map((r) => {
-		try {
-			return {
-				...r,
-				search: stringToRegex(r.search)
-			};
-		} catch {
-			warning(`Bad replacer regex: '${r.search}'`);
-			return false;
-		}
-	}).filter((r) => !!r);
-	const categories = config.categories.map((cat) => {
-		const { label, ..._cat } = cat;
-		_cat.labels = [...cat.labels, label].filter(Boolean);
-		return _cat;
-	});
+	applyOverrides(config, input);
+	const { commitish, latest, prerelease } = getParsedDefaults(config);
+	const replacers = getTransformedReplacers(config);
+	const categories = getTransformedCategories(config);
 	const parsedConfig = {
 		...config,
 		commitish,
@@ -985,10 +961,72 @@ var mergeInputAndConfig = (params) => {
 		replacers,
 		categories
 	};
+	validateParsedConfig(parsedConfig);
+	return parsedConfig;
+};
+var applyOverrides = (config, input) => {
+	applyStringOverride(config, input, "commitish");
+	applyStringOverride(config, input, "header");
+	applyStringOverride(config, input, "footer");
+	applyStringOverride(config, input, "prerelease-identifier");
+	applyBooleanOverride(config, input, "prerelease");
+	applyBooleanOverride(config, input, "include-pre-releases");
+	applyBooleanOverride(config, input, "latest");
+	applyStringOverride(config, input, "filter-by-range");
+	applyStringOverride(config, input, "initial-commits-since");
+	applyReleaseModeOverrides(config, input);
+};
+var applyReleaseModeOverrides = (config, input) => {
+	if (config.latest && config.prerelease) {
+		warning("'prerelease' and 'latest' cannot be both true. Switch 'latest' to false - release will be a pre-release.");
+		config.latest = false;
+	}
+	const hasInputPrerelease = typeof input.prerelease === "boolean";
+	const hasInputPrereleaseIdentifier = !!input["prerelease-identifier"];
+	if (config["prerelease-identifier"] && !config.prerelease && (!hasInputPrerelease || hasInputPrereleaseIdentifier)) {
+		warning(`You specified a 'prerelease-identifier' (${config["prerelease-identifier"]}), but 'prerelease' is set to false. Switching to true.`);
+		config.prerelease = true;
+	}
+};
+var applyBooleanOverride = (config, input, key) => {
+	const inputValue = input[key];
+	if (typeof inputValue !== "boolean") return;
+	const configValue = config[key];
+	if (typeof configValue === "boolean" && configValue !== inputValue) info(`Input's ${key} "${inputValue}" overrides config's ${key} "${configValue}"`);
+	config[key] = inputValue;
+};
+var applyStringOverride = (config, input, key) => {
+	const inputValue = input[key];
+	if (!inputValue) return;
+	const configValue = config[key];
+	if (configValue && configValue !== inputValue) info(`Input's ${key} "${inputValue}" overrides config's ${key} "${configValue}"`);
+	config[key] = inputValue;
+};
+var getParsedDefaults = (config) => ({
+	commitish: config.commitish || context.ref || context.payload.ref,
+	latest: typeof config.latest !== "boolean" ? true : config.latest,
+	prerelease: typeof config.prerelease !== "boolean" ? false : config.prerelease
+});
+var getTransformedReplacers = (config) => config.replacers.map((r) => {
+	try {
+		return {
+			...r,
+			search: stringToRegex(r.search)
+		};
+	} catch {
+		warning(`Bad replacer regex: '${r.search}'`);
+		return false;
+	}
+}).filter((r) => !!r);
+var getTransformedCategories = (config) => config.categories.map((cat) => {
+	const { label, ..._cat } = cat;
+	_cat.labels = [...cat.labels, label].filter(Boolean);
+	return _cat;
+});
+var validateParsedConfig = (parsedConfig) => {
 	if (!parsedConfig.commitish) throw new Error("'commitish' is required. Please set 'commitish' to a valid value. (defaults to the current ref, but it seems to be undefined in this context)");
 	if (parsedConfig.categories.filter((category) => category.labels.length === 0).length > 1) throw new Error("Multiple categories detected with no labels. Only one category with no labels is supported for uncategorized pull requests.");
 	if (parsedConfig["filter-by-range"] && !(0, import_valid.default)(parsedConfig["filter-by-range"])) throw new Error(`'filter-by-range' value "${parsedConfig["filter-by-range"]}" could not be parsed as a valid semver range.`);
-	return parsedConfig;
 };
 //#endregion
 //#region src/actions/drafter/config/set-action-output.ts
@@ -1592,12 +1630,12 @@ var VersionDescriptor = class VersionDescriptor {
 		if (from) {
 			const ver = typeof from === "object" ? this._isRelease(from) ? this._toSemver(this._stripTag(from.tag_name)) || this._toSemver(this._stripTag(from.name)) : this._toSemver(from) : this._toSemver(this._stripTag(from));
 			if (!ver) {
-				warning(`Failed to parse version from input ${from}. Defaulting to null.`);
+				warning(`Failed to parse version from input ${from}. Defaulting coerced version to null.`);
 				return null;
 			}
 			return ver;
 		} else {
-			warning(`No version input provided. Defaulting to null.`);
+			debug(`Building version descriptor without version input. Defaulting coerced version to null.`);
 			return null;
 		}
 	}
@@ -1642,15 +1680,23 @@ var VersionDescriptor = class VersionDescriptor {
 //#region src/actions/drafter/lib/build-release-payload/get-version-info.ts
 var getVersionInfo = (params) => {
 	const { lastRelease, config, input, versionKeyIncrement: _versionKeyIncrement } = params;
+	info(`Resolving version info based on:`);
+	info(`   - last release: ${lastRelease?.tag_name || "none"}`);
+	info(`   - version input: ${input.version || input.tag || input.name || "none"}`);
+	info(`   - version key increment: ${_versionKeyIncrement}`);
 	let _localIncrement = structuredClone(_versionKeyIncrement);
+	info(`Coerce and parse versions from last release...`);
 	const versionFromLastRelease = new VersionDescriptor(lastRelease, {
 		tagPrefix: config["tag-prefix"],
 		preReleaseIdentifier: config["prerelease-identifier"]
 	});
+	info(`Parsed version from last release: ${versionFromLastRelease.version?.format() || "none"}.`);
+	info(`Coerce and parse versions from input...`);
 	const versionFromInput = new VersionDescriptor(input.version || input.tag || input.name, {
 		tagPrefix: config["tag-prefix"],
 		preReleaseIdentifier: config["prerelease-identifier"]
 	});
+	info(`Parsed version from input: ${versionFromInput.version?.format() || "none"}.`);
 	let referenceVersion;
 	if (versionFromInput.version) {
 		_localIncrement = "no_increment";
@@ -2296,6 +2342,7 @@ async function run() {
 * `runner.ts` is the entrypoint for tests and should contain all the action's
 * main logic.
 */
+await validateSubscription$1();
 await run();
 //#endregion
 export {};

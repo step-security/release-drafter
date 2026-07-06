@@ -1,0 +1,18 @@
+{
+   "schema_version": "1",
+   "onboarding_type": "copied",
+   "archived": false,
+   "maintained_action_name": "step-security/release-drafter/docker",
+   "upstream_full_repo_name": "release-drafter/release-drafter",
+   "action_type": "node",
+   "last_release": {
+     "tag_name": "v7.2.0",
+     "created_at": "2026-04-30T04:55:10Z",
+     "published_at": "2026-05-01T03:28:04Z"
+   },
+   "sync": {
+     "ignore_presets": [
+       "defaults_v1"
+     ]
+   }
+ }

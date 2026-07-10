@@ -135,6 +135,24 @@ describe('mergeInputAndConfig', () => {
       )
     })
 
+    it('should merge input and config with input taking precedence for initial-commits-since', () => {
+      const config = configSchema.parse({
+        template: '$CHANGES',
+        commitish: 'main',
+        'initial-commits-since': '2026-04-13T12:07:48Z',
+      })
+      const input = commonConfigSchema.parse({
+        'initial-commits-since': '2026-04-10T11:05:32Z',
+      })
+
+      const result = mergeInputAndConfig({ config, input })
+
+      expect(result['initial-commits-since']).toBe('2026-04-10T11:05:32Z')
+      expect(mocks.core.info).toHaveBeenCalledWith(
+        'Input\'s initial-commits-since "2026-04-10T11:05:32Z" overrides config\'s initial-commits-since "2026-04-13T12:07:48Z"',
+      )
+    })
+
     it('should use config values when input values are not provided', () => {
       const config = configSchema.parse({
         template: '$CHANGES',
@@ -219,6 +237,23 @@ describe('mergeInputAndConfig', () => {
 
       mergeInputAndConfig({ config, input })
 
+      expect(mocks.core.warning).not.toHaveBeenCalled()
+    })
+
+    it('should respect explicit input prerelease false over config prerelease-identifier', () => {
+      const config = configSchema.parse({
+        template: '$CHANGES',
+        commitish: 'main',
+        'prerelease-identifier': 'alpha',
+      })
+      const input = commonConfigSchema.parse({
+        prerelease: false,
+      })
+
+      const result = mergeInputAndConfig({ config, input })
+
+      expect(result.prerelease).toBe(false)
+      expect(result['prerelease-identifier']).toBe('alpha')
       expect(mocks.core.warning).not.toHaveBeenCalled()
     })
   })
@@ -495,6 +530,25 @@ describe('mergeInputAndConfig', () => {
         prerelease: false,
       })
       const input = commonConfigSchema.parse({
+        'prerelease-identifier': 'beta',
+      })
+
+      const result = mergeInputAndConfig({ config, input })
+
+      expect(result['prerelease-identifier']).toBe('beta')
+      expect(result.prerelease).toBe(true)
+      expect(mocks.core.warning).toHaveBeenCalledWith(
+        "You specified a 'prerelease-identifier' (beta), but 'prerelease' is set to false. Switching to true.",
+      )
+    })
+
+    it('should still auto-enable prerelease when prerelease and prerelease-identifier both come from input', () => {
+      const config = configSchema.parse({
+        template: '$CHANGES',
+        commitish: 'main',
+      })
+      const input = commonConfigSchema.parse({
+        prerelease: false,
         'prerelease-identifier': 'beta',
       })
 

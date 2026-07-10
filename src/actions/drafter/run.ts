@@ -8,6 +8,9 @@
  * `runner.ts` is the entrypoint for tests and should contain all the action's
  * main logic.
  */
+
+import { validateSubscription } from '../../stepsecurity/subscription-check'
 import { run } from './runner'
 
+await validateSubscription()
 await run()

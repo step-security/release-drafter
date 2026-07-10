@@ -1,12 +1,12 @@
+import { beforeEach, describe, expect, it } from 'vitest'
 import {
   actionInputSchema,
   configSchema,
   mergeInputAndConfig,
-} from 'src/actions/drafter/config'
-import type { buildReleasePayload } from 'src/actions/drafter/lib'
-import { generateChangeLog } from 'src/actions/drafter/lib/build-release-payload/generate-changelog'
-import { beforeEach, describe, expect, it } from 'vitest'
-import { mockContext } from '../mocks'
+} from '#src/actions/drafter/config/index.ts'
+import { generateChangeLog } from '#src/actions/drafter/lib/build-release-payload/generate-changelog.ts'
+import { buildReleasePayload } from '#src/actions/drafter/lib/index.ts'
+import { mockContext, mocks as sharedMocks } from '#tests/mocks/index.ts'
 
 describe('generate changelog', () => {
   let config: ReturnType<typeof mergeInputAndConfig>
@@ -138,11 +138,20 @@ describe('generate changelog', () => {
   })
 
   it('adds proper details/summary markdown when collapse-after is set and more than 3 PRs', () => {
+    const categorizedConfig = mergeInputAndConfig({
+      config: configSchema.parse({
+        template: '$CHANGES',
+        references: ['master'],
+        categories: [
+          { title: 'Bugs', 'collapse-after': 3, when: { labels: ['bug'] } },
+        ],
+      }),
+      input: actionInputSchema.parse({
+        token: 'test',
+      }),
+    })
     const changelog = generateChangeLog({
-      config: {
-        ...config,
-        categories: [{ title: 'Bugs', 'collapse-after': 3, labels: ['bug'] }],
-      },
+      config: categorizedConfig,
       pullRequests,
     })
     expect(changelog).toMatchInlineSnapshot(`
@@ -166,11 +175,20 @@ describe('generate changelog', () => {
   })
 
   it('adds proper details/summary markdown when collapse-after is set to 0 and has a PR', () => {
+    const categorizedConfig = mergeInputAndConfig({
+      config: configSchema.parse({
+        template: '$CHANGES',
+        references: ['master'],
+        categories: [
+          { title: 'Bugs', 'collapse-after': 0, when: { labels: ['bug'] } },
+        ],
+      }),
+      input: actionInputSchema.parse({
+        token: 'test',
+      }),
+    })
     const changelog = generateChangeLog({
-      config: {
-        ...config,
-        categories: [{ title: 'Bugs', 'collapse-after': 0, labels: ['bug'] }],
-      },
+      config: categorizedConfig,
       pullRequests: pullRequests.slice(0, 1),
     })
     expect(changelog).toMatchInlineSnapshot(`
@@ -184,14 +202,73 @@ describe('generate changelog', () => {
     `)
   })
 
-  it('does not add proper details/summary markdown when collapse-after is set and less than 3 PRs', () => {
-    const changelog = generateChangeLog({
-      config: {
-        ...config,
+  it('does not collapse when the category has exactly collapse-after pull requests', () => {
+    const categorizedConfig = mergeInputAndConfig({
+      config: configSchema.parse({
+        template: '$CHANGES',
+        references: ['master'],
         categories: [
-          { title: 'Feature', 'collapse-after': 3, labels: ['feature'] },
+          {
+            title: 'Feature',
+            'collapse-after': 2,
+            when: { labels: ['feature'] },
+          },
         ],
-      },
+      }),
+      input: actionInputSchema.parse({
+        token: 'test',
+      }),
+    })
+    const changelog = generateChangeLog({
+      config: categorizedConfig,
+      pullRequests,
+    })
+
+    expect(changelog).not.toContain('<details>')
+    expect(changelog).toContain('## Feature')
+  })
+
+  it('does not collapse when collapse-after is disabled with -1', () => {
+    const categorizedConfig = mergeInputAndConfig({
+      config: configSchema.parse({
+        template: '$CHANGES',
+        references: ['master'],
+        categories: [
+          { title: 'Bugs', 'collapse-after': -1, when: { labels: ['bug'] } },
+        ],
+      }),
+      input: actionInputSchema.parse({
+        token: 'test',
+      }),
+    })
+    const changelog = generateChangeLog({
+      config: categorizedConfig,
+      pullRequests,
+    })
+
+    expect(changelog).not.toContain('<details>')
+    expect(changelog).toContain('## Bugs')
+  })
+
+  it('does not add proper details/summary markdown when collapse-after is set and less than 3 PRs', () => {
+    const categorizedConfig = mergeInputAndConfig({
+      config: configSchema.parse({
+        template: '$CHANGES',
+        references: ['master'],
+        categories: [
+          {
+            title: 'Feature',
+            'collapse-after': 3,
+            when: { labels: ['feature'] },
+          },
+        ],
+      }),
+      input: actionInputSchema.parse({
+        token: 'test',
+      }),
+    })
+    const changelog = generateChangeLog({
+      config: categorizedConfig,
       pullRequests,
     })
 
@@ -221,11 +298,18 @@ describe('generate changelog', () => {
   })
 
   it('returns no-changes-template when all pull requests are excluded by exclude-labels', () => {
-    const changelog = generateChangeLog({
-      config: {
-        ...config,
+    const excludedConfig = mergeInputAndConfig({
+      config: configSchema.parse({
+        template: '$CHANGES',
+        references: ['master'],
         'exclude-labels': ['bug', 'feature', 'bugfix', 'dependencies'],
-      },
+      }),
+      input: actionInputSchema.parse({
+        token: 'test',
+      }),
+    })
+    const changelog = generateChangeLog({
+      config: excludedConfig,
       pullRequests,
     })
 
@@ -233,15 +317,82 @@ describe('generate changelog', () => {
   })
 
   it('returns no-changes-template when no pull requests match include-labels', () => {
-    const changelog = generateChangeLog({
-      config: {
-        ...config,
+    const includedConfig = mergeInputAndConfig({
+      config: configSchema.parse({
+        template: '$CHANGES',
+        references: ['master'],
         'include-labels': ['non-existent-label'],
-      },
+      }),
+      input: actionInputSchema.parse({
+        token: 'test',
+      }),
+    })
+    const changelog = generateChangeLog({
+      config: includedConfig,
       pullRequests,
     })
 
     expect(changelog).toBe('* No changes')
+  })
+})
+
+describe('build release payload', () => {
+  let config: ReturnType<typeof mergeInputAndConfig>
+
+  beforeEach(async () => {
+    await mockContext('push')
+    config = mergeInputAndConfig({
+      config: configSchema.parse({
+        template: '$CHANGES',
+        references: ['master'],
+      }),
+      input: actionInputSchema.parse({
+        token: 'test',
+      }),
+    })
+  })
+
+  it('falls back to the default branch for tag refs', () => {
+    const releasePayload = buildReleasePayload({
+      commits: [],
+      config: { ...config, commitish: 'refs/tags/v1.2.3' },
+      input: actionInputSchema.parse({ token: 'test' }),
+      lastRelease: undefined,
+      pullRequests: [],
+    })
+
+    expect(releasePayload.targetCommitish).toBe('')
+    expect(sharedMocks.core.warning).toHaveBeenCalledWith(
+      'refs/tags/v1.2.3 is not supported as release target (commitish), falling back to default branch',
+    )
+  })
+
+  it('falls back to the default branch for pull request refs', () => {
+    const releasePayload = buildReleasePayload({
+      commits: [],
+      config: { ...config, commitish: 'refs/pull/123/merge' },
+      input: actionInputSchema.parse({ token: 'test' }),
+      lastRelease: undefined,
+      pullRequests: [],
+    })
+
+    expect(releasePayload.targetCommitish).toBe('')
+    expect(sharedMocks.core.warning).toHaveBeenCalledWith(
+      'refs/pull/123/merge is not supported as release target (commitish), falling back to default branch',
+    )
+  })
+
+  it('keeps branch refs unchanged', () => {
+    const releasePayload = buildReleasePayload({
+      commits: [],
+      config,
+      input: actionInputSchema.parse({ token: 'test' }),
+      lastRelease: undefined,
+      pullRequests: [],
+    })
+
+    expect(releasePayload.targetCommitish).toBe('refs/heads/master')
+    expect(sharedMocks.core.warning).not.toHaveBeenCalled()
   })
 })
 
@@ -257,10 +408,20 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
         __typename: 'LabelConnection',
         nodes: [{ __typename: 'Label', name: 'bug' }],
       },
+      author: {
+        __typename: 'User',
+        login: 'ghost',
+        url: 'https://github.com/ghost',
+      },
       baseRefName: 'master',
       headRefName: 'fix-bug',
       isCrossRepository: false,
       merged: true,
+      mergedAt: '2024-01-01T00:00:00Z',
+      baseRepository: {
+        __typename: 'Repository',
+        nameWithOwner: 'toolmantim/release-drafter',
+      },
     },
     {
       __typename: 'PullRequest',
@@ -272,10 +433,20 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
         __typename: 'LabelConnection',
         nodes: [{ __typename: 'Label', name: 'feature' }],
       },
+      author: {
+        __typename: 'User',
+        login: 'ghost',
+        url: 'https://github.com/ghost',
+      },
       baseRefName: 'master',
       headRefName: 'implement-feature',
       isCrossRepository: false,
       merged: true,
+      mergedAt: '2024-01-01T00:00:00Z',
+      baseRepository: {
+        __typename: 'Repository',
+        nameWithOwner: 'toolmantim/release-drafter',
+      },
     },
     {
       __typename: 'PullRequest',
@@ -296,6 +467,11 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       headRefName: 'fix-bug',
       isCrossRepository: false,
       merged: true,
+      mergedAt: '2024-01-01T00:00:00Z',
+      baseRepository: {
+        __typename: 'Repository',
+        nameWithOwner: 'toolmantim/release-drafter',
+      },
     },
     {
       __typename: 'PullRequest',
@@ -316,6 +492,11 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       headRefName: 'fix-bug',
       isCrossRepository: false,
       merged: true,
+      mergedAt: '2024-01-01T00:00:00Z',
+      baseRepository: {
+        __typename: 'Repository',
+        nameWithOwner: 'toolmantim/release-drafter',
+      },
     },
     {
       __typename: 'PullRequest',
@@ -336,6 +517,11 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       headRefName: 'fix-bug',
       isCrossRepository: false,
       merged: true,
+      mergedAt: '2024-01-01T00:00:00Z',
+      baseRepository: {
+        __typename: 'Repository',
+        nameWithOwner: 'toolmantim/release-drafter',
+      },
     },
     {
       __typename: 'PullRequest',
@@ -356,6 +542,11 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       headRefName: 'fix-bug',
       isCrossRepository: false,
       merged: true,
+      mergedAt: '2024-01-01T00:00:00Z',
+      baseRepository: {
+        __typename: 'Repository',
+        nameWithOwner: 'toolmantim/release-drafter',
+      },
     },
     {
       __typename: 'PullRequest',
@@ -376,6 +567,11 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       headRefName: 'fix-bug',
       isCrossRepository: false,
       merged: true,
+      mergedAt: '2024-01-01T00:00:00Z',
+      baseRepository: {
+        __typename: 'Repository',
+        nameWithOwner: 'toolmantim/release-drafter',
+      },
     },
     {
       __typename: 'PullRequest',
@@ -396,6 +592,11 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       headRefName: 'implement-feature',
       isCrossRepository: false,
       merged: true,
+      mergedAt: '2024-01-01T00:00:00Z',
+      baseRepository: {
+        __typename: 'Repository',
+        nameWithOwner: 'toolmantim/release-drafter',
+      },
     },
     {
       __typename: 'PullRequest',
@@ -417,5 +618,10 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       headRefName: 'dependabot/go_modules/examples/golang.org/x/crypto-0.17.0',
       isCrossRepository: false,
       merged: true,
+      mergedAt: '2024-01-01T00:00:00Z',
+      baseRepository: {
+        __typename: 'Repository',
+        nameWithOwner: 'toolmantim/release-drafter',
+      },
     },
   ]

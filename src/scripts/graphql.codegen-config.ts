@@ -18,6 +18,7 @@ const githubConfig: CodegenConfig = {
     scalars: {
       URI: 'string',
       DateTime: 'string',
+      GitObjectID: 'string',
     },
   },
   generates: {
@@ -30,7 +31,11 @@ const githubConfig: CodegenConfig = {
         extension: '.graphql.generated.ts',
         baseTypesPath: 'types/github.graphql.generated.ts',
       },
-      plugins: ['typescript-operations'],
+      plugins: [
+        { add: { content: '/* eslint-disable */\n// @ts-nocheck' } },
+        'typescript-operations',
+        'typed-document-node',
+      ],
     },
   },
 }

@@ -1,0 +1,43 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+template: |
+  # What's Changed
+
+  $CHANGES
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+
+categories:
+  - title: 'Breaking'
+    semver-increment: 'major'
+    when:
+      label: 'type: breaking'
+  - title: 'New'
+    semver-increment: 'minor'
+    when:
+      label: 'type: feature'
+  - title: 'Bug Fixes'
+    semver-increment: 'patch'
+    when:
+      label: 'type: bug'
+  - title: 'Maintenance'
+    semver-increment: 'patch'
+    when:
+      label: 'type: maintenance'
+  - title: 'Documentation'
+    semver-increment: 'patch'
+    when:
+      label: 'type: docs'
+  - title: 'Other changes'
+  - title: 'Dependency Updates'
+    semver-increment: 'patch'
+    when:
+      label: 'type: dependencies'
+    collapse-after: 5
+  - type: 'version-resolver'
+    semver-increment: 'patch'
+    when:
+      label: 'type: security'
+  - type: 'pre-exclude'
+    when:
+      label: 'skip-changelog'

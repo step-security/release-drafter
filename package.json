@@ -1,7 +1,7 @@
 {
   "name": "release-drafter",
   "description": "Drafts your next release notes as pull requests are merged into your branch(es).",
-  "version": "7.2.1",
+  "version": "7.5.1",
   "author": "step-security",
   "type": "module",
   "private": true,
@@ -21,47 +21,57 @@
   ],
   "engines": {
     "node": ">=24.0.0",
-    "npm": ">=11.9.0"
+    "npm": ">=11.10.0"
+  },
+  "imports": {
+    "#src/*": "./src/*",
+    "#tests/*": "./src/tests/*"
   },
   "scripts": {
     "build": "vite build",
     "test": "vitest",
     "test:run": "vitest run",
-    "coverage": "npx tsx src/scripts/coverage-summary.ts",
+    "coverage": "node src/scripts/coverage-summary.ts",
     "tsc:check": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
     "format:write": "biome format --write .",
     "format:check": "biome format .",
     "lint": "biome lint .",
     "check": "biome check --write .",
-    "schemas": "npx tsx src/scripts/json-schema.ts",
+    "schemas": "node src/scripts/json-schema.ts",
     "all": "npm run check && npm run tsc:check && npm run test:run && npm run schemas && npm run build",
-    "check:clean": "npx tsx src/scripts/check-clean.ts"
+    "check:clean": "node src/scripts/check-clean.ts"
   },
   "license": "ISC",
   "dependencies": {
-    "@actions/core": "^3.0.0",
-    "@actions/github": "^9.1.0",
+    "@actions/core": "^3.0.1",
+    "@actions/github": "^9.1.1",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@octokit/graphql": "^9.0.3",
+    "@octokit/plugin-rest-endpoint-methods": "^17.0.0",
+    "@octokit/request-error": "^7.1.0",
+    "@octokit/types": "^16.0.0",
     "axios": "^1.15.2",
     "compare-versions": "^6.1.1",
     "escape-string-regexp": "^5.0.0",
+    "graphql": "^16.14.0",
     "ignore": "^7.0.5",
     "regex-parser": "^2.3.1",
-    "semver": "^7.7.4",
-    "yaml": "^2.8.2",
-    "zod": "^4.3.6"
+    "semver": "^7.8.0",
+    "yaml": "^2.8.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.10",
-    "@graphql-codegen/cli": "^6.2.1",
-    "@graphql-codegen/near-operation-file-preset": "^5.0.0",
+    "@biomejs/biome": "2.4.15",
+    "@graphql-codegen/cli": "^7.0.0",
+    "@graphql-codegen/near-operation-file-preset": "^5.2.1",
+    "@graphql-codegen/typed-document-node": "^7.0.0",
     "@octokit/webhooks-types": "^7.6.1",
-    "@types/node": "^24.12.2",
+    "@types/node": "^24.12.3",
     "@types/semver": "^7.7.1",
-    "@vitest/coverage-v8": "^4.1.4",
-    "nock": "^14.0.12",
-    "tsx": "^4.21.0",
-    "typescript": "^6.0.2",
-    "vite": "^8.0.0",
-    "vitest": "^4.1.4"
+    "@vitest/coverage-v8": "^4.1.6",
+    "nock": "^14.0.15",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vitest": "^4.1.6"
   }
 }

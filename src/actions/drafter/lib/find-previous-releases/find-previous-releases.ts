@@ -1,11 +1,11 @@
 import * as core from '@actions/core'
 import { context } from '@actions/github'
-import coerce from 'semver/functions/coerce'
-import satisfies from 'semver/functions/satisfies'
-import validRange from 'semver/ranges/valid'
-import { getOctokit } from 'src/common'
-import type { ParsedConfig } from '../../config'
-import { sortReleases } from './sort-releases'
+import coerce from 'semver/functions/coerce.js'
+import satisfies from 'semver/functions/satisfies.js'
+import validRange from 'semver/ranges/valid.js'
+import { getOctokit } from '#src/common/index.ts'
+import type { ParsedConfig } from '../../config/index.ts'
+import { sortReleases } from './sort-releases.ts'
 
 // GitHub API currently returns a 500 HTTP response if you attempt to fetch over 1000 releases.
 const RELEASE_COUNT_LIMIT = 1000
@@ -77,8 +77,8 @@ export const findPreviousReleases = async (
   const semverRangeFilteredReleases =
     filterByRange && filterByRange !== '*'
       ? commitishFilteredReleases.filter((r) => {
-          // biome-ignore lint/style/noNonNullAssertion: ensured by config validation
-          const parsedRange = validRange(filterByRange)!
+          const parsedRange = validRange(filterByRange)
+          if (!parsedRange) return false
           const parsedVersion = coerce(r.tag_name, { loose: true })?.version
 
           if (!parsedVersion) {
@@ -158,8 +158,8 @@ export const findPreviousReleases = async (
     core.info(`  tag_name:  ${lastRelease.tag_name}`)
     core.info(`  name:      ${lastRelease.name}`)
   } else {
-    core.info(
-      `No last release found${isPreRelease ? ' (including prerelease)' : ''}`,
+    core.warning(
+      `No published release found${isPreRelease ? ' (including prerelease)' : ''}`,
     )
   }
 

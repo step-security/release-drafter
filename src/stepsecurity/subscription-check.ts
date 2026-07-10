@@ -1,6 +1,6 @@
+import * as fs from 'node:fs'
 import * as core from '@actions/core'
 import axios, { isAxiosError } from 'axios'
-import * as fs from 'fs'
 
 export async function validateSubscription(): Promise<void> {
   const eventPath = process.env.GITHUB_EVENT_PATH

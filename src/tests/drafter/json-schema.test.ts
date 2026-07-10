@@ -1,10 +1,10 @@
+import { describe, expect, it } from 'vitest'
+import { globalRegistry, object, toJSONSchema } from 'zod'
 import {
   commonConfigSchema,
   configSchema as drafterConfigSchema,
   exclusiveConfigSchema,
-} from 'src/actions/drafter/config'
-import { describe, expect, it } from 'vitest'
-import { globalRegistry, object, toJSONSchema } from 'zod'
+} from '#src/actions/drafter/config/index.ts'
 
 /**
  * Mirrors the schema generation in src/scripts/json-schema.ts
@@ -74,5 +74,68 @@ describe('JSON schema', () => {
       requiredWithDefaults,
       `Category item fields have defaults but are marked as required: ${requiredWithDefaults.join(', ')}`,
     ).toEqual([])
+  })
+
+  it('should expose when.path and when.paths in the category condition JSON schema', () => {
+    const schema = generateDrafterJSONSchema()
+    const properties = schema.properties as Record<
+      string,
+      {
+        items?: {
+          properties?: Record<
+            string,
+            {
+              anyOf?: Array<{
+                type?: string
+                items?: {
+                  properties?: Record<
+                    string,
+                    {
+                      type?: string
+                      minLength?: number
+                    }
+                  >
+                }
+                properties?: Record<
+                  string,
+                  {
+                    type?: string
+                    minLength?: number
+                  }
+                >
+              }>
+            }
+          >
+        }
+      }
+    >
+    const whenAnyOf = properties.categories?.items?.properties?.when?.anyOf
+
+    expect(
+      whenAnyOf,
+      'Expected categories[*].when.anyOf to exist',
+    ).toBeDefined()
+
+    const singleConditionSchema = whenAnyOf?.find(
+      (entry) => entry.type === 'object',
+    )
+    const multipleConditionsSchema = whenAnyOf?.find(
+      (entry) => entry.type === 'array',
+    )?.items
+
+    expect(singleConditionSchema?.properties?.path).toMatchObject({
+      type: 'string',
+      minLength: 1,
+    })
+    expect(singleConditionSchema?.properties?.paths).toMatchObject({
+      type: 'array',
+    })
+    expect(multipleConditionsSchema?.properties?.path).toMatchObject({
+      type: 'string',
+      minLength: 1,
+    })
+    expect(multipleConditionsSchema?.properties?.paths).toMatchObject({
+      type: 'array',
+    })
   })
 })

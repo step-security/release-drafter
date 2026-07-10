@@ -1,7 +1,7 @@
-import { configSchemaDefaults } from 'src/actions/drafter/config'
-import { getVersionInfo } from 'src/actions/drafter/lib/build-release-payload/get-version-info'
-import type { resolveVersionKeyIncrement } from 'src/actions/drafter/lib/build-release-payload/resolve-version-increment'
 import { describe, expect, it } from 'vitest'
+import { configSchemaDefaults } from '#src/actions/drafter/config/index.ts'
+import { getVersionInfo } from '#src/actions/drafter/lib/build-release-payload/get-version-info.ts'
+import type { resolveVersionKeyIncrement } from '#src/actions/drafter/lib/build-release-payload/resolve-version-increment.ts'
 
 type SuiteParams = [
   string,
@@ -200,24 +200,83 @@ describe('versions', () => {
         "$NEXT_MAJOR_VERSION_MAJOR": "1",
         "$NEXT_MAJOR_VERSION_MINOR": "0",
         "$NEXT_MAJOR_VERSION_PATCH": "0",
-        "$NEXT_MINOR_VERSION": "0.2.0",
+        "$NEXT_MINOR_VERSION": "0.1.0",
         "$NEXT_MINOR_VERSION_MAJOR": "0",
-        "$NEXT_MINOR_VERSION_MINOR": "2",
+        "$NEXT_MINOR_VERSION_MINOR": "1",
         "$NEXT_MINOR_VERSION_PATCH": "0",
-        "$NEXT_PATCH_VERSION": "0.1.1",
+        "$NEXT_PATCH_VERSION": "0.0.1",
         "$NEXT_PATCH_VERSION_MAJOR": "0",
-        "$NEXT_PATCH_VERSION_MINOR": "1",
+        "$NEXT_PATCH_VERSION_MINOR": "0",
         "$NEXT_PATCH_VERSION_PATCH": "1",
-        "$NEXT_PRERELEASE_VERSION": "0.1.1-0",
+        "$NEXT_PRERELEASE_VERSION": "0.0.1-0",
         "$NEXT_PRERELEASE_VERSION_PRERELEASE": "-0",
-        "$RESOLVED_VERSION": "0.1.0",
+        "$RESOLVED_VERSION": "0.0.1",
         "$RESOLVED_VERSION_MAJOR": "0",
-        "$RESOLVED_VERSION_MINOR": "1",
-        "$RESOLVED_VERSION_PATCH": "0",
+        "$RESOLVED_VERSION_MINOR": "0",
+        "$RESOLVED_VERSION_PATCH": "1",
         "$RESOLVED_VERSION_PRERELEASE": "",
       }
     `,
     )
+  })
+
+  it('uses prerelease-identifier on first run when versionKeyIncrement is prerelease-based', () => {
+    const versionInfo = getVersionInfo({
+      lastRelease: undefined,
+      input: {},
+      config: {
+        'version-template': '$MAJOR.$MINOR.$PATCH$PRERELEASE',
+        'prerelease-identifier': 'rc',
+      },
+      versionKeyIncrement: 'prepatch',
+    })
+
+    expect(versionInfo.$RESOLVED_VERSION).toEqual('0.0.1-rc.0')
+    expect(versionInfo.$RESOLVED_VERSION_PRERELEASE).toEqual('-rc.0')
+  })
+
+  it('uses prerelease-identifier on first run with custom prerelease identifier', () => {
+    const versionInfo = getVersionInfo({
+      lastRelease: undefined,
+      input: {},
+      config: {
+        'version-template': '$MAJOR.$MINOR.$PATCH$PRERELEASE',
+        'prerelease-identifier': 'beta',
+      },
+      versionKeyIncrement: 'preminor',
+    })
+
+    expect(versionInfo.$RESOLVED_VERSION).toEqual('0.1.0-beta.0')
+    expect(versionInfo.$RESOLVED_VERSION_PRERELEASE).toEqual('-beta.0')
+  })
+
+  it('uses premajor prerelease-identifier on first run', () => {
+    const versionInfo = getVersionInfo({
+      lastRelease: undefined,
+      input: {},
+      config: {
+        'version-template': '$MAJOR.$MINOR.$PATCH$PRERELEASE',
+        'prerelease-identifier': 'rc',
+      },
+      versionKeyIncrement: 'premajor',
+    })
+
+    expect(versionInfo.$RESOLVED_VERSION).toEqual('1.0.0-rc.0')
+    expect(versionInfo.$RESOLVED_VERSION_PRERELEASE).toEqual('-rc.0')
+  })
+
+  it('still returns bare 0.0.1 on first run when versionKeyIncrement is not prerelease-based', () => {
+    const versionInfo = getVersionInfo({
+      lastRelease: undefined,
+      input: {},
+      config: {
+        'version-template': '$MAJOR.$MINOR.$PATCH',
+        'prerelease-identifier': 'rc',
+      },
+      versionKeyIncrement: 'patch',
+    })
+
+    expect(versionInfo.$RESOLVED_VERSION).toEqual('0.0.1')
   })
 
   it('applies custom version template when no previous releases exist', () => {
@@ -229,8 +288,7 @@ describe('versions', () => {
     })
 
     expect(versionInfo.$RESOLVED_VERSION).toEqual('0.1')
-    // $NEXT_MINOR_VERSION should increment from 0.1.0 to 0.2.0, so formatted as "0.2"
-    expect(versionInfo.$NEXT_MINOR_VERSION).toEqual('0.2')
+    expect(versionInfo.$NEXT_MINOR_VERSION).toEqual('0.1')
   })
 
   it('supports version template with only MINOR.PATCH format', () => {
@@ -241,11 +299,9 @@ describe('versions', () => {
       versionKeyIncrement: 'patch',
     })
 
-    expect(versionInfo.$RESOLVED_VERSION).toEqual('1.0')
-    // $NEXT_PATCH_VERSION should increment from 0.1.0 to 0.1.1, so formatted as "1.1"
-    expect(versionInfo.$NEXT_PATCH_VERSION).toEqual('1.1')
-    // $NEXT_MINOR_VERSION should increment from 0.1.0 to 0.2.0, so formatted as "2.0"
-    expect(versionInfo.$NEXT_MINOR_VERSION).toEqual('2.0')
+    expect(versionInfo.$RESOLVED_VERSION).toEqual('0.1')
+    expect(versionInfo.$NEXT_PATCH_VERSION).toEqual('0.1')
+    expect(versionInfo.$NEXT_MINOR_VERSION).toEqual('1.0')
   })
 
   it('supports hardcoded major with 1.MINOR.PATCH format with existing releases', () => {

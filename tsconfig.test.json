@@ -2,8 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "src/*": ["./src/*"],
-      "node_modules/*": ["./node_modules/*"]
+      "#src/*": ["./src/*"],
+      "#tests/*": ["./src/tests/*"]
     }
   },
   "include": ["src"],

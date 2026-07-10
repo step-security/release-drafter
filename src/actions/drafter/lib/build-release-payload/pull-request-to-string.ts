@@ -1,7 +1,7 @@
 import regexEscape from 'escape-string-regexp'
-import type { Config } from '../../config'
-import type { findPullRequests } from '../find-pull-requests'
-import { renderTemplate } from './render-template'
+import type { Config } from '../../config/index.ts'
+import type { findPullRequests } from '../find-pull-requests/index.ts'
+import { renderTemplate } from './render-template/index.ts'
 
 type Pr = Awaited<ReturnType<typeof findPullRequests>>['pullRequests'][number]
 
@@ -46,7 +46,7 @@ const escapeTitle = (params: {
   // If not, the entire backtick block is matched so that it will become a markdown code block without escaping any of its content
   params.title.replace(
     new RegExp(`[${regexEscape(params.escapes || '')}]|\`.*?\``, 'g'),
-    (match) => {
+    (match: string) => {
       if (match.length > 1) return match
       if (match === '@' || match === '#') return `${match}<!---->`
       return `\\${match}`

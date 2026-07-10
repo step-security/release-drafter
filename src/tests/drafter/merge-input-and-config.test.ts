@@ -1,8 +1,8 @@
-import { mergeInputAndConfig } from 'src/actions/drafter/config'
-import { commonConfigSchema } from 'src/actions/drafter/config/schemas/common-config.schema'
-import { configSchema } from 'src/actions/drafter/config/schemas/config.schema'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { mockContext, mocks } from '../mocks'
+import { mergeInputAndConfig } from '#src/actions/drafter/config/index.ts'
+import { commonConfigSchema } from '#src/actions/drafter/config/schemas/common-config.schema.ts'
+import { configSchema } from '#src/actions/drafter/config/schemas/config.schema.ts'
+import { mockContext, mocks } from '#tests/mocks/index.ts'
 
 describe('mergeInputAndConfig', () => {
   beforeEach(async () => {
@@ -132,24 +132,6 @@ describe('mergeInputAndConfig', () => {
       expect(result['filter-by-range']).toBe('^2.0.0')
       expect(mocks.core.info).toHaveBeenCalledWith(
         'Input\'s filter-by-range "^2.0.0" overrides config\'s filter-by-range "^1.0.0"',
-      )
-    })
-
-    it('should merge input and config with input taking precedence for initial-commits-since', () => {
-      const config = configSchema.parse({
-        template: '$CHANGES',
-        commitish: 'main',
-        'initial-commits-since': '2026-04-13T12:07:48Z',
-      })
-      const input = commonConfigSchema.parse({
-        'initial-commits-since': '2026-04-10T11:05:32Z',
-      })
-
-      const result = mergeInputAndConfig({ config, input })
-
-      expect(result['initial-commits-since']).toBe('2026-04-10T11:05:32Z')
-      expect(mocks.core.info).toHaveBeenCalledWith(
-        'Input\'s initial-commits-since "2026-04-10T11:05:32Z" overrides config\'s initial-commits-since "2026-04-13T12:07:48Z"',
       )
     })
 
@@ -453,7 +435,24 @@ describe('mergeInputAndConfig', () => {
       expect(() =>
         mergeInputAndConfig({ config, input }),
       ).toThrowErrorMatchingInlineSnapshot(
-        `[Error: Multiple categories detected with no labels. Only one category with no labels is supported for uncategorized pull requests.]`,
+        `[Error: Multiple 'type: "changelog"' categories detected with no 'when' condition. Only one such category is supported for uncategorized changes.]`,
+      )
+    })
+    it('should throw error when a changelog category does not define a title', async () => {
+      const config = configSchema.parse({
+        template: '$CHANGES',
+        categories: [
+          {
+            label: 'bug',
+          },
+        ],
+      })
+      const input = commonConfigSchema.parse({})
+
+      expect(() =>
+        mergeInputAndConfig({ config, input }),
+      ).toThrowErrorMatchingInlineSnapshot(
+        `[Error: Every 'type: "changelog"' category must define a non-empty 'title'.]`,
       )
     })
     it('should throw error when filter-by-range is invalid', async () => {

@@ -1,36 +1,4 @@
-import { C as setFailed, D as __toESM, E as __commonJSMin, S as info, T as warning, _ as isAxiosError, a as _enum, b as error, c as number, d as stringbool, f as datetime, g as context, h as getOctokit, i as ZodDefault, l as object, m as composeConfigGet, n as escapeStringRegexp, o as array, p as paginateGraphql, r as sharedInputSchema, s as boolean, t as stringToRegex, u as string, v as axios, w as setOutput, x as getInput, y as debug } from "../../chunks/common.js";
-import * as fs$1 from "node:fs";
-import * as fs from "node:fs";
-//#region src/stepsecurity/subscription-check.ts
-async function validateSubscription$1() {
-	const eventPath = process.env.GITHUB_EVENT_PATH;
-	let repoPrivate;
-	if (eventPath && fs$1.existsSync(eventPath)) repoPrivate = JSON.parse(fs$1.readFileSync(eventPath, "utf8"))?.repository?.private;
-	const upstream = "release-drafter/release-drafter";
-	const action = process.env.GITHUB_ACTION_REPOSITORY;
-	const docsUrl = "https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions";
-	info("");
-	info("\x1B[1;36mStepSecurity Maintained Action\x1B[0m");
-	info(`Secure drop-in replacement for ${upstream}`);
-	if (repoPrivate === false) info("\x1B[32m✓ Free for public repositories\x1B[0m");
-	info(`\u001b[36mLearn more:\u001b[0m ${docsUrl}`);
-	info("");
-	if (repoPrivate === false) return;
-	const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
-	const body = { action: action || "" };
-	if (serverUrl !== "https://github.com") body.ghes_server = serverUrl;
-	try {
-		await axios.post(`https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/maintained-actions-subscription`, body, { timeout: 3e3 });
-	} catch (error$3) {
-		if (isAxiosError(error$3) && error$3.response?.status === 403) {
-			error(`\u001b[1;31mThis action requires a StepSecurity subscription for private repositories.\u001b[0m`);
-			error(`\u001b[31mLearn how to enable a subscription: ${docsUrl}\u001b[0m`);
-			process.exit(1);
-		}
-		info("Timeout or API not reachable. Continuing to next step.");
-	}
-}
-//#endregion
+import { A as __toESM, C as error, D as setOutput, E as setFailed, O as warning, S as debug, T as info, _ as number, a as parseCommitishForRelease, b as stringbool, c as getPullRequestsChangedFiles, d as getOctokit, f as context, g as boolean, h as array, i as sharedInputSchema, k as __commonJSMin, l as executeGraphql, m as _enum, n as stringToRegex, o as paginateGraphql, p as ZodDefault, r as escapeStringRegexp, t as require_ignore, u as composeConfigGet, v as object, w as getInput, x as validateSubscription, y as string } from "../../chunks/ignore.js";
 //#region src/actions/drafter/config/schemas/common-config.schema.ts
 /**
 * Configuration parameters that can be specified in both
@@ -42,21 +10,64 @@ async function validateSubscription$1() {
 * @see merge-input-and-config.ts for how the merging of config and input is handled, including default values.
 */
 var commonConfigSchema = object({
+	/**
+	* A boolean indicating whether the release being created or updated should be marked as latest.
+	*/
 	latest: stringbool().or(boolean()).optional(),
+	/**
+	* Whether to draft a prerelease, with changes since another prerelease (if applicable). Default `false`.
+	*/
 	prerelease: stringbool().or(boolean()).optional(),
-	"initial-commits-since": datetime().optional(),
+	/**
+	* A string indicating an identifier (alpha, beta, rc, etc), to increment the prerelease version. This automatically enables `prerelease` when both values come from the same config location; explicit action inputs still take precedence. Default `''`.
+	*/
 	"prerelease-identifier": string().optional(),
+	/**
+	* When looking for the last published release to scan changes up-to, include pre-releases. Has no effect if using `prerelease: true` (already enabled). Default `false`.
+	*/
 	"include-pre-releases": stringbool().or(boolean()).optional(),
+	/**
+	* The release target, i.e. branch or commit it should point to. Default: the ref that release-drafter runs for, e.g. `refs/heads/master` if configured to run on pushes to `master`.
+	*/
 	commitish: string().optional(),
+	/**
+	* A string that would be added before the template body.
+	*/
 	header: string().optional(),
+	/**
+	* A string that would be added after the template body.
+	*/
 	footer: string().optional(),
+	/**
+	* Filter releases that satisfies this semver range. Evaluates the tag name againts node's semver.satisfies().
+	*/
 	"filter-by-range": string().optional()
 });
 var actionInputSchema = object({
+	/**
+	* If your workflow requires multiple release-drafter configs it be helpful to override the config-name.
+	* The config should still be located inside `.github` as that's where we are looking for config files.
+	* @default 'release-drafter.yml'
+	*/
 	"config-name": string().optional().default("release-drafter.yml"),
+	/**
+	* The name that will be used in the GitHub release that's created or updated.
+	* This will override any `name-template` specified in your `release-drafter.yml` if defined.
+	*/
 	name: string().optional(),
+	/**
+	* The tag name to be associated with the GitHub release that's created or updated.
+	* This will override any `tag-template` specified in your `release-drafter.yml` if defined.
+	*/
 	tag: string().optional(),
+	/**
+	* The version to be associated with the GitHub release that's created or updated.
+	* This will override any version calculated by the release-drafter.
+	*/
 	version: string().optional(),
+	/**
+	* A boolean indicating whether the release being created or updated should be immediately published.
+	*/
 	publish: stringbool().optional().default(false)
 }).and(sharedInputSchema).and(commonConfigSchema);
 //#endregion
@@ -72,7 +83,6 @@ var getActionInput = () => {
 		token: getInput$1("token"),
 		latest: getInput$1("latest"),
 		prerelease: getInput$1("prerelease"),
-		"initial-commits-since": getInput$1("initial-commits-since"),
 		"prerelease-identifier": getInput$1("prerelease-identifier"),
 		"include-pre-releases": getInput$1("include-pre-releases"),
 		commitish: getInput$1("commitish"),
@@ -85,35 +95,304 @@ var getActionInput = () => {
 };
 //#endregion
 //#region src/actions/drafter/config/schemas/config.schema.ts
+/**
+* A single set of predicates that are combined with AND logic.
+* All specified predicates must be satisfied for a change to match.
+*/
+var changeConditionSchema = object({
+	/**
+	* Label predicate: matches a change that carries this label.
+	*
+	* Shorthand for adding a single value to `labels`.
+	* If `label` and `labels` are both specified, they are combined.
+	*
+	* Use `labels-mode` to configure how this label is compared to change labels.
+	*/
+	label: string().min(1).optional(),
+	/**
+	* Labels predicate: matches a change that carries these labels.
+	*
+	* `labels-mode` defaults to `any`, so the condition matches when the change
+	* shares at least one configured label unless another mode is set.
+	*
+	* Use `labels-mode` to configure how these labels are compared to change labels.
+	*/
+	labels: array(string().min(1)).optional().default([]),
+	/**
+	* Matching mode for the `labels` predicate.
+	*
+	* Has no effect unless `label` or `labels` is configured in the same condition.
+	*
+	* The comparison is set-based (label order is ignored).
+	*
+	* - `any`: Change and configured labels overlap (current behavior).
+	* - `all`: Change contains every configured label. Change can have more labels.
+	* - `only`: Every change label is included in configured labels. Configured labels can specify more.
+	* - `exactly`: Change labels and configured labels are the same set.
+	*/
+	"labels-mode": _enum([
+		"any",
+		"all",
+		"only",
+		"exactly"
+	]).optional().default("any"),
+	/**
+	* Path predicate: matches a change that touched this path pattern. Supports glob patterns.
+	*
+	* Same as specifying a single `paths` value.
+	* If `path` and `paths` are both specified, they are combined.
+	*
+	* Use `paths-mode` to configure how this path is matched against the pull
+	* request's changed files.
+	*/
+	path: string().min(1).optional(),
+	/**
+	* Paths predicate: matches a change that touched any of these path patterns.
+	* Values support glob patterns.
+	*
+	* If `path` and `paths` are both specified, they are combined before
+	* `paths-mode` is applied.
+	*
+	* Use `paths-mode` to configure how these path patterns are compared to the
+	* pull request's changed files.
+	*/
+	paths: array(string().min(1)).optional().default([]),
+	/**
+	* Matching mode for the `paths` predicate.
+	*
+	* Has no effect unless `path` or `paths` is configured in the same condition.
+	*
+	* The comparison is set-based (path order is ignored).
+	*
+	* - `any`: At least one changed file matched a configured path pattern.
+	* - `all`: Every configured path pattern matched at least one changed file.
+	* - `only`: Every changed file matched a configured path pattern.
+	* - `exactly`: Every changed file matched a configured path pattern and every
+	*   configured path pattern matched at least one changed file.
+	*/
+	"paths-mode": _enum([
+		"any",
+		"all",
+		"only",
+		"exactly"
+	]).optional().default("any")
+});
+var changeConditionSchemaDefaults = changeConditionSchema.parse({});
+var categorySchema = object({
+	/**
+	* Expanded in $TITLE in the category-template.
+	*
+	* Required when `type` is `changelog` (default).
+	* This is enforced during merged-config validation rather than by this schema alone.
+	*
+	* May be omitted for non-changelog categories because
+	* they are not rendered in the changelog output.
+	*/
+	title: string().min(1).optional(),
+	/**
+	* The type of the category.
+	*
+	* - `changelog`: Included in the generated changelog.
+	* - `pre-include`: Keep only matching changes for later changelog categorization.
+	* - `pre-exclude`: Exclude matching changes for later changelog categorization. Is run against changes that were included in category type `pre-include` if specified.
+	* - `version-resolver`: Used solely to determine `$RESOLVED_VERSION` from the changes this category matches, without rendering a changelog section. Use `type: 'changelog'` (default) and `categories[*].semver-increment` instead if you mean this category to also be included in the changelog.
+	*
+	* `pre-include` always runs before `pre-exclude` in the pipeline.
+	* Omitted values default to `changelog`.
+	*
+	* @default "changelog"
+	*/
+	type: _enum([
+		"changelog",
+		"pre-include",
+		"pre-exclude",
+		"version-resolver"
+	]).optional().default("changelog"),
+	/**
+	* Whether changes included in this category should be excluded from other categories.
+	*
+	* Default behavior allows changes to appear in multiple categories if they match multiple category criteria.
+	*
+	* Only applicable to categories of `type: changelog` or `type: version-resolver`.
+	* This only controls inclusion for a single category type at a time, so a change can still match
+	* one exclusive changelog category and one exclusive version-resolver category.
+	*
+	* @default false
+	*/
+	exclusive: boolean().optional().default(false),
+	/**
+	* Collapses the category's change list into a `<details>`/`<summary>` block
+	* when the number of changes is greater than this value.
+	*
+	* Only applicable to categories of `type: changelog`.
+	*
+	* Set to `0` to always collapse. Set to `-1` to disable collapsing.
+	*
+	* @default -1
+	*/
+	"collapse-after": number().int().min(-1).optional().default(-1),
+	/**
+	* Which version increment this category contributes to `$RESOLVED_VERSION`.
+	*
+	* For `type: changelog` categories, this applies to changes that end up assigned
+	* to the category after changelog matching and `exclusive` handling.
+	* For `type: version-resolver` categories, this applies to changes the category
+	* matches directly, with a category that omits `when` acting as the fallback
+	* when no other `type: version-resolver` category matches.
+	*
+	* If multiple categories contribute, the most severe increment wins.
+	* For example, if one contributing category has `semver-increment: 'minor'`
+	* and another has `semver-increment: 'patch'`, the resulting increment will
+	* be `minor`.
+	*
+	* Applicable to categories of `type: changelog` and `type: version-resolver`.
+	* Ignored for `type: pre-include` and `type: pre-exclude`.
+	*
+	* @default "patch"
+	*/
+	"semver-increment": _enum([
+		"major",
+		"minor",
+		"patch"
+	]).optional().default("patch"),
+	/**
+	* Compatibility shorthand for adding label matching to this category.
+	*
+	* Equivalent to adding the same `labels` predicate to every `when` condition.
+	*
+	* @deprecated Use `when.labels` instead.
+	*/
+	labels: array(string().min(1)).optional().default([]),
+	/**
+	* Compatibility shorthand for adding a single label match to this category.
+	*
+	* Equivalent to adding the same `label` predicate to every `when` condition.
+	*
+	* @deprecated Use `when.label` instead.
+	*/
+	label: string().min(1).optional(),
+	/**
+	* Conditions that determine whether a change belongs to this category.
+	*
+	* Can be specified as:
+	* - A **single condition** (object): the change must satisfy all predicates in that condition.
+	* - An **array of conditions**: the change must satisfy all predicates of **at least one**
+	*   condition (OR logic across conditions, AND logic within each condition).
+	*
+	* An empty array (default) matches all changes.
+	*
+	* @example
+	* # Shorthand: single condition (must have label "bug" AND touch "src/")
+	* when:
+	*   labels: [bug]
+	*   paths: [src/**]
+	*
+	* @example
+	* # Array: (label "bug" AND path "src/") OR (label "enhancement")
+	* when:
+	*   - labels: [bug]
+	*     paths: [src/**]
+	*   - labels: [enhancement]
+	*/
+	when: changeConditionSchema.or(array(changeConditionSchema)).optional().default([])
+});
+var categorySchemaDefaults = categorySchema.parse({});
 var exclusiveConfigSchema = object({
+	/**
+	* The template to use for each merged change.
+	*/
 	"change-template": string().optional().default("* $TITLE (#$NUMBER) @$AUTHOR"),
+	/**
+	* Characters to escape in `$TITLE` when inserting into `change-template` so that they are not interpreted as Markdown format characters.
+	*/
 	"change-title-escapes": string().optional(),
+	/**
+	* The template to use for when there’s no changes.
+	*/
 	"no-changes-template": string().optional().default("* No changes"),
+	/**
+	* The template to use when calculating the next version number for the release. Useful for projects that don't use semantic versioning.
+	*/
 	"version-template": string().optional().default("$MAJOR.$MINOR.$PATCH$PRERELEASE"),
+	/**
+	* The template for the name of the draft release.
+	*/
 	"name-template": string().optional(),
+	/**
+	* A known prefix used to filter release tags. For matching tags, this prefix is stripped before attempting to parse the version.
+	*/
 	"tag-prefix": string().optional(),
+	/**
+	* The template for the tag of the draft release.
+	*/
 	"tag-template": string().optional(),
+	/**
+	* Exclude changes using labels.
+	*
+	* @deprecated Use a `type: pre-exclude` category with `when.labels` instead.
+	*/
 	"exclude-labels": array(string()).optional().default([]),
+	/**
+	* Include only the specified changes using labels.
+	*
+	* @deprecated Use a `type: pre-include` category with `when.labels` instead.
+	*/
 	"include-labels": array(string()).optional().default([]),
+	/**
+	* Restrict changes included in the release notes to only the changes that modified any of the paths in this array.
+	* Supports files and directories.
+	*
+	* @deprecated Use a `type: pre-include` category with `when.paths` instead.
+	*/
 	"include-paths": array(string()).optional().default([]),
+	/**
+	* Exclude changes from the release notes if they modified any of the paths in this array.
+	* Supports files and directories. If used with `include-paths`, the exclusion takes precedence.
+	*
+	* @deprecated Use a `type: pre-exclude` category with `when.paths` instead.
+	*/
 	"exclude-paths": array(string()).optional().default([]),
+	/**
+	* Exclude specific usernames from the generated `$CONTRIBUTORS` variable.
+	*/
 	"exclude-contributors": array(string()).optional().default([]),
+	/**
+	* The template to use for `$CONTRIBUTORS` when there's no contributors to list.
+	*/
 	"no-contributors-template": string().optional().default("No contributors"),
+	/**
+	* Sort changelog by merged_at or title.
+	*/
 	"sort-by": _enum(["merged_at", "title"]).optional().default("merged_at"),
+	/**
+	* Sort changelog in ascending or descending order.
+	*/
 	"sort-direction": _enum(["ascending", "descending"]).optional().default("descending"),
+	/**
+	* Filter previous releases to consider only those with the target matching `commitish`.
+	*/
 	"filter-by-commitish": boolean().optional().default(false),
 	"pull-request-limit": number().int().positive().optional().default(5),
+	/**
+	* Size of the pagination window when walking the repo. Can avoid erratic 502s from Github. Default: `15`
+	*/
 	"history-limit": number().int().positive().optional().default(15),
+	/**
+	* Search and replace content in the generated changelog body.
+	*/
 	replacers: array(object({
 		search: string().min(1),
 		replace: string().min(0)
 	})).optional().default([]),
-	categories: array(object({
-		title: string().min(1),
-		"collapse-after": number().int().min(-1).optional().default(-1),
-		labels: array(string().min(1)).optional().default([]),
-		label: string().min(1).optional()
-	})).optional().default([]),
+	/**
+	* Categorize changes
+	*/
+	categories: array(categorySchema).optional().default([]),
+	/**
+	* Adjust the `$RESOLVED_VERSION` variable using labels.
+	*
+	* @deprecated Use a category with a `semver-increment` instead. Use category[ies] with `type: version-resolver` to separate version resolution from changelog inclusion concerns.
+	*/
 	"version-resolver": object({
 		major: object({ labels: array(string().min(1)) }).optional().default({ labels: [] }),
 		minor: object({ labels: array(string().min(1)) }).optional().default({ labels: [] }),
@@ -129,14 +408,21 @@ var exclusiveConfigSchema = object({
 		patch: { labels: [] },
 		default: "patch"
 	}),
+	/**
+	* The template to use for each category.
+	*/
 	"category-template": string().optional().default("## $TITLE"),
+	/**
+	* The template for the body of the draft release.
+	* Optional as it may be inherited via `_extends`.
+	*/
 	template: string().optional().default("")
 }).meta({
 	title: "JSON schema for Release Drafter yaml files",
 	id: "https://github.com/step-security/release-drafter/blob/main/drafter/schema.json"
 });
 var configSchema = exclusiveConfigSchema.and(commonConfigSchema);
-Object.fromEntries(Object.entries({
+var configSchemaDefaults = Object.fromEntries(Object.entries({
 	...exclusiveConfigSchema.shape,
 	...commonConfigSchema.shape
 }).map(([key, value]) => {
@@ -333,6 +619,12 @@ var require_semver = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var { safeRe: re, t } = require_re();
 	var parseOptions = require_parse_options();
 	var { compareIdentifiers } = require_identifiers();
+	var isPrereleaseIdentifier = (prerelease, identifier) => {
+		const identifiers = identifier.split(".");
+		if (identifiers.length > prerelease.length) return false;
+		for (let i = 0; i < identifiers.length; i++) if (compareIdentifiers(prerelease[i], identifiers[i]) !== 0) return false;
+		return true;
+	};
 	module.exports = class SemVer {
 		constructor(version, options) {
 			options = parseOptions(options);
@@ -489,8 +781,9 @@ var require_semver = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 					if (identifier) {
 						let prerelease = [identifier, base];
 						if (identifierBase === false) prerelease = [identifier];
-						if (compareIdentifiers(this.prerelease[0], identifier) === 0) {
-							if (isNaN(this.prerelease[1])) this.prerelease = prerelease;
+						if (isPrereleaseIdentifier(this.prerelease, identifier)) {
+							const prereleaseBase = this.prerelease[identifier.split(".").length];
+							if (isNaN(prereleaseBase)) this.prerelease = prerelease;
 						} else this.prerelease = prerelease;
 					}
 					break;
@@ -709,6 +1002,7 @@ var require_range = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			return this.range;
 		}
 		parseRange(range) {
+			range = range.replace(BUILDSTRIPRE, "");
 			const memoKey = ((this.options.includePrerelease && FLAG_INCLUDE_PRERELEASE) | (this.options.loose && FLAG_LOOSE)) + ":" + range;
 			const cached = cache.get(memoKey);
 			if (cached) return cached;
@@ -767,8 +1061,9 @@ var require_range = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var Comparator = require_comparator();
 	var debug = require_debug();
 	var SemVer = require_semver();
-	var { safeRe: re, t, comparatorTrimReplace, tildeTrimReplace, caretTrimReplace } = require_re();
+	var { safeRe: re, src, t, comparatorTrimReplace, tildeTrimReplace, caretTrimReplace } = require_re();
 	var { FLAG_INCLUDE_PRERELEASE, FLAG_LOOSE } = require_constants();
+	var BUILDSTRIPRE = new RegExp(src[t.BUILD], "g");
 	var isNullSet = (c) => c.value === "<0.0.0-0";
 	var isAny = (c) => c.value === "";
 	var isSatisfiable = (comparators, options) => {
@@ -797,17 +1092,19 @@ var require_range = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		return comp;
 	};
 	var isX = (id) => !id || id.toLowerCase() === "x" || id === "*";
+	var invalidXRangeOrder = (M, m, p) => isX(M) && !isX(m) || isX(m) && p && !isX(p);
 	var replaceTildes = (comp, options) => {
 		return comp.trim().split(/\s+/).map((c) => replaceTilde(c, options)).join(" ");
 	};
 	var replaceTilde = (comp, options) => {
 		const r = options.loose ? re[t.TILDELOOSE] : re[t.TILDE];
+		const z = options.includePrerelease ? "-0" : "";
 		return comp.replace(r, (_, M, m, p, pr) => {
 			debug("tilde", comp, _, M, m, p, pr);
 			let ret;
 			if (isX(M)) ret = "";
-			else if (isX(m)) ret = `>=${M}.0.0 <${+M + 1}.0.0-0`;
-			else if (isX(p)) ret = `>=${M}.${m}.0 <${M}.${+m + 1}.0-0`;
+			else if (isX(m)) ret = `>=${M}.0.0${z} <${+M + 1}.0.0-0`;
+			else if (isX(p)) ret = `>=${M}.${m}.0${z} <${M}.${+m + 1}.0-0`;
 			else if (pr) {
 				debug("replaceTilde pr", pr);
 				ret = `>=${M}.${m}.${p}-${pr} <${M}.${+m + 1}.0-0`;
@@ -837,8 +1134,8 @@ var require_range = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 				else ret = `>=${M}.${m}.${p}-${pr} <${+M + 1}.0.0-0`;
 			} else {
 				debug("no pr");
-				if (M === "0") if (m === "0") ret = `>=${M}.${m}.${p}${z} <${M}.${m}.${+p + 1}-0`;
-				else ret = `>=${M}.${m}.${p}${z} <${M}.${+m + 1}.0-0`;
+				if (M === "0") if (m === "0") ret = `>=${M}.${m}.${p} <${M}.${m}.${+p + 1}-0`;
+				else ret = `>=${M}.${m}.${p} <${M}.${+m + 1}.0-0`;
 				else ret = `>=${M}.${m}.${p} <${+M + 1}.0.0-0`;
 			}
 			debug("caret return", ret);
@@ -854,6 +1151,7 @@ var require_range = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		const r = options.loose ? re[t.XRANGELOOSE] : re[t.XRANGE];
 		return comp.replace(r, (ret, gtlt, M, m, p, pr) => {
 			debug("xRange", comp, ret, gtlt, M, m, p, pr);
+			if (invalidXRangeOrder(M, m, p)) return comp;
 			const xM = isX(M);
 			const xm = xM || isX(m);
 			const xp = xm || isX(p);
@@ -927,7 +1225,7 @@ var require_range = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	};
 }));
 //#endregion
-//#region src/actions/drafter/config/merge-input-and-config.ts
+//#region src/actions/drafter/config/parse-categories.ts
 var import_valid = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var Range = require_range();
 	var validRange = (range, options) => {
@@ -939,6 +1237,161 @@ var import_valid = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((expo
 	};
 	module.exports = validRange;
 })))(), 1);
+var withMigrationDocumentationLink = (message) => message;
+/**
+* Parses all categories from the config, normalizing conditions and
+* handling backward compatibility with deprecated fields.
+*
+* This function:
+* - Normalizes a missing `type` to `changelog` to match schema defaults
+* - Normalizes the `when` field to always be an array of conditions
+* - Applies deprecated category-level `label`/`labels` shorthands to every
+*   normalized `when` condition
+* - Warns when deprecated compatibility fields are used
+* - Preserves all other category fields as-is
+*
+* Accepts both fully-typed and partial category objects for flexibility.
+*
+* @param categories - Categories from the raw config
+* @returns Array of fully parsed categories with normalized conditions
+*/
+function parseCategories(categories, deprecatedConfig) {
+	const parsedCategories = structuredClone(categories.categories).map((cat) => {
+		const { labels, label, when: _when, "collapse-after": rawCollapseAfter, "semver-increment": rawSemverIncrement, exclusive: rawExclusive, title, ..._cat } = cat;
+		const collapseAfter = rawCollapseAfter ?? categorySchemaDefaults["collapse-after"];
+		const semverIncrement = rawSemverIncrement ?? categorySchemaDefaults["semver-increment"];
+		const exclusive = rawExclusive ?? categorySchemaDefaults.exclusive;
+		const deprecatedLabels = [...labels || [], ...label ? [label] : []];
+		if (deprecatedLabels.length > 0) warning(withMigrationDocumentationLink(`Use of deprecated 'categories[*].label' or 'categories[*].labels' field detected${title ? ` on category "${title}"` : ""}. Please migrate. This field will be removed in a future release. To migrate, move the labels into the category's 'when' condition.`));
+		const parsedWhenConditions = (_when !== void 0 ? Array.isArray(_when) ? _when.length > 0 || deprecatedLabels.length === 0 ? _when : [{}] : [_when] : deprecatedLabels.length > 0 ? [{}] : []).map((condition) => {
+			const { path, label, ..._cond } = condition;
+			return {
+				...changeConditionSchemaDefaults,
+				..._cond,
+				"labels-mode": condition["labels-mode"] ?? changeConditionSchemaDefaults["labels-mode"],
+				"paths-mode": condition["paths-mode"] ?? changeConditionSchemaDefaults["paths-mode"],
+				paths: [...condition.paths || [], ...path ? [path] : []],
+				labels: [
+					...deprecatedLabels,
+					...condition.labels || [],
+					...label ? [label] : []
+				]
+			};
+		}).filter((condition) => condition.paths.length > 0 || condition.labels.length > 0);
+		const categoryType = _cat.type ?? categorySchemaDefaults.type;
+		switch (categoryType) {
+			case "changelog": return {
+				type: "changelog",
+				when: parsedWhenConditions,
+				"collapse-after": collapseAfter,
+				"semver-increment": semverIncrement,
+				exclusive,
+				title
+			};
+			case "version-resolver":
+				if (title) warning(`Title "${title}" ignored for category of type "${categoryType}"`);
+				if (collapseAfter !== -1) warning(`"collapse-after" "${collapseAfter}" ignored for category of type "${categoryType}"`);
+				return {
+					type: "version-resolver",
+					when: parsedWhenConditions,
+					"semver-increment": semverIncrement,
+					exclusive
+				};
+			case "pre-exclude":
+			case "pre-include":
+				if (title) warning(`Title "${title}" ignored for category of type "${categoryType}"`);
+				if (collapseAfter !== -1) warning(`"collapse-after" "${collapseAfter}" ignored for category of type "${categoryType}"`);
+				if (exclusive) throw new Error(`"exclusive" can only be set on categories of type "changelog" or "version-resolver"; it cannot be used on category of type "${categoryType}".`);
+				if (semverIncrement !== "patch") warning(`"semver-increment" "${semverIncrement}" ignored for category of type "${categoryType}"`);
+				return {
+					type: categoryType,
+					when: parsedWhenConditions
+				};
+			default: throw new Error(`Unsupported category type: ${categoryType}`);
+		}
+	});
+	if (deprecatedConfig["exclude-labels"] && deprecatedConfig["exclude-labels"].length > 0 || deprecatedConfig["exclude-paths"] && deprecatedConfig["exclude-paths"].length > 0) warning(withMigrationDocumentationLink(`Use of deprecated 'exclude-labels' or 'exclude-paths' field detected. Please migrate. This field will be removed in a future release. To migrate, add the correspoding labels or paths to a 'type: "pre-exclude"' category.`));
+	if (deprecatedConfig["exclude-labels"] && deprecatedConfig["exclude-labels"].length > 0 || deprecatedConfig["exclude-paths"] && deprecatedConfig["exclude-paths"].length > 0) {
+		if (parsedCategories.findIndex((cat) => cat.type === "pre-exclude") !== -1) throw new Error("A 'pre-exclude' category already exists. Cannot migrate deprecated exclude-labels field. Please either remove the deprecated field or remove the existing 'pre-exclude' category to resolve this conflict.");
+		parsedCategories.push({
+			type: "pre-exclude",
+			when: [{
+				labels: deprecatedConfig["exclude-labels"] || [],
+				"labels-mode": "any",
+				paths: deprecatedConfig["exclude-paths"] || [],
+				"paths-mode": "any"
+			}]
+		});
+	}
+	if (deprecatedConfig["include-labels"] && deprecatedConfig["include-labels"].length > 0 || deprecatedConfig["include-paths"] && deprecatedConfig["include-paths"].length > 0) {
+		warning(withMigrationDocumentationLink(`Use of deprecated 'include-labels' or 'include-paths' field detected. Please migrate. This field will be removed in a future release. To migrate, add the correspoding labels or paths to a 'type: "pre-include"' category.`));
+		if (parsedCategories.findIndex((cat) => cat.type === "pre-include") !== -1) throw new Error("A 'pre-include' category already exists. Cannot migrate deprecated include-labels or include-paths fields. Please either remove the deprecated fields or remove the existing 'pre-include' category to resolve this conflict.");
+		parsedCategories.push({
+			type: "pre-include",
+			when: [{
+				labels: deprecatedConfig["include-labels"] || [],
+				"labels-mode": "any",
+				paths: deprecatedConfig["include-paths"] || [],
+				"paths-mode": "any"
+			}]
+		});
+	}
+	if (deprecatedConfig["version-resolver"].default !== configSchemaDefaults["version-resolver"].default) {
+		warning(withMigrationDocumentationLink(`Use of deprecated 'version-resolver.default' field detected. Please migrate. This field will be removed in a future release. To migrate, either add 'semver-increment: "${deprecatedConfig["version-resolver"].default}"' to 'type: changelog' category with no 'when' condition (uncategorized changes), or move the default resolver to a new category with type 'version-resolver' and 'semver-increment' set to "${deprecatedConfig["version-resolver"].default}" - also without 'when' conditions.`));
+		if (parsedCategories.findIndex((cat) => cat.type === "version-resolver" && cat.when.length === 0) !== -1) throw new Error("A 'version-resolver' category with no 'when' condition already exists. Cannot migrate deprecated 'version-resolver.default' field. Please either remove the deprecated field or remove the existing 'version-resolver' category to resolve this conflict.");
+		parsedCategories.push({
+			type: "version-resolver",
+			"semver-increment": deprecatedConfig["version-resolver"].default,
+			when: [],
+			exclusive: false
+		});
+	}
+	if (deprecatedConfig["version-resolver"].major.labels !== configSchemaDefaults["version-resolver"].major.labels && deprecatedConfig["version-resolver"].major.labels.length > 0) {
+		warning(withMigrationDocumentationLink(`Use of deprecated 'version-resolver.major.labels' field detected. Please migrate. This field will be removed in a future release. To migrate, either add 'semver-increment: "major"' to a pre-existing 'type: changelog' category, or move the labels from 'version-resolver.major.labels' to a new category with type 'version-resolver' and 'semver-increment' set to 'major'.`));
+		parsedCategories.push({
+			type: "version-resolver",
+			"semver-increment": "major",
+			when: [{
+				labels: deprecatedConfig["version-resolver"].major.labels || [],
+				"labels-mode": "any",
+				paths: [],
+				"paths-mode": "any"
+			}],
+			exclusive: false
+		});
+	}
+	if (deprecatedConfig["version-resolver"].minor.labels !== configSchemaDefaults["version-resolver"].minor.labels && deprecatedConfig["version-resolver"].minor.labels.length > 0) {
+		warning(withMigrationDocumentationLink(`Use of deprecated 'version-resolver.minor.labels' field detected. Please migrate. This field will be removed in a future release. To migrate, either add 'semver-increment: "minor"' to a pre-existing 'type: changelog' category, or move the labels from 'version-resolver.minor.labels' to a new category with type 'version-resolver' and 'semver-increment' set to 'minor'.`));
+		parsedCategories.push({
+			type: "version-resolver",
+			"semver-increment": "minor",
+			when: [{
+				labels: deprecatedConfig["version-resolver"].minor.labels || [],
+				"labels-mode": "any",
+				paths: [],
+				"paths-mode": "any"
+			}],
+			exclusive: false
+		});
+	}
+	if (deprecatedConfig["version-resolver"].patch.labels !== configSchemaDefaults["version-resolver"].patch.labels && deprecatedConfig["version-resolver"].patch.labels.length > 0) {
+		warning(withMigrationDocumentationLink(`Use of deprecated 'version-resolver.patch.labels' field detected. Please migrate. This field will be removed in a future release. To migrate, either add 'semver-increment: "patch"' to a pre-existing 'type: changelog' category, or move the labels from 'version-resolver.patch.labels' to a new category with type 'version-resolver' and 'semver-increment' set to 'patch'.`));
+		parsedCategories.push({
+			type: "version-resolver",
+			"semver-increment": "patch",
+			when: [{
+				labels: deprecatedConfig["version-resolver"].patch.labels || [],
+				"labels-mode": "any",
+				paths: [],
+				"paths-mode": "any"
+			}],
+			exclusive: false
+		});
+	}
+	return parsedCategories;
+}
+//#endregion
+//#region src/actions/drafter/config/merge-input-and-config.ts
 /**
 * Returns a copy of `config`, updated with values from `input`.
 *
@@ -948,11 +1401,18 @@ var import_valid = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((expo
 */
 var mergeInputAndConfig = (params) => {
 	const { config: originalConfig, input } = params;
-	const config = structuredClone(originalConfig);
+	const { "exclude-labels": excludeLabels, "include-labels": includeLabels, "include-paths": includePaths, "exclude-paths": excludePaths, "version-resolver": versionResolver, ...config } = structuredClone(originalConfig);
+	const deprecatedCategoryConfig = {
+		"exclude-labels": excludeLabels,
+		"include-labels": includeLabels,
+		"include-paths": includePaths,
+		"exclude-paths": excludePaths,
+		"version-resolver": versionResolver
+	};
 	applyOverrides(config, input);
 	const { commitish, latest, prerelease } = getParsedDefaults(config);
 	const replacers = getTransformedReplacers(config);
-	const categories = getTransformedCategories(config);
+	const categories = getTransformedCategories(config, deprecatedCategoryConfig);
 	const parsedConfig = {
 		...config,
 		commitish,
@@ -973,7 +1433,6 @@ var applyOverrides = (config, input) => {
 	applyBooleanOverride(config, input, "include-pre-releases");
 	applyBooleanOverride(config, input, "latest");
 	applyStringOverride(config, input, "filter-by-range");
-	applyStringOverride(config, input, "initial-commits-since");
 	applyReleaseModeOverrides(config, input);
 };
 var applyReleaseModeOverrides = (config, input) => {
@@ -1018,14 +1477,11 @@ var getTransformedReplacers = (config) => config.replacers.map((r) => {
 		return false;
 	}
 }).filter((r) => !!r);
-var getTransformedCategories = (config) => config.categories.map((cat) => {
-	const { label, ..._cat } = cat;
-	_cat.labels = [...cat.labels, label].filter(Boolean);
-	return _cat;
-});
+var getTransformedCategories = (config, deprecatedCategoryConfig) => parseCategories(config, deprecatedCategoryConfig);
 var validateParsedConfig = (parsedConfig) => {
 	if (!parsedConfig.commitish) throw new Error("'commitish' is required. Please set 'commitish' to a valid value. (defaults to the current ref, but it seems to be undefined in this context)");
-	if (parsedConfig.categories.filter((category) => category.labels.length === 0).length > 1) throw new Error("Multiple categories detected with no labels. Only one category with no labels is supported for uncategorized pull requests.");
+	if (parsedConfig.categories.filter((category) => category.type === "changelog" && !category.title).length > 0) throw new Error("Every 'type: \"changelog\"' category must define a non-empty 'title'.");
+	if (parsedConfig.categories.filter((category) => category.type === "changelog" && category.when.length === 0).length > 1) throw new Error("Multiple 'type: \"changelog\"' categories detected with no 'when' condition. Only one such category is supported for uncategorized changes.");
 	if (parsedConfig["filter-by-range"] && !(0, import_valid.default)(parsedConfig["filter-by-range"])) throw new Error(`'filter-by-range' value "${parsedConfig["filter-by-range"]}" could not be parsed as a valid semver range.`);
 };
 //#endregion
@@ -1033,15 +1489,17 @@ var validateParsedConfig = (parsedConfig) => {
 var setActionOutput = (params) => {
 	const { releasePayload, upsertedRelease } = params;
 	info("Set action outputs...");
-	const { resolvedVersion, majorVersion, minorVersion, patchVersion, body } = releasePayload;
+	const { resolvedVersion, majorVersion, minorVersion, patchVersion, body, name: releaseName, tag: releaseTagName } = releasePayload;
+	const outputName = upsertedRelease?.data.name ?? releaseName;
+	const outputTagName = upsertedRelease?.data.tag_name ?? releaseTagName;
 	if (upsertedRelease) {
-		const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl, tag_name: tagName, name } } = upsertedRelease;
+		const { data: { id: releaseId, html_url: htmlUrl, upload_url: uploadUrl } } = upsertedRelease;
 		if (releaseId && Number.isInteger(releaseId)) setOutput("id", releaseId.toString());
 		if (htmlUrl) setOutput("html_url", htmlUrl);
 		if (uploadUrl) setOutput("upload_url", uploadUrl);
-		if (tagName) setOutput("tag_name", tagName);
-		if (name) setOutput("name", name);
 	}
+	if (outputTagName) setOutput("tag_name", outputTagName);
+	if (outputName) setOutput("name", outputName);
 	if (resolvedVersion) setOutput("resolved_version", resolvedVersion);
 	if (majorVersion) setOutput("major_version", majorVersion);
 	if (minorVersion) setOutput("minor_version", minorVersion);
@@ -1050,43 +1508,82 @@ var setActionOutput = (params) => {
 	info("Outputs set!");
 };
 //#endregion
+//#region src/actions/drafter/common/category-matching.ts
+var import_ignore = /* @__PURE__ */ __toESM(require_ignore(), 1);
+var getPullRequestLabels = (pullRequest) => (pullRequest.labels?.nodes ?? []).filter((label) => Boolean(label?.name)).map((label) => label.name);
+var unique = (values) => [...new Set(values)];
+var matchesValues = (actualValues, expectedValues, mode) => {
+	const actual = unique(actualValues);
+	const expected = unique(expectedValues);
+	if (expected.length === 0) return true;
+	switch (mode) {
+		case "all": return expected.every((value) => actual.includes(value));
+		case "only": return actual.length > 0 && actual.every((value) => expected.includes(value));
+		case "exactly": return actual.length === expected.length && actual.every((value) => expected.includes(value));
+		default: return expected.length === 0 || expected.some((value) => actual.includes(value));
+	}
+};
+var matchesPullRequestPaths = (condition, pullRequest) => {
+	if (condition.paths.length === 0) return true;
+	const changedFiles = unique(pullRequest.changedFiles ?? []);
+	if (changedFiles.length === 0) return false;
+	const expectedMatchers = unique(condition.paths).map((path) => ({
+		path,
+		matcher: (0, import_ignore.default)().add(path)
+	}));
+	const matchesAllConfiguredPaths = expectedMatchers.every(({ matcher }) => changedFiles.some((file) => matcher.ignores(file)));
+	const matchesOnlyConfiguredPaths = changedFiles.length > 0 && changedFiles.every((file) => expectedMatchers.some(({ matcher }) => matcher.ignores(file)));
+	switch (condition["paths-mode"]) {
+		case "all": return matchesAllConfiguredPaths;
+		case "only": return matchesOnlyConfiguredPaths;
+		case "exactly": return matchesAllConfiguredPaths && matchesOnlyConfiguredPaths;
+		default: return changedFiles.some((file) => expectedMatchers.some(({ matcher }) => matcher.ignores(file)));
+	}
+};
+var matchesCategoryCondition = (condition, pullRequest) => matchesValues(getPullRequestLabels(pullRequest), condition.labels, condition["labels-mode"]) && matchesPullRequestPaths(condition, pullRequest);
+var matchesCategory = (category, pullRequest) => category.when.length === 0 || category.when.some((condition) => matchesCategoryCondition(condition, pullRequest));
+var filterPullRequestsByPreCategories = (pullRequests, categories) => {
+	const preIncludeCategories = categories.filter((category) => category.type === "pre-include");
+	const preExcludeCategories = categories.filter((category) => category.type === "pre-exclude");
+	return pullRequests.filter((pullRequest) => {
+		if (!(preIncludeCategories.length === 0 || preIncludeCategories.some((category) => matchesCategory(category, pullRequest)))) return false;
+		return !preExcludeCategories.some((category) => matchesCategory(category, pullRequest));
+	});
+};
+/**
+* Determines if any of the categories require loading pull request changed files.
+*/
+var needsPullRequestChangedFiles = (categories) => categories.some((category) => category.when.some((condition) => condition.paths.length > 0));
+var getChangelogCategories = (categories) => categories.filter((category) => category.type === "changelog");
+var getVersionResolverCategories = (categories) => categories.filter((category) => category.type === "version-resolver");
+//#endregion
 //#region src/actions/drafter/lib/build-release-payload/categorize-pull-requests.ts
 var categorizePullRequests = (params) => {
 	const { pullRequests, config } = params;
-	const allCategoryLabels = new Set(config.categories.flatMap((category) => category.labels));
+	const changelogCategories = getChangelogCategories(config.categories);
 	const uncategorizedPullRequests = [];
-	const categorizedPullRequests = [...config.categories].map((category) => {
+	const categorizedPullRequests = changelogCategories.map((category) => {
 		return {
 			...category,
 			pullRequests: []
 		};
 	});
-	const uncategorizedCategoryIndex = config.categories.findIndex((category) => category.labels.length === 0);
-	const filterUncategorizedPullRequests = (pullRequest) => {
-		const labels = pullRequest.labels?.nodes || [];
-		if (labels.length === 0 || !labels.some((label) => !!label?.name && allCategoryLabels.has(label?.name))) {
-			if (uncategorizedCategoryIndex === -1) uncategorizedPullRequests.push(pullRequest);
-			else categorizedPullRequests[uncategorizedCategoryIndex].pullRequests.push(pullRequest);
-			return false;
+	const uncategorizedCategoryIndex = changelogCategories.findIndex((category) => category.when.length === 0);
+	const filteredPullRequests = filterPullRequestsByPreCategories(pullRequests, config.categories);
+	for (const pullRequest of filteredPullRequests) {
+		let matchedAnyCategory = false;
+		for (const category of categorizedPullRequests) {
+			if (category.when.length === 0) continue;
+			if (matchesCategory(category, pullRequest)) {
+				category.pullRequests.push(pullRequest);
+				matchedAnyCategory = true;
+				if (category.exclusive) break;
+			}
 		}
-		return true;
-	};
-	const filteredPullRequests = pullRequests.filter(getFilterExcludedPullRequests(config["exclude-labels"])).filter(getFilterIncludedPullRequests(config["include-labels"])).filter((pullRequest) => filterUncategorizedPullRequests(pullRequest));
-	for (const category of categorizedPullRequests) for (const pullRequest of filteredPullRequests) if ((pullRequest.labels?.nodes || []).some((label) => !!label?.name && category.labels.includes(label.name))) category.pullRequests.push(pullRequest);
+		if (!matchedAnyCategory) if (uncategorizedCategoryIndex === -1) uncategorizedPullRequests.push(pullRequest);
+		else categorizedPullRequests[uncategorizedCategoryIndex].pullRequests.push(pullRequest);
+	}
 	return [uncategorizedPullRequests, categorizedPullRequests];
-};
-var getFilterExcludedPullRequests = (excludeLabels) => {
-	return (pullRequest) => {
-		if ((pullRequest.labels?.nodes || []).some((label) => !!label?.name && excludeLabels.includes(label.name))) return false;
-		return true;
-	};
-};
-var getFilterIncludedPullRequests = (includeLabels) => {
-	return (pullRequest) => {
-		const labels = pullRequest.labels?.nodes || [];
-		if (includeLabels.length === 0 || labels.some((label) => !!label?.name && includeLabels.includes(label.name))) return true;
-		return false;
-	};
 };
 //#endregion
 //#region src/actions/drafter/lib/build-release-payload/render-template/util/charCode.ts
@@ -1152,16 +1649,12 @@ function buildReplaceStringForSpecificSpecialCharacter(matches, pattern, special
 }
 //#endregion
 //#region src/actions/drafter/lib/build-release-payload/render-template/util/replacePattern.ts
-var ReplacePatternKind = /* @__PURE__ */ function(ReplacePatternKind) {
-	ReplacePatternKind[ReplacePatternKind["StaticValue"] = 0] = "StaticValue";
-	ReplacePatternKind[ReplacePatternKind["DynamicPieces"] = 1] = "DynamicPieces";
-	return ReplacePatternKind;
-}(ReplacePatternKind || {});
 /**
 * Assigned when the replace pattern is entirely static.
 */
 var StaticValueReplacePattern = class {
-	kind = ReplacePatternKind.StaticValue;
+	staticValue;
+	kind = 0;
 	constructor(staticValue) {
 		this.staticValue = staticValue;
 	}
@@ -1170,7 +1663,8 @@ var StaticValueReplacePattern = class {
 * Assigned when the replace pattern has replacement patterns.
 */
 var DynamicPiecesReplacePattern = class {
-	kind = ReplacePatternKind.DynamicPieces;
+	pieces;
+	kind = 1;
 	constructor(pieces) {
 		this.pieces = pieces;
 	}
@@ -1181,7 +1675,7 @@ var ReplacePattern = class ReplacePattern {
 	}
 	_state;
 	get hasReplacementPatterns() {
-		return this._state.kind === ReplacePatternKind.DynamicPieces;
+		return this._state.kind === 1;
 	}
 	constructor(pieces) {
 		if (!pieces || pieces.length === 0) this._state = new StaticValueReplacePattern("");
@@ -1189,7 +1683,7 @@ var ReplacePattern = class ReplacePattern {
 		else this._state = new DynamicPiecesReplacePattern(pieces);
 	}
 	buildReplaceString(matches, preserveCase) {
-		if (this._state.kind === ReplacePatternKind.StaticValue) if (preserveCase) return buildReplaceStringWithCasePreserved(matches, this._state.staticValue);
+		if (this._state.kind === 0) if (preserveCase) return buildReplaceStringWithCasePreserved(matches, this._state.staticValue);
 		else return this._state.staticValue;
 		let result = "";
 		for (let i = 0, len = this._state.pieces.length; i < len; i++) {
@@ -1498,9 +1992,12 @@ var generateChangeLog = (params) => {
 var generateContributorsSentence = (params) => {
 	const { commits, pullRequests, config } = params;
 	const contributors = /* @__PURE__ */ new Set();
-	for (const commit of commits) if (commit.author?.user) {
-		if (!config["exclude-contributors"].includes(commit.author.user.login)) contributors.add(`@${commit.author.user.login}`);
-	} else if (commit.author?.name) contributors.add(commit.author.name);
+	for (const commit of commits) {
+		if ((commit.associatedPullRequests?.nodes?.length ?? 0) === 0) continue;
+		if (commit.author?.user) {
+			if (!config["exclude-contributors"].includes(commit.author.user.login)) contributors.add(`@${commit.author.user.login}`);
+		} else if (commit.author?.name) contributors.add(commit.author.name);
+	}
 	for (const pullRequest of pullRequests) if (pullRequest.author && !config["exclude-contributors"].includes(pullRequest.author.login)) if (pullRequest.author.__typename === "Bot") contributors.add(`[${pullRequest.author.login}[bot]](${pullRequest.author.url})`);
 	else contributors.add(`@${pullRequest.author.login}`);
 	const sortedContributors = [...contributors].sort();
@@ -1643,7 +2140,7 @@ var VersionDescriptor = class VersionDescriptor {
 		return typeof input === "object" && input !== null && (typeof input?.tag_name === "string" || typeof input?.name === "string");
 	}
 	_stripTag(input) {
-		return !!this.tagPrefix && input?.startsWith(this.tagPrefix) ? input.slice(this.tagPrefix.length) : input;
+		return this.tagPrefix && input?.startsWith(this.tagPrefix) ? input.slice(this.tagPrefix.length) : input;
 	}
 	_toSemver(version) {
 		const result = (0, import_parse.default)(version);
@@ -1702,15 +2199,21 @@ var getVersionInfo = (params) => {
 		_localIncrement = "no_increment";
 		referenceVersion = versionFromInput;
 	} else if (versionFromLastRelease.version) {
-		_localIncrement = _localIncrement?.startsWith("pre") && versionFromLastRelease?.prerelease?.length ? "prerelease" : _localIncrement;
 		referenceVersion = versionFromLastRelease;
-	} else {
-		_localIncrement = "no_increment";
-		referenceVersion = new VersionDescriptor("0.1.0", {
-			preReleaseIdentifier: config["prerelease-identifier"],
-			tagPrefix: config["tag-prefix"]
-		});
-	}
+		const incrementsToPrerelease = _localIncrement?.startsWith("pre");
+		const lastReleaseIsPrerelease = referenceVersion?.prerelease?.length;
+		if (incrementsToPrerelease) {
+			if (lastReleaseIsPrerelease) {
+				if (_localIncrement !== "prerelease") {
+					info(`versionKeyIncrement is set to "${_localIncrement}", but the last release is already a prerelease (${referenceVersion.version?.format() || "none"}). The version will be incremented as a prerelease instead.`);
+					_localIncrement = "prerelease";
+				}
+			}
+		}
+	} else referenceVersion = new VersionDescriptor("0.0.0", {
+		preReleaseIdentifier: config["prerelease-identifier"],
+		tagPrefix: config["tag-prefix"]
+	});
 	return {
 		$NEXT_MAJOR_VERSION: referenceVersion.incremented("major").rendered(config["version-template"]),
 		$NEXT_MAJOR_VERSION_MAJOR: referenceVersion.incremented("major").major,
@@ -1734,23 +2237,91 @@ var getVersionInfo = (params) => {
 	};
 };
 //#endregion
+//#region src/actions/drafter/lib/build-release-payload/render-release-name.ts
+/**
+* Renders the release name,
+* based on the input and config.
+*/
+var renderReleaseName = (params) => {
+	let name = structuredClone(params.inputName);
+	const { config, versionInfo } = params;
+	if (name === void 0) name = versionInfo ? renderTemplate({
+		template: config["name-template"] || "",
+		object: versionInfo
+	}) : "";
+	else if (versionInfo) name = renderTemplate({
+		template: name,
+		object: versionInfo
+	});
+	debug(`name: ${name}`);
+	return name;
+};
+//#endregion
+//#region src/actions/drafter/lib/build-release-payload/render-tag-name.ts
+/**
+* Renders the tag name for the release,
+* based on the input and config.
+*/
+var renderTagName = (params) => {
+	let tagName = structuredClone(params.inputTagName);
+	const { config, versionInfo } = params;
+	if (tagName === void 0) tagName = versionInfo ? renderTemplate({
+		template: config["tag-template"] || "",
+		object: versionInfo
+	}) : "";
+	else if (versionInfo) tagName = renderTemplate({
+		template: tagName,
+		object: versionInfo
+	});
+	debug(`tag: ${tagName}`);
+	return tagName;
+};
+//#endregion
 //#region src/actions/drafter/lib/build-release-payload/resolve-version-increment.ts
+var priorityMap = {
+	patch: 1,
+	minor: 2,
+	major: 3
+};
+var getHighestPriority = (params) => {
+	const { pullRequests, categories, emptyWhenBehavior } = params;
+	const emptyWhenCategory = categories.find((category) => category.when.length === 0);
+	const matchedPullRequests = /* @__PURE__ */ new Set();
+	let highestPriority;
+	let remainingPullRequests = [...pullRequests];
+	for (const category of categories) {
+		if (category.when.length === 0) continue;
+		const matchingPullRequests = remainingPullRequests.filter((pullRequest) => matchesCategory(category, pullRequest));
+		if (matchingPullRequests.length === 0) continue;
+		highestPriority = Math.max(highestPriority ?? 0, priorityMap[category["semver-increment"]]);
+		for (const pullRequest of matchingPullRequests) matchedPullRequests.add(pullRequest);
+		if (category.exclusive) {
+			const matchedPullRequestsSet = new Set(matchingPullRequests);
+			remainingPullRequests = remainingPullRequests.filter((pullRequest) => !matchedPullRequestsSet.has(pullRequest));
+		}
+	}
+	if (!emptyWhenCategory) return highestPriority;
+	if (emptyWhenBehavior === "fallback") return highestPriority ?? priorityMap[emptyWhenCategory["semver-increment"]];
+	if (!pullRequests.some((pullRequest) => !matchedPullRequests.has(pullRequest))) return highestPriority;
+	return Math.max(highestPriority ?? 0, priorityMap[emptyWhenCategory["semver-increment"]]);
+};
 var resolveVersionKeyIncrement = (params) => {
 	const { pullRequests, config } = params;
-	const priorityMap = {
-		patch: 1,
-		minor: 2,
-		major: 3
-	};
-	const labelToKeyMap = Object.fromEntries(Object.keys(priorityMap).flatMap((key) => [config["version-resolver"][key].labels.map((label) => [label, key])]).flat());
-	debug(`labelToKeyMap: ${JSON.stringify(labelToKeyMap)}`);
-	const keys = pullRequests.filter(getFilterExcludedPullRequests(config["exclude-labels"])).filter(getFilterIncludedPullRequests(config["include-labels"])).flatMap((pr) => pr.labels?.nodes?.filter((n) => !!n?.name).map((node) => labelToKeyMap[node.name])).filter(Boolean);
-	debug(`keys: ${JSON.stringify(keys)}`);
-	const keyPriorities = keys.map((key) => priorityMap[key]);
-	const priority = Math.max(...keyPriorities);
-	const versionKey = Object.keys(priorityMap).find((key) => priorityMap[key] === priority);
+	const filteredPullRequests = filterPullRequestsByPreCategories(pullRequests, config.categories);
+	const changelogPriority = getHighestPriority({
+		pullRequests: filteredPullRequests,
+		categories: getChangelogCategories(config.categories),
+		emptyWhenBehavior: "uncategorized"
+	});
+	const versionResolverPriority = getHighestPriority({
+		pullRequests: filteredPullRequests,
+		categories: getVersionResolverCategories(config.categories),
+		emptyWhenBehavior: "fallback"
+	}) ?? priorityMap.patch;
+	const resolvedPriority = Math.max(changelogPriority ?? 0, versionResolverPriority);
+	const versionKey = Object.entries(priorityMap).find(([, priority]) => priority === resolvedPriority)?.[0];
 	debug(`versionKey: ${versionKey}`);
-	let versionKeyIncrement = versionKey || config["version-resolver"].default;
+	let versionKeyIncrement = versionKey;
 	if (config.prerelease && config["prerelease-identifier"]) versionKeyIncrement = `pre${versionKeyIncrement}`;
 	info(`Version increment: ${versionKeyIncrement}${!versionKey ? " (default)" : ""}`);
 	return versionKeyIncrement;
@@ -1764,9 +2335,9 @@ var sortPullRequests = (params) => {
 	return structuredClone(pullRequests).sort((a, b) => {
 		try {
 			return sort(getSortField(a), getSortField(b));
-		} catch (error$2) {
+		} catch (error$1) {
 			warning(`Failed to sort pull-requests ${a.number} and ${b.number} by ${sortBy} in ${sortDirection} order. Returning unsorted.`);
-			error(error$2);
+			error(error$1);
 			return 0;
 		}
 	});
@@ -1790,6 +2361,9 @@ var sortDescending = (a, b) => {
 	return 0;
 };
 //#endregion
+//#region src/actions/drafter/lib/build-release-payload/static/last-not-found.md?raw
+var last_not_found_default = "> [!WARNING]\n> Release Drafter could not find a previous **published release** for `$OWNER/$REPOSITORY`. This draft was created **without a comparison baseline**.\n\n> [!IMPORTANT]\n> Treat this draft as a manual starting point.\n> Review the proposed version, tag, and notes before publishing.\n\nIf you did not expect this to happen, [open an issue](https://github.com/release-drafter/release-drafter/issues/new?template=previous-published-release-not-found.yml).\n";
+//#endregion
 //#region src/actions/drafter/lib/build-release-payload/build-release-payload.ts
 /**
 * Outputs the payload for creating or updating a release.
@@ -1803,7 +2377,13 @@ var buildReleasePayload = (params) => {
 		pullRequests,
 		config
 	});
-	let body = (config.header || "") + config.template + (config.footer || "");
+	let body = (config.header || "") + config.template + (!lastRelease ? `\n---\n${renderTemplate({
+		template: last_not_found_default,
+		object: {
+			$OWNER: context.repo.owner,
+			$REPOSITORY: context.repo.repo
+		}
+	})}\n---\n` : "") + (config.footer || "");
 	body = renderTemplate({
 		template: body,
 		object: {
@@ -1836,42 +2416,19 @@ var buildReleasePayload = (params) => {
 		template: body,
 		object: versionInfo
 	});
-	let mutableInputTag = structuredClone(input.tag);
-	let mutableInputName = structuredClone(input.name);
-	let mutableCommitish = structuredClone(config.commitish);
-	if (mutableInputTag === void 0) mutableInputTag = versionInfo ? renderTemplate({
-		template: config["tag-template"] || "",
-		object: versionInfo
-	}) : "";
-	else if (versionInfo) mutableInputTag = renderTemplate({
-		template: mutableInputTag,
-		object: versionInfo
-	});
-	debug(`tag: ${mutableInputTag}`);
-	if (mutableInputName === void 0) mutableInputName = versionInfo ? renderTemplate({
-		template: config["name-template"] || "",
-		object: versionInfo
-	}) : "";
-	else if (versionInfo) mutableInputName = renderTemplate({
-		template: mutableInputName,
-		object: versionInfo
-	});
-	debug(`name: ${mutableInputName}`);
-	/**
-	* Tags are not supported as `target_commitish` by Github API.
-	* GITHUB_REF or the ref from webhook start with `refs/tags/`, so we handle
-	* those here. If it doesn't but is still a tag - it must have been set
-	* explicitly by the user, so it's fair to just let the API respond with an error.
-	*/
-	if (mutableCommitish.startsWith("refs/tags/")) {
-		info(`${mutableCommitish} is not supported as release target, falling back to default branch`);
-		mutableCommitish = "";
-	}
 	const res = {
-		name: mutableInputName,
-		tag: mutableInputTag,
+		name: renderReleaseName({
+			inputName: input.name,
+			config,
+			versionInfo
+		}),
+		tag: renderTagName({
+			inputTagName: input.tag,
+			config,
+			versionInfo
+		}),
 		body,
-		targetCommitish: mutableCommitish,
+		targetCommitish: parseCommitishForRelease(config.commitish),
 		prerelease: config.prerelease,
 		make_latest: config.latest,
 		draft: !input.publish,
@@ -2011,6 +2568,7 @@ var findPreviousReleases = async (params) => {
 	const commitishFilteredReleases = filterByCommitish ? releases.filter((r) => targetCommitishName === r.target_commitish.replace(headRefRegex, "")) : releases;
 	const semverRangeFilteredReleases = filterByRange && filterByRange !== "*" ? commitishFilteredReleases.filter((r) => {
 		const parsedRange = (0, import_valid.default)(filterByRange);
+		if (!parsedRange) return false;
 		const parsedVersion = (0, import_coerce.default)(r.tag_name, { loose: true })?.version;
 		if (!parsedVersion) {
 			warning(`Failed to coerce semver version for "${r.tag_name}" : will be excluded from releases considered for drafting.`);
@@ -2043,138 +2601,1543 @@ var findPreviousReleases = async (params) => {
 		info(`Last release${isPreRelease ? " (including prerelease)" : ""}:`);
 		info(`  tag_name:  ${lastRelease.tag_name}`);
 		info(`  name:      ${lastRelease.name}`);
-	} else info(`No last release found${isPreRelease ? " (including prerelease)" : ""}`);
+	} else warning(`No published release found${isPreRelease ? " (including prerelease)" : ""}`);
 	return {
 		draftRelease,
 		lastRelease
 	};
 };
 //#endregion
-//#region src/actions/drafter/lib/find-pull-requests/graphql/find-commits-with-path-changes.gql?raw
-var find_commits_with_path_changes_default = "query findCommitsWithPathChangesQuery(\n  $name: String!\n  $owner: String!\n  $targetCommitish: String!\n  $since: GitTimestamp\n  $after: String\n  $path: String\n) {\n  repository(name: $name, owner: $owner) {\n    object(expression: $targetCommitish) {\n      ... on Commit {\n        __typename\n        history(path: $path, since: $since, after: $after) {\n          __typename\n          pageInfo {\n            __typename\n            hasNextPage\n            endCursor\n          }\n          nodes {\n            __typename\n            id\n          }\n        }\n      }\n    }\n  }\n}\n";
-//#endregion
-//#region src/actions/drafter/lib/find-pull-requests/find-commits-with-path-change.ts
-/**
-* @see https://docs.github.com/en/graphql/reference/objects#commit
-*/
-var findCommitsWithPathChange = async (paths, params) => {
-	const octokit = getOctokit();
-	const commitIdsMatchingPaths = {};
-	let hasFoundCommits = false;
-	for (const path of paths) {
-		const data = await paginateGraphql(octokit.graphql, find_commits_with_path_changes_default, {
-			...params,
-			path
-		}, [
-			"repository",
-			"object",
-			"history"
-		]);
-		if (data.repository?.object?.__typename !== "Commit") throw new Error("Query returned an unexpected result");
-		const commits = (data.repository?.object?.history.nodes || []).filter((c) => !!c);
-		commitIdsMatchingPaths[path] = commitIdsMatchingPaths[path] || /* @__PURE__ */ new Set([]);
-		for (const { id } of commits) {
-			hasFoundCommits = true;
-			commitIdsMatchingPaths[path].add(id);
+//#region src/actions/drafter/lib/find-pull-requests/graphql/find-commits-in-comparison.graphql.generated.ts
+var FindCommitsInComparisonDocument = {
+	"kind": "Document",
+	"definitions": [{
+		"kind": "OperationDefinition",
+		"operation": "query",
+		"name": {
+			"kind": "Name",
+			"value": "findCommitsInComparison"
+		},
+		"variableDefinitions": [
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "name"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "String"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "owner"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "String"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "baseRef"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "String"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "headRef"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "String"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "withPullRequestBody"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Boolean"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "withPullRequestURL"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Boolean"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "after"
+					}
+				},
+				"type": {
+					"kind": "NamedType",
+					"name": {
+						"kind": "Name",
+						"value": "String"
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "withBaseRefName"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Boolean"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "withHeadRefName"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Boolean"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "pullRequestLimit"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Int"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "historyLimit"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Int"
+						}
+					}
+				}
+			}
+		],
+		"selectionSet": {
+			"kind": "SelectionSet",
+			"selections": [{
+				"kind": "Field",
+				"name": {
+					"kind": "Name",
+					"value": "repository"
+				},
+				"arguments": [{
+					"kind": "Argument",
+					"name": {
+						"kind": "Name",
+						"value": "name"
+					},
+					"value": {
+						"kind": "Variable",
+						"name": {
+							"kind": "Name",
+							"value": "name"
+						}
+					}
+				}, {
+					"kind": "Argument",
+					"name": {
+						"kind": "Name",
+						"value": "owner"
+					},
+					"value": {
+						"kind": "Variable",
+						"name": {
+							"kind": "Name",
+							"value": "owner"
+						}
+					}
+				}],
+				"selectionSet": {
+					"kind": "SelectionSet",
+					"selections": [{
+						"kind": "Field",
+						"name": {
+							"kind": "Name",
+							"value": "ref"
+						},
+						"arguments": [{
+							"kind": "Argument",
+							"name": {
+								"kind": "Name",
+								"value": "qualifiedName"
+							},
+							"value": {
+								"kind": "Variable",
+								"name": {
+									"kind": "Name",
+									"value": "baseRef"
+								}
+							}
+						}],
+						"selectionSet": {
+							"kind": "SelectionSet",
+							"selections": [{
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "compare"
+								},
+								"arguments": [{
+									"kind": "Argument",
+									"name": {
+										"kind": "Name",
+										"value": "headRef"
+									},
+									"value": {
+										"kind": "Variable",
+										"name": {
+											"kind": "Name",
+											"value": "headRef"
+										}
+									}
+								}],
+								"selectionSet": {
+									"kind": "SelectionSet",
+									"selections": [{
+										"kind": "Field",
+										"name": {
+											"kind": "Name",
+											"value": "commits"
+										},
+										"arguments": [{
+											"kind": "Argument",
+											"name": {
+												"kind": "Name",
+												"value": "first"
+											},
+											"value": {
+												"kind": "Variable",
+												"name": {
+													"kind": "Name",
+													"value": "historyLimit"
+												}
+											}
+										}, {
+											"kind": "Argument",
+											"name": {
+												"kind": "Name",
+												"value": "after"
+											},
+											"value": {
+												"kind": "Variable",
+												"name": {
+													"kind": "Name",
+													"value": "after"
+												}
+											}
+										}],
+										"selectionSet": {
+											"kind": "SelectionSet",
+											"selections": [
+												{
+													"kind": "Field",
+													"name": {
+														"kind": "Name",
+														"value": "__typename"
+													}
+												},
+												{
+													"kind": "Field",
+													"name": {
+														"kind": "Name",
+														"value": "pageInfo"
+													},
+													"selectionSet": {
+														"kind": "SelectionSet",
+														"selections": [
+															{
+																"kind": "Field",
+																"name": {
+																	"kind": "Name",
+																	"value": "__typename"
+																}
+															},
+															{
+																"kind": "Field",
+																"name": {
+																	"kind": "Name",
+																	"value": "hasNextPage"
+																}
+															},
+															{
+																"kind": "Field",
+																"name": {
+																	"kind": "Name",
+																	"value": "endCursor"
+																}
+															}
+														]
+													}
+												},
+												{
+													"kind": "Field",
+													"name": {
+														"kind": "Name",
+														"value": "nodes"
+													},
+													"selectionSet": {
+														"kind": "SelectionSet",
+														"selections": [
+															{
+																"kind": "Field",
+																"name": {
+																	"kind": "Name",
+																	"value": "__typename"
+																}
+															},
+															{
+																"kind": "Field",
+																"name": {
+																	"kind": "Name",
+																	"value": "id"
+																}
+															},
+															{
+																"kind": "Field",
+																"name": {
+																	"kind": "Name",
+																	"value": "oid"
+																}
+															},
+															{
+																"kind": "Field",
+																"name": {
+																	"kind": "Name",
+																	"value": "committedDate"
+																}
+															},
+															{
+																"kind": "Field",
+																"name": {
+																	"kind": "Name",
+																	"value": "message"
+																}
+															},
+															{
+																"kind": "Field",
+																"name": {
+																	"kind": "Name",
+																	"value": "author"
+																},
+																"selectionSet": {
+																	"kind": "SelectionSet",
+																	"selections": [
+																		{
+																			"kind": "Field",
+																			"name": {
+																				"kind": "Name",
+																				"value": "__typename"
+																			}
+																		},
+																		{
+																			"kind": "Field",
+																			"name": {
+																				"kind": "Name",
+																				"value": "name"
+																			}
+																		},
+																		{
+																			"kind": "Field",
+																			"name": {
+																				"kind": "Name",
+																				"value": "user"
+																			},
+																			"selectionSet": {
+																				"kind": "SelectionSet",
+																				"selections": [{
+																					"kind": "Field",
+																					"name": {
+																						"kind": "Name",
+																						"value": "__typename"
+																					}
+																				}, {
+																					"kind": "Field",
+																					"name": {
+																						"kind": "Name",
+																						"value": "login"
+																					}
+																				}]
+																			}
+																		}
+																	]
+																}
+															},
+															{
+																"kind": "Field",
+																"name": {
+																	"kind": "Name",
+																	"value": "associatedPullRequests"
+																},
+																"arguments": [{
+																	"kind": "Argument",
+																	"name": {
+																		"kind": "Name",
+																		"value": "first"
+																	},
+																	"value": {
+																		"kind": "Variable",
+																		"name": {
+																			"kind": "Name",
+																			"value": "pullRequestLimit"
+																		}
+																	}
+																}],
+																"selectionSet": {
+																	"kind": "SelectionSet",
+																	"selections": [{
+																		"kind": "Field",
+																		"name": {
+																			"kind": "Name",
+																			"value": "__typename"
+																		}
+																	}, {
+																		"kind": "Field",
+																		"name": {
+																			"kind": "Name",
+																			"value": "nodes"
+																		},
+																		"selectionSet": {
+																			"kind": "SelectionSet",
+																			"selections": [{
+																				"kind": "FragmentSpread",
+																				"name": {
+																					"kind": "Name",
+																					"value": "PullRequestFields"
+																				}
+																			}]
+																		}
+																	}]
+																}
+															}
+														]
+													}
+												}
+											]
+										}
+									}]
+								}
+							}]
+						}
+					}]
+				}
+			}]
 		}
-	}
-	return {
-		commitIdsMatchingPaths,
-		hasFoundCommits
-	};
+	}, {
+		"kind": "FragmentDefinition",
+		"name": {
+			"kind": "Name",
+			"value": "PullRequestFields"
+		},
+		"typeCondition": {
+			"kind": "NamedType",
+			"name": {
+				"kind": "Name",
+				"value": "PullRequest"
+			}
+		},
+		"selectionSet": {
+			"kind": "SelectionSet",
+			"selections": [
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "__typename"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "title"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "number"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "url"
+					},
+					"directives": [{
+						"kind": "Directive",
+						"name": {
+							"kind": "Name",
+							"value": "include"
+						},
+						"arguments": [{
+							"kind": "Argument",
+							"name": {
+								"kind": "Name",
+								"value": "if"
+							},
+							"value": {
+								"kind": "Variable",
+								"name": {
+									"kind": "Name",
+									"value": "withPullRequestURL"
+								}
+							}
+						}]
+					}]
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "body"
+					},
+					"directives": [{
+						"kind": "Directive",
+						"name": {
+							"kind": "Name",
+							"value": "include"
+						},
+						"arguments": [{
+							"kind": "Argument",
+							"name": {
+								"kind": "Name",
+								"value": "if"
+							},
+							"value": {
+								"kind": "Variable",
+								"name": {
+									"kind": "Name",
+									"value": "withPullRequestBody"
+								}
+							}
+						}]
+					}]
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "author"
+					},
+					"selectionSet": {
+						"kind": "SelectionSet",
+						"selections": [
+							{
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "__typename"
+								}
+							},
+							{
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "login"
+								}
+							},
+							{
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "url"
+								}
+							}
+						]
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "baseRepository"
+					},
+					"selectionSet": {
+						"kind": "SelectionSet",
+						"selections": [{
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "__typename"
+							}
+						}, {
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "nameWithOwner"
+							}
+						}]
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "mergedAt"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "isCrossRepository"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "labels"
+					},
+					"arguments": [{
+						"kind": "Argument",
+						"name": {
+							"kind": "Name",
+							"value": "first"
+						},
+						"value": {
+							"kind": "IntValue",
+							"value": "100"
+						}
+					}],
+					"selectionSet": {
+						"kind": "SelectionSet",
+						"selections": [{
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "__typename"
+							}
+						}, {
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "nodes"
+							},
+							"selectionSet": {
+								"kind": "SelectionSet",
+								"selections": [{
+									"kind": "Field",
+									"name": {
+										"kind": "Name",
+										"value": "__typename"
+									}
+								}, {
+									"kind": "Field",
+									"name": {
+										"kind": "Name",
+										"value": "name"
+									}
+								}]
+							}
+						}]
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "merged"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "baseRefName"
+					},
+					"directives": [{
+						"kind": "Directive",
+						"name": {
+							"kind": "Name",
+							"value": "include"
+						},
+						"arguments": [{
+							"kind": "Argument",
+							"name": {
+								"kind": "Name",
+								"value": "if"
+							},
+							"value": {
+								"kind": "Variable",
+								"name": {
+									"kind": "Name",
+									"value": "withBaseRefName"
+								}
+							}
+						}]
+					}]
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "headRefName"
+					},
+					"directives": [{
+						"kind": "Directive",
+						"name": {
+							"kind": "Name",
+							"value": "include"
+						},
+						"arguments": [{
+							"kind": "Argument",
+							"name": {
+								"kind": "Name",
+								"value": "if"
+							},
+							"value": {
+								"kind": "Variable",
+								"name": {
+									"kind": "Name",
+									"value": "withHeadRefName"
+								}
+							}
+						}]
+					}]
+				}
+			]
+		}
+	}]
 };
 //#endregion
-//#region src/actions/drafter/lib/find-pull-requests/graphql/find-commits-with-pr.gql?raw
-var find_commits_with_pr_default = "query findCommitsWithAssociatedPullRequests(\n  $name: String!\n  $owner: String!\n  $targetCommitish: String!\n  $withPullRequestBody: Boolean!\n  $withPullRequestURL: Boolean!\n  $since: GitTimestamp\n  $after: String\n  $withBaseRefName: Boolean!\n  $withHeadRefName: Boolean!\n  $pullRequestLimit: Int!\n  $historyLimit: Int!\n) {\n  repository(name: $name, owner: $owner) {\n    object(expression: $targetCommitish) {\n      ... on Commit {\n        __typename\n        history(first: $historyLimit, since: $since, after: $after) {\n          __typename\n          totalCount\n          pageInfo {\n            __typename\n            hasNextPage\n            endCursor\n          }\n          nodes {\n            __typename\n            id\n            committedDate\n            message\n            author {\n              __typename\n              name\n              user {\n                __typename\n                login\n              }\n            }\n            associatedPullRequests(first: $pullRequestLimit) {\n              __typename\n              nodes {\n                __typename\n                title\n                number\n                url @include(if: $withPullRequestURL)\n                body @include(if: $withPullRequestBody)\n                author {\n                  __typename\n                  login\n                  url\n                }\n                baseRepository {\n                  __typename\n                  nameWithOwner\n                }\n                mergedAt\n                isCrossRepository\n                labels(first: 100) {\n                  __typename\n                  nodes {\n                    __typename\n                    name\n                  }\n                }\n                merged\n                baseRefName @include(if: $withBaseRefName)\n                headRefName @include(if: $withHeadRefName)\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n";
-//#endregion
-//#region src/actions/drafter/lib/find-pull-requests/find-commits-with-pr.ts
-var findCommitsWithPr = async (params) => {
-	const data = await paginateGraphql(getOctokit().graphql, find_commits_with_pr_default, params, [
+//#region src/actions/drafter/lib/find-pull-requests/find-commits-in-comparison.ts
+var findCommitsInComparison = async (params) => {
+	const data = await paginateGraphql(getOctokit().graphql, FindCommitsInComparisonDocument, params, [
 		"repository",
-		"object",
-		"history"
+		"ref",
+		"compare",
+		"commits"
 	]);
-	if (data.repository?.object?.__typename !== "Commit") throw new Error("Query returned an unexpected result");
-	/**
-	* Extract commit nodes from the paginated response
-	*/
-	const commits = (data.repository.object.history.nodes || []).filter((commit) => commit != null);
-	if (params.since) return commits.filter((commit) => !!commit?.committedDate && commit.committedDate !== params.since);
-	else return commits;
+	if (!data.repository?.ref?.compare) throw new Error("Query returned an unexpected result: ref or comparison not found");
+	return (data.repository.ref.compare.commits.nodes || []).filter((commit) => commit != null);
+};
+//#endregion
+//#region src/actions/drafter/lib/find-pull-requests/graphql/find-recent-merged-pull-requests.graphql.generated.ts
+var FindRecentMergedPullRequestsDocument = {
+	"kind": "Document",
+	"definitions": [{
+		"kind": "OperationDefinition",
+		"operation": "query",
+		"name": {
+			"kind": "Name",
+			"value": "findRecentMergedPullRequests"
+		},
+		"variableDefinitions": [
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "name"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "String"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "owner"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "String"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "baseRefName"
+					}
+				},
+				"type": {
+					"kind": "NamedType",
+					"name": {
+						"kind": "Name",
+						"value": "String"
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "limit"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Int"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "withPullRequestBody"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Boolean"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "withPullRequestURL"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Boolean"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "withBaseRefName"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Boolean"
+						}
+					}
+				}
+			},
+			{
+				"kind": "VariableDefinition",
+				"variable": {
+					"kind": "Variable",
+					"name": {
+						"kind": "Name",
+						"value": "withHeadRefName"
+					}
+				},
+				"type": {
+					"kind": "NonNullType",
+					"type": {
+						"kind": "NamedType",
+						"name": {
+							"kind": "Name",
+							"value": "Boolean"
+						}
+					}
+				}
+			}
+		],
+		"selectionSet": {
+			"kind": "SelectionSet",
+			"selections": [{
+				"kind": "Field",
+				"name": {
+					"kind": "Name",
+					"value": "repository"
+				},
+				"arguments": [{
+					"kind": "Argument",
+					"name": {
+						"kind": "Name",
+						"value": "name"
+					},
+					"value": {
+						"kind": "Variable",
+						"name": {
+							"kind": "Name",
+							"value": "name"
+						}
+					}
+				}, {
+					"kind": "Argument",
+					"name": {
+						"kind": "Name",
+						"value": "owner"
+					},
+					"value": {
+						"kind": "Variable",
+						"name": {
+							"kind": "Name",
+							"value": "owner"
+						}
+					}
+				}],
+				"selectionSet": {
+					"kind": "SelectionSet",
+					"selections": [{
+						"kind": "Field",
+						"name": {
+							"kind": "Name",
+							"value": "pullRequests"
+						},
+						"arguments": [
+							{
+								"kind": "Argument",
+								"name": {
+									"kind": "Name",
+									"value": "states"
+								},
+								"value": {
+									"kind": "ListValue",
+									"values": [{
+										"kind": "EnumValue",
+										"value": "MERGED"
+									}]
+								}
+							},
+							{
+								"kind": "Argument",
+								"name": {
+									"kind": "Name",
+									"value": "baseRefName"
+								},
+								"value": {
+									"kind": "Variable",
+									"name": {
+										"kind": "Name",
+										"value": "baseRefName"
+									}
+								}
+							},
+							{
+								"kind": "Argument",
+								"name": {
+									"kind": "Name",
+									"value": "orderBy"
+								},
+								"value": {
+									"kind": "ObjectValue",
+									"fields": [{
+										"kind": "ObjectField",
+										"name": {
+											"kind": "Name",
+											"value": "field"
+										},
+										"value": {
+											"kind": "EnumValue",
+											"value": "UPDATED_AT"
+										}
+									}, {
+										"kind": "ObjectField",
+										"name": {
+											"kind": "Name",
+											"value": "direction"
+										},
+										"value": {
+											"kind": "EnumValue",
+											"value": "DESC"
+										}
+									}]
+								}
+							},
+							{
+								"kind": "Argument",
+								"name": {
+									"kind": "Name",
+									"value": "first"
+								},
+								"value": {
+									"kind": "Variable",
+									"name": {
+										"kind": "Name",
+										"value": "limit"
+									}
+								}
+							}
+						],
+						"selectionSet": {
+							"kind": "SelectionSet",
+							"selections": [{
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "__typename"
+								}
+							}, {
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "nodes"
+								},
+								"selectionSet": {
+									"kind": "SelectionSet",
+									"selections": [{
+										"kind": "FragmentSpread",
+										"name": {
+											"kind": "Name",
+											"value": "PullRequestFields"
+										}
+									}, {
+										"kind": "Field",
+										"name": {
+											"kind": "Name",
+											"value": "mergeCommit"
+										},
+										"selectionSet": {
+											"kind": "SelectionSet",
+											"selections": [{
+												"kind": "Field",
+												"name": {
+													"kind": "Name",
+													"value": "__typename"
+												}
+											}, {
+												"kind": "Field",
+												"name": {
+													"kind": "Name",
+													"value": "oid"
+												}
+											}]
+										}
+									}]
+								}
+							}]
+						}
+					}]
+				}
+			}]
+		}
+	}, {
+		"kind": "FragmentDefinition",
+		"name": {
+			"kind": "Name",
+			"value": "PullRequestFields"
+		},
+		"typeCondition": {
+			"kind": "NamedType",
+			"name": {
+				"kind": "Name",
+				"value": "PullRequest"
+			}
+		},
+		"selectionSet": {
+			"kind": "SelectionSet",
+			"selections": [
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "__typename"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "title"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "number"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "url"
+					},
+					"directives": [{
+						"kind": "Directive",
+						"name": {
+							"kind": "Name",
+							"value": "include"
+						},
+						"arguments": [{
+							"kind": "Argument",
+							"name": {
+								"kind": "Name",
+								"value": "if"
+							},
+							"value": {
+								"kind": "Variable",
+								"name": {
+									"kind": "Name",
+									"value": "withPullRequestURL"
+								}
+							}
+						}]
+					}]
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "body"
+					},
+					"directives": [{
+						"kind": "Directive",
+						"name": {
+							"kind": "Name",
+							"value": "include"
+						},
+						"arguments": [{
+							"kind": "Argument",
+							"name": {
+								"kind": "Name",
+								"value": "if"
+							},
+							"value": {
+								"kind": "Variable",
+								"name": {
+									"kind": "Name",
+									"value": "withPullRequestBody"
+								}
+							}
+						}]
+					}]
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "author"
+					},
+					"selectionSet": {
+						"kind": "SelectionSet",
+						"selections": [
+							{
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "__typename"
+								}
+							},
+							{
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "login"
+								}
+							},
+							{
+								"kind": "Field",
+								"name": {
+									"kind": "Name",
+									"value": "url"
+								}
+							}
+						]
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "baseRepository"
+					},
+					"selectionSet": {
+						"kind": "SelectionSet",
+						"selections": [{
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "__typename"
+							}
+						}, {
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "nameWithOwner"
+							}
+						}]
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "mergedAt"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "isCrossRepository"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "labels"
+					},
+					"arguments": [{
+						"kind": "Argument",
+						"name": {
+							"kind": "Name",
+							"value": "first"
+						},
+						"value": {
+							"kind": "IntValue",
+							"value": "100"
+						}
+					}],
+					"selectionSet": {
+						"kind": "SelectionSet",
+						"selections": [{
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "__typename"
+							}
+						}, {
+							"kind": "Field",
+							"name": {
+								"kind": "Name",
+								"value": "nodes"
+							},
+							"selectionSet": {
+								"kind": "SelectionSet",
+								"selections": [{
+									"kind": "Field",
+									"name": {
+										"kind": "Name",
+										"value": "__typename"
+									}
+								}, {
+									"kind": "Field",
+									"name": {
+										"kind": "Name",
+										"value": "name"
+									}
+								}]
+							}
+						}]
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "merged"
+					}
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "baseRefName"
+					},
+					"directives": [{
+						"kind": "Directive",
+						"name": {
+							"kind": "Name",
+							"value": "include"
+						},
+						"arguments": [{
+							"kind": "Argument",
+							"name": {
+								"kind": "Name",
+								"value": "if"
+							},
+							"value": {
+								"kind": "Variable",
+								"name": {
+									"kind": "Name",
+									"value": "withBaseRefName"
+								}
+							}
+						}]
+					}]
+				},
+				{
+					"kind": "Field",
+					"name": {
+						"kind": "Name",
+						"value": "headRefName"
+					},
+					"directives": [{
+						"kind": "Directive",
+						"name": {
+							"kind": "Name",
+							"value": "include"
+						},
+						"arguments": [{
+							"kind": "Argument",
+							"name": {
+								"kind": "Name",
+								"value": "if"
+							},
+							"value": {
+								"kind": "Variable",
+								"name": {
+									"kind": "Name",
+									"value": "withHeadRefName"
+								}
+							}
+						}]
+					}]
+				}
+			]
+		}
+	}]
+};
+//#endregion
+//#region src/actions/drafter/lib/find-pull-requests/find-recent-merged-pull-requests.ts
+var RECENT_PR_LOOKBACK = 5;
+var findRecentMergedPullRequests = async (params) => {
+	const octokit = getOctokit();
+	const nameWithOwner = `${context.repo.owner}/${context.repo.repo}`;
+	const missingPRs = ((await executeGraphql(octokit.graphql, FindRecentMergedPullRequestsDocument, {
+		name: context.repo.repo,
+		owner: context.repo.owner,
+		baseRefName: params.baseRefName,
+		limit: RECENT_PR_LOOKBACK,
+		...params.fieldFlags
+	})).repository?.pullRequests.nodes ?? []).filter((pr) => {
+		if (!pr?.mergeCommit?.oid) return false;
+		const prKey = `${nameWithOwner}#${pr.number}`;
+		return params.commitOids.has(pr.mergeCommit.oid) && !params.foundPrKeys.has(prKey);
+	});
+	if (missingPRs.length === 0) return [];
+	info(`Found ${missingPRs.length} recently merged PR(s) missing from GraphQL index, recovering: ${missingPRs.map((pr) => `#${pr?.number}`).join(", ")}`);
+	return missingPRs.filter((pr) => pr != null);
 };
 //#endregion
 //#region src/actions/drafter/lib/find-pull-requests/find-pull-requests.ts
 var findPullRequests = async (params) => {
-	const since = params.lastRelease?.created_at || params.config["initial-commits-since"];
-	const shouldFilterByIncludedPaths = params.config["include-paths"].length > 0;
-	const shouldFilterByExcludedPaths = params.config["exclude-paths"].length > 0;
-	/**
-	* If include-paths are specified,
-	* find all commits that changed those paths to filter PRs later.
-	*
-	* If exclude-paths are specified,
-	* find all commits that changed those paths and remove them from results.
-	*
-	* The underlying query does not bother fetching PRs along commits.
-	*/
-	const includedCommitIds = /* @__PURE__ */ new Set();
-	if (shouldFilterByIncludedPaths) {
-		info("Finding commits with included path changes...");
-		const { commitIdsMatchingPaths, hasFoundCommits } = await findCommitsWithPathChange(params.config["include-paths"], {
-			since,
-			name: context.repo.repo,
-			owner: context.repo.owner,
-			targetCommitish: params.config.commitish
-		});
-		if (!hasFoundCommits) return {
-			commits: [],
-			pullRequests: []
-		};
-		Object.entries(commitIdsMatchingPaths).forEach(([path, ids]) => {
-			info(`Found ${ids.size} commits with changes to included path "${path}"`);
-			for (const id of ids) includedCommitIds.add(id);
-		});
-	}
-	const excludedCommitIds = /* @__PURE__ */ new Set();
-	if (shouldFilterByExcludedPaths) {
-		info("Finding commits with excluded path changes...");
-		const { commitIdsMatchingPaths } = await findCommitsWithPathChange(params.config["exclude-paths"], {
-			since,
-			name: context.repo.repo,
-			owner: context.repo.owner,
-			targetCommitish: params.config.commitish
-		});
-		Object.entries(commitIdsMatchingPaths).forEach(([path, ids]) => {
-			info(`Found ${ids.size} commits with changes to excluded path "${path}"`);
-			for (const id of ids) excludedCommitIds.add(id);
-		});
-	}
-	info(`Fetching parent commits of ${params.config.commitish}${since ? ` since ${since}` : ""}...`);
-	let commits = await findCommitsWithPr({
-		since,
+	const sharedComparisonParams = {
 		name: context.repo.repo,
 		owner: context.repo.owner,
-		targetCommitish: params.config.commitish,
+		headRef: params.config.commitish,
 		withPullRequestBody: params.config["change-template"].includes("$BODY"),
 		withPullRequestURL: params.config["change-template"].includes("$URL"),
 		withBaseRefName: params.config["change-template"].includes("$BASE_REF_NAME"),
 		withHeadRefName: params.config["change-template"].includes("$HEAD_REF_NAME"),
 		pullRequestLimit: params.config["pull-request-limit"],
 		historyLimit: params.config["history-limit"]
+	};
+	if (!params.lastRelease?.tag_name) {
+		warning("A previous (published) release is required to find changes");
+		return {
+			commits: [],
+			pullRequests: []
+		};
+	}
+	info(`Finding commits between refs/tags/${params.lastRelease.tag_name} and ${params.config.commitish}...`);
+	const commits = await findCommitsInComparison({
+		baseRef: `refs/tags/${params.lastRelease.tag_name}`,
+		...sharedComparisonParams
 	});
 	info(`Found ${commits.length} commits.`);
-	commits = commits.filter((commit) => {
-		if (excludedCommitIds.has(commit.id)) return false;
-		if (shouldFilterByIncludedPaths) return includedCommitIds.has(commit.id);
-		return true;
+	const pullRequestsByKey = new Map(commits.flatMap((commit) => commit.associatedPullRequests?.nodes ?? []).filter((pr) => pr != null).map((pr) => [`${pr.baseRepository?.nameWithOwner}#${pr.number}`, pr]));
+	const pullRequestsRaw = [...pullRequestsByKey.values()];
+	const comparisonCommitOids = new Set(commits.flatMap((c) => c.oid ? [c.oid] : []));
+	const { commitish } = params.config;
+	const isBranchRef = commitish.startsWith("refs/heads/");
+	const isUnsupportedRef = commitish.startsWith("refs/tags/") || commitish.startsWith("refs/pull/");
+	const recoveredPRs = comparisonCommitOids.size === 0 || isUnsupportedRef ? [] : await findRecentMergedPullRequests({
+		baseRefName: isBranchRef ? commitish.replace(/^refs\/heads\//, "") : null,
+		commitOids: comparisonCommitOids,
+		foundPrKeys: new Set(pullRequestsByKey.keys()),
+		fieldFlags: {
+			withPullRequestBody: sharedComparisonParams.withPullRequestBody,
+			withPullRequestURL: sharedComparisonParams.withPullRequestURL,
+			withBaseRefName: sharedComparisonParams.withBaseRefName,
+			withHeadRefName: sharedComparisonParams.withHeadRefName
+		}
 	});
-	if (shouldFilterByIncludedPaths || shouldFilterByExcludedPaths) info(`After filtering by path changes, ${commits.length} commits remain.`);
-	const pullRequestsRaw = [...new Map(commits.flatMap((commit) => commit.associatedPullRequests?.nodes ?? []).filter((pr) => pr != null).map((pr) => [`${pr.baseRepository?.nameWithOwner}#${pr.number}`, pr])).values()];
-	const pullRequests = pullRequestsRaw.filter((pr) => pr.baseRepository?.nameWithOwner === `${context.repo.owner}/${context.repo.repo}` && pr.merged);
-	info(`Found ${pullRequestsRaw.length} pull requests associated with those commits. ${pullRequests.length} of those are merged and come from ${context.repo.owner}/${context.repo.repo}${pullRequests.length > 0 ? ` : ${pullRequests.map((pr) => `#${pr.number}`).join(", ")}` : "."}`);
+	const pullRequests = [...pullRequestsRaw, ...recoveredPRs].filter((pr) => pr.baseRepository?.nameWithOwner === `${context.repo.owner}/${context.repo.repo}` && pr.merged);
+	const shouldLoadPullRequestChangedFiles = needsPullRequestChangedFiles(params.config.categories);
+	const pullRequestChangedFiles = shouldLoadPullRequestChangedFiles ? await getPullRequestsChangedFiles({
+		owner: context.repo.owner,
+		repo: context.repo.repo,
+		pullRequests
+	}) : /* @__PURE__ */ new Map();
+	info(`Found ${pullRequests.length} merged pull requests targeting ${context.repo.owner}/${context.repo.repo}${pullRequests.length > 0 ? `: ${pullRequests.map((pr) => `#${pr.number}`).join(", ")}` : "."}`);
 	return {
 		commits,
-		pullRequests
+		pullRequests: pullRequests.map((pullRequest) => shouldLoadPullRequestChangedFiles ? {
+			...pullRequest,
+			changedFiles: pullRequestChangedFiles.get(`${pullRequest.baseRepository?.nameWithOwner}#${pullRequest.number}`)
+		} : pullRequest)
 	};
 };
 //#endregion
@@ -2277,34 +4240,6 @@ var main = async (params) => {
 };
 //#endregion
 //#region src/actions/drafter/runner.ts
-async function validateSubscription() {
-	const eventPath = process.env.GITHUB_EVENT_PATH;
-	let repoPrivate;
-	if (eventPath && fs.existsSync(eventPath)) repoPrivate = JSON.parse(fs.readFileSync(eventPath, "utf8"))?.repository?.private;
-	const upstream = "release-drafter/release-drafter";
-	const action = process.env.GITHUB_ACTION_REPOSITORY;
-	const docsUrl = "https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions";
-	info("");
-	info("\x1B[1;36mStepSecurity Maintained Action\x1B[0m");
-	info(`Secure drop-in replacement for ${upstream}`);
-	if (repoPrivate === false) info("\x1B[32m✓ Free for public repositories\x1B[0m");
-	info(`\u001b[36mLearn more:\u001b[0m ${docsUrl}`);
-	info("");
-	if (repoPrivate === false) return;
-	const serverUrl = process.env.GITHUB_SERVER_URL || "https://github.com";
-	const body = { action: action || "" };
-	if (serverUrl !== "https://github.com") body.ghes_server = serverUrl;
-	try {
-		await axios.post(`https://agent.api.stepsecurity.io/v1/github/${process.env.GITHUB_REPOSITORY}/actions/maintained-actions-subscription`, body, { timeout: 3e3 });
-	} catch (error$1) {
-		if (isAxiosError(error$1) && error$1.response?.status === 403) {
-			error(`\u001b[1;31mThis action requires a StepSecurity subscription for private repositories.\u001b[0m`);
-			error(`\u001b[31mLearn how to enable a subscription: ${docsUrl}\u001b[0m`);
-			process.exit(1);
-		}
-		info("Timeout or API not reachable. Continuing to next step.");
-	}
-}
 /**
 * The main function for the action.
 *
@@ -2312,7 +4247,6 @@ async function validateSubscription() {
 */
 async function run() {
 	try {
-		await validateSubscription();
 		info("Parsing inputs and configuration...");
 		const input = getActionInput();
 		const { upsertedRelease, releasePayload } = await main({
@@ -2342,7 +4276,7 @@ async function run() {
 * `runner.ts` is the entrypoint for tests and should contain all the action's
 * main logic.
 */
-await validateSubscription$1();
+await validateSubscription();
 await run();
 //#endregion
 export {};

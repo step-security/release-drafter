@@ -1,5 +1,5 @@
-import type { Config } from '../../config'
-import type { findPullRequests } from '../find-pull-requests'
+import type { Config } from '../../config/index.ts'
+import type { findPullRequests } from '../find-pull-requests/index.ts'
 
 export const generateContributorsSentence = (params: {
   commits: Awaited<ReturnType<typeof findPullRequests>>['commits']
@@ -10,8 +10,9 @@ export const generateContributorsSentence = (params: {
 
   const contributors = new Set<string>()
 
-  // Add from commits
+  // Add from commits that have associated pull requests
   for (const commit of commits) {
+    if ((commit.associatedPullRequests?.nodes?.length ?? 0) === 0) continue
     if (commit.author?.user) {
       if (!config['exclude-contributors'].includes(commit.author.user.login)) {
         contributors.add(`@${commit.author.user.login}`)

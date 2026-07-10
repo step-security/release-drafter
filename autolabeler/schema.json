@@ -50,6 +50,5 @@
     }
   },
   "required": ["autolabeler"],
-  "title": "JSON schema for Release Drafter's autolabeler action config.",
-  "id": "https://github.com/step-security/release-drafter/blob/main/autolabeler/schema.json"
+  "title": "JSON schema for Release Drafter's autolabeler action config."
 }

@@ -1,8 +1,8 @@
-import yaml from 'yaml'
-import { getConfigFileFromFs } from './get-config-file-from-fs'
-import { getConfigFileFromRepo } from './get-config-file-from-repo'
-import { normalizeFilepath } from './normalize-filepath'
-import type { ConfigTarget } from './parse-config-target'
+import { parse as parseYaml } from 'yaml'
+import { getConfigFileFromFs } from './get-config-file-from-fs.ts'
+import { getConfigFileFromRepo } from './get-config-file-from-repo.ts'
+import { normalizeFilepath } from './normalize-filepath.ts'
+import type { ConfigTarget } from './parse-config-target.ts'
 
 const SUPPORTED_FILE_EXTENSIONS = ['json', 'yml', 'yaml']
 
@@ -52,7 +52,7 @@ export const getConfigFile = async (
   }
 
   const config: Record<string, unknown> & { _extends?: string } =
-    fileExtension === 'json' ? JSON.parse(configRaw) : yaml.parse(configRaw)
+    fileExtension === 'json' ? JSON.parse(configRaw) : parseYaml(configRaw)
 
   return { config, fetchedFrom: _configTarget }
 }

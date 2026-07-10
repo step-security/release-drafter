@@ -2,7 +2,7 @@ import * as core from '@actions/core'
 import {
   type ActionInput,
   actionInputSchema,
-} from './schemas/action-input.schema'
+} from './schemas/action-input.schema.ts'
 
 export const getActionInput = (): ActionInput => {
   // getInput returns an empty string if the value is not defined.
@@ -24,7 +24,6 @@ export const getActionInput = (): ActionInput => {
     // can override the config
     latest: getInput('latest'),
     prerelease: getInput('prerelease'),
-    'initial-commits-since': getInput('initial-commits-since'),
     'prerelease-identifier': getInput('prerelease-identifier'),
     'include-pre-releases': getInput('include-pre-releases'),
     commitish: getInput('commitish'),

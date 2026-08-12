@@ -455,7 +455,7 @@ var exclusiveConfigSchema = object({
 	template: string().optional().default("")
 }).meta({
 	title: "JSON schema for Release Drafter yaml files",
-	id: "https://github.com/release-drafter/release-drafter/blob/main/drafter/schema.json"
+	id: "https://github.com/step-security/release-drafter/blob/main/drafter/schema.json"
 });
 var configSchema = exclusiveConfigSchema.and(commonConfigSchema);
 var configSchemaDefaults = Object.fromEntries(Object.entries({
@@ -1283,8 +1283,7 @@ var import_valid = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((expo
 	};
 	module.exports = validRange;
 })))(), 1);
-var categoryMigrationDocumentationUrl = "https://github.com/release-drafter/release-drafter/pull/1558";
-var withMigrationDocumentationLink = (message) => `${message} Migration documentation: ${categoryMigrationDocumentationUrl}`;
+var withMigrationDocumentationLink = (message) => message;
 var normalizeConventional = (conventional) => {
 	if (!conventional) return;
 	if (conventional === true) return {

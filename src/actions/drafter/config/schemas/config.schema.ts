@@ -2,9 +2,11 @@ import type * as z from 'zod'
 import {
   array,
   boolean,
+  literal,
   number,
   object,
   string,
+  union,
   ZodDefault,
   enum as zenum,
 } from 'zod'
@@ -15,6 +17,25 @@ import { commonConfigSchema } from './common-config.schema.ts'
  * All specified predicates must be satisfied for a change to match.
  */
 const changeConditionSchema = object({
+  /**
+   * Conventional commit predicate: matches a change whose title or message
+   * follows the conventional commit shape, e.g. `feat(api)!: add endpoint`.
+   */
+  conventional: union([
+    literal(true),
+    object({
+      /** Shorthand for one `types` entry. */
+      type: string().min(1).optional(),
+      /** Conventional commit types to match, e.g. `feat` or `fix`. */
+      types: array(string().min(1)).optional().default([]),
+      /** Shorthand for one `scopes` entry. */
+      scope: string().min(1).optional(),
+      /** Conventional commit scopes to match, e.g. `api` or `ui`. */
+      scopes: array(string().min(1)).optional().default([]),
+      /** Match titles with (`true`) or without (`false`) a breaking `!`. */
+      breaking: boolean().optional(),
+    }),
+  ]).optional(),
   /**
    * Label predicate: matches a change that carries this label.
    *
@@ -298,6 +319,12 @@ export const exclusiveConfigSchema = object({
     .optional()
     .default('* $AUTHOR_MENTION made their first contribution in #$NUMBER'),
   /**
+   * The template to use for `$NEW_CONTRIBUTORS` when there are no new contributors to list.
+   */
+  'no-new-contributor-template': string()
+    .optional()
+    .default('* No new contributors'),
+  /**
    * The template to use for `$CONTRIBUTORS` when there's no contributors to list.
    */
   'no-contributors-template': string().optional().default('No contributors'),
@@ -379,7 +406,7 @@ export const exclusiveConfigSchema = object({
   template: string().optional().default(''),
 }).meta({
   title: 'JSON schema for Release Drafter yaml files',
-  id: 'https://github.com/step-security/release-drafter/blob/main/drafter/schema.json',
+  id: 'https://github.com/release-drafter/release-drafter/blob/main/drafter/schema.json',
 })
 
 export const configSchema = exclusiveConfigSchema.and(commonConfigSchema)

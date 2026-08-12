@@ -1,4 +1,4 @@
-import { A as __toESM, D as setOutput, E as setFailed, O as warning, T as info, d as getOctokit, f as context, h as array, i as sharedInputSchema, n as stringToRegex, s as getPullRequestChangedFiles, t as require_ignore, u as composeConfigGet, v as object, w as getInput, x as validateSubscription, y as string } from "../../chunks/ignore.js";
+import { A as setFailed, M as warning, O as getInput, P as __toESM, S as string, T as validateSubscription, _ as array, f as composeConfigGet, i as sharedInputSchema, j as setOutput, k as info, m as context, n as stringToRegex, p as getOctokit, t as require_ignore, u as getPullRequestChangedFiles, x as object } from "../../chunks/ignore.js";
 //#region src/actions/autolabeler/config/action-input.schema.ts
 var actionInputSchema = object({ 
 /**
@@ -129,12 +129,14 @@ var main = async (params) => {
 			}
 		}
 	}
-	if (labels.size > 0) if (params.dryRun) info(`[dry-run] Would add labels [${Array.from(labels).join(", ")}] to PR #${payload.number}`);
-	else await octokit.rest.issues.addLabels({
-		...context.repo,
-		issue_number: payload.number,
-		labels: Array.from(labels)
-	});
+	if (labels.size > 0) {
+		if (params.dryRun) info(`[dry-run] Would add labels [${Array.from(labels).join(", ")}] to PR #${payload.number}`);
+		else await octokit.rest.issues.addLabels({
+			...context.repo,
+			issue_number: payload.number,
+			labels: Array.from(labels)
+		});
+	}
 	return {
 		pr_number: payload.number.toString(),
 		labels: labels.size ? Array.from(labels).join(",") : void 0

@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import {
   type CategoryConfig,
+  type ChangeConditionConfig,
   type Config,
   categorySchemaDefaults,
   changeConditionSchemaDefaults,
@@ -9,7 +10,41 @@ import {
 
 type RawCategory = CategoryConfig
 
-const withMigrationDocumentationLink = (message: string) => message
+const categoryMigrationDocumentationUrl =
+  'https://github.com/release-drafter/release-drafter/pull/1558'
+
+const withMigrationDocumentationLink = (message: string) =>
+  `${message} Migration documentation: ${categoryMigrationDocumentationUrl}`
+
+const normalizeConventional = (
+  conventional: ChangeConditionConfig['conventional'],
+) => {
+  if (!conventional) {
+    return undefined
+  }
+
+  if (conventional === true) {
+    return { types: [], scopes: [], breaking: undefined }
+  }
+
+  if (Object.keys(conventional).length === 0) {
+    core.warning(
+      "Use 'conventional: true' instead of 'conventional: {}' to match any conventional title.",
+    )
+  }
+
+  return {
+    types: [
+      ...(conventional.types || []),
+      ...(conventional.type ? [conventional.type] : []),
+    ],
+    scopes: [
+      ...(conventional.scopes || []),
+      ...(conventional.scope ? [conventional.scope] : []),
+    ],
+    breaking: conventional.breaking,
+  }
+}
 
 /**
  * Parses all categories from the config, normalizing conditions and
@@ -88,12 +123,12 @@ export function parseCategories(
 
     const parsedWhenConditions = whenConditions
       .map((condition) => {
-        const { path, label, ..._cond } = condition
+        const { path, label, conventional, ..._cond } = condition
+        const normalizedConventional = normalizeConventional(conventional)
 
         // Deprecated category-level labels are shorthand for adding the same
         // label predicate to every `when` branch
         return {
-          ...changeConditionSchemaDefaults,
           ..._cond,
           'labels-mode':
             condition['labels-mode'] ??
@@ -107,12 +142,17 @@ export function parseCategories(
             ...(condition.labels || []),
             ...(label ? [label] : []),
           ],
+          ...(normalizedConventional
+            ? { conventional: normalizedConventional }
+            : {}),
         }
       })
       // Filter-out empty conditions
       .filter(
         (condition) =>
-          condition.paths.length > 0 || condition.labels.length > 0,
+          condition.paths.length > 0 ||
+          condition.labels.length > 0 ||
+          !!condition.conventional,
       )
 
     const categoryType = _cat.type ?? categorySchemaDefaults.type

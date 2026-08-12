@@ -2,9 +2,11 @@ import type * as z from 'zod'
 import {
   array,
   boolean,
+  literal,
   number,
   object,
   string,
+  union,
   ZodDefault,
   enum as zenum,
 } from 'zod'
@@ -15,6 +17,25 @@ import { commonConfigSchema } from './common-config.schema.ts'
  * All specified predicates must be satisfied for a change to match.
  */
 const changeConditionSchema = object({
+  /**
+   * Conventional commit predicate: matches a change whose title or message
+   * follows the conventional commit shape, e.g. `feat(api)!: add endpoint`.
+   */
+  conventional: union([
+    literal(true),
+    object({
+      /** Shorthand for one `types` entry. */
+      type: string().min(1).optional(),
+      /** Conventional commit types to match, e.g. `feat` or `fix`. */
+      types: array(string().min(1)).optional().default([]),
+      /** Shorthand for one `scopes` entry. */
+      scope: string().min(1).optional(),
+      /** Conventional commit scopes to match, e.g. `api` or `ui`. */
+      scopes: array(string().min(1)).optional().default([]),
+      /** Match titles with (`true`) or without (`false`) a breaking `!`. */
+      breaking: boolean().optional(),
+    }),
+  ]).optional(),
   /**
    * Label predicate: matches a change that carries this label.
    *
@@ -222,7 +243,19 @@ export const exclusiveConfigSchema = object({
    */
   'change-template': string()
     .optional()
-    .default('* $TITLE (#$NUMBER) @$AUTHOR'),
+    .default('* $TITLE (#$NUMBER) $AUTHORS'),
+  /**
+   * The template to use for each author in `$AUTHORS`.
+   */
+  'change-author-template': string().optional().default('$AUTHOR_MENTION'),
+  /**
+   * The separator to use between authors in `$AUTHORS`.
+   */
+  'change-authors-separator': string().optional().default(', '),
+  /**
+   * An optional separator to use before the final author in `$AUTHORS`.
+   */
+  'change-authors-final-separator': string().optional(),
   /**
    * Characters to escape in `$TITLE` when inserting into `change-template` so that they are not interpreted as Markdown format characters.
    */
@@ -279,6 +312,18 @@ export const exclusiveConfigSchema = object({
    * Exclude specific usernames from the generated `$CONTRIBUTORS` variable.
    */
   'exclude-contributors': array(string()).optional().default([]),
+  /**
+   * The template to use for each new contributor in `$NEW_CONTRIBUTORS`.
+   */
+  'new-contributor-template': string()
+    .optional()
+    .default('* $AUTHOR_MENTION made their first contribution in #$NUMBER'),
+  /**
+   * The template to use for `$NEW_CONTRIBUTORS` when there are no new contributors to list.
+   */
+  'no-new-contributor-template': string()
+    .optional()
+    .default('* No new contributors'),
   /**
    * The template to use for `$CONTRIBUTORS` when there's no contributors to list.
    */

@@ -90,10 +90,10 @@ describe('smoke config migration e2e', () => {
 
         ## Other changes
 
-        * Update dependencies (#4) @TimonVS
-        * Bug fixes (#3) @TimonVS
-        * Add big feature (#2) @TimonVS
-        * 👽 Add alien technology (#1) @TimonVS
+        * Update dependencies (#4) @step-security
+        * Bug fixes (#3) @step-security
+        * Add big feature (#2) @step-security
+        * 👽 Add alien technology (#1) @step-security
 
         **Full Changelog**: https://github.com/toolmantim/release-drafter-test-project/compare/v2.0.0...v2.0.1
         ",

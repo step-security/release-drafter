@@ -130,7 +130,17 @@ const suites: SuiteParams[] = [
     parseValid: false,
   },
   {
-    parseInput: { template, 'category-template': null },
+    parseInput: { template, 'new-contributor-template': null },
+    errorContains: 'Invalid input: expected string, received null',
+    parseValid: false,
+  },
+  {
+    parseInput: { template, 'no-new-contributor-template': ['No new'] },
+    errorContains: 'Invalid input: expected string, received array',
+    parseValid: false,
+  },
+  {
+    parseInput: { template, 'no-new-contributor-template': null },
     errorContains: 'Invalid input: expected string, received null',
     parseValid: false,
   },
@@ -242,12 +252,62 @@ const suites: SuiteParams[] = [
           type: 'version-resolver',
           'semver-increment': 'major',
           when: {
-            label: 'breaking',
+            conventional: {
+              type: 'feat',
+              scope: 'api',
+              breaking: true,
+            },
           },
         },
       ],
     },
     parseValid: true,
+  },
+  {
+    parseInput: {
+      template,
+      categories: [{ title: 'Conventional', when: { conventional: true } }],
+    },
+    parseValid: true,
+  },
+  {
+    parseInput: {
+      template,
+      categories: [{ title: 'Conventional', when: { conventional: {} } }],
+    },
+    parseValid: true,
+  },
+  {
+    parseInput: {
+      template,
+      categories: [{ title: 'Conventional', when: { conventional: false } }],
+    },
+    errorContains: 'Invalid input',
+    parseValid: false,
+  },
+  {
+    parseInput: {
+      template,
+      categories: [{ title: 'Conventional', when: { conventional: null } }],
+    },
+    errorContains: 'Invalid input',
+    parseValid: false,
+  },
+  {
+    parseInput: {
+      template,
+      categories: [{ title: 'Conventional', when: { conventional: 'true' } }],
+    },
+    errorContains: 'Invalid input',
+    parseValid: false,
+  },
+  {
+    parseInput: {
+      template,
+      categories: [{ title: 'Conventional', when: { conventional: [] } }],
+    },
+    errorContains: 'Invalid input',
+    parseValid: false,
   },
   {
     parseInput: {

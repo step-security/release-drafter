@@ -21,7 +21,7 @@
   ],
   "engines": {
     "node": ">=24.0.0",
-    "npm": ">=11.10.0"
+    "npm": ">=12.0.1"
   },
   "imports": {
     "#src/*": "./src/*",
@@ -47,31 +47,35 @@
     "@actions/github": "^9.1.1",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@octokit/graphql": "^9.0.3",
+    "@octokit/plugin-paginate-graphql": "^6.0.0",
     "@octokit/plugin-rest-endpoint-methods": "^17.0.0",
+    "@octokit/plugin-retry": "^8.1.0",
     "@octokit/request-error": "^7.1.0",
     "@octokit/types": "^16.0.0",
     "axios": "^1.18.1",
     "compare-versions": "^6.1.1",
+    "conventional-commits-parser": "^6.4.0",
     "escape-string-regexp": "^5.0.0",
-    "graphql": "^16.14.0",
-    "ignore": "^7.0.5",
+    "graphql": "^17.0.2",
+    "ignore": "^7.0.6",
     "regex-parser": "^2.3.1",
-    "semver": "^7.8.0",
-    "yaml": "^2.8.4",
+    "semver": "^7.8.5",
+    "yaml": "^2.9.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.15",
-    "@graphql-codegen/cli": "^7.0.0",
-    "@graphql-codegen/near-operation-file-preset": "^5.2.1",
-    "@graphql-codegen/typed-document-node": "^7.0.0",
+    "@biomejs/biome": "2.5.3",
+    "@graphql-codegen/cli": "^7.2.0",
+    "@graphql-codegen/typed-document-node": "^7.1.0",
+    "@graphql-codegen/typescript": "^6.1.0",
+    "@graphql-codegen/typescript-operations": "^6.1.0",
     "@octokit/webhooks-types": "^7.6.1",
-    "@types/node": "^24.12.3",
+    "@types/node": "^24.13.3",
     "@types/semver": "^7.7.1",
-    "@vitest/coverage-v8": "^4.1.6",
-    "nock": "^14.0.15",
-    "typescript": "^6.0.3",
-    "vite": "^8.0.16",
-    "vitest": "^4.1.6"
+    "@vitest/coverage-v8": "^4.1.10",
+    "nock": "^14.0.16",
+    "typescript": "^7.0.2",
+    "vite": "^8.1.4",
+    "vitest": "^4.1.10"
   }
 }

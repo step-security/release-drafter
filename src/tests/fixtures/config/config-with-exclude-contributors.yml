@@ -1,4 +1,4 @@
 exclude-contributors:
-  - TimonVS
+  - step-security
   - Ada Lovelace
 template: 'A big thanks to: $CONTRIBUTORS'

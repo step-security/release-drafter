@@ -5,7 +5,10 @@ import type { ExclusiveInput, ParsedConfig } from '../../config/index.ts'
 import type { findPreviousReleases } from '../find-previous-releases/index.ts'
 import type { findPullRequests } from '../find-pull-requests/index.ts'
 import { generateChangeLog } from './generate-changelog.ts'
-import { generateContributorsSentence } from './generate-contributors-sentence.ts'
+import {
+  generateContributorsSentence,
+  generateNewContributorsList,
+} from './generate-contributors-sentence.ts'
 import { getVersionInfo } from './get-version-info.ts'
 import { renderReleaseName } from './render-release-name.ts'
 import { renderTagName } from './render-tag-name.ts'
@@ -19,7 +22,7 @@ import lastNotFoundTemplate from './static/last-not-found.md?raw'
  *
  * Previously known as `generateReleaseInfo`.
  */
-export const buildReleasePayload = (params: {
+export const buildReleasePayload = async (params: {
   commits: Awaited<ReturnType<typeof findPullRequests>>['commits']
   config: Pick<
     ParsedConfig,
@@ -33,8 +36,13 @@ export const buildReleasePayload = (params: {
     | 'no-changes-template'
     | 'categories'
     | 'change-template'
+    | 'change-author-template'
+    | 'change-authors-separator'
+    | 'change-authors-final-separator'
     | 'category-template'
     | 'exclude-contributors'
+    | 'new-contributor-template'
+    | 'no-new-contributor-template'
     | 'no-contributors-template'
     | 'prerelease'
     | 'version-template'
@@ -47,9 +55,17 @@ export const buildReleasePayload = (params: {
   >
   input: ExclusiveInput
   lastRelease: Awaited<ReturnType<typeof findPreviousReleases>>['lastRelease']
+  newContributorLogins?: ReadonlySet<string>
   pullRequests: Awaited<ReturnType<typeof findPullRequests>>['pullRequests']
 }) => {
-  const { commits, config, input, lastRelease, pullRequests } = params
+  const {
+    commits,
+    config,
+    input,
+    lastRelease,
+    newContributorLogins = new Set<string>(),
+    pullRequests,
+  } = params
 
   core.info(`Building release payload and body...`)
 
@@ -70,10 +86,19 @@ export const buildReleasePayload = (params: {
     template: body,
     object: {
       $PREVIOUS_TAG: lastRelease ? lastRelease.tag_name : '',
-      $CHANGES: generateChangeLog({ pullRequests: sortedPullRequests, config }),
+      $CHANGES: generateChangeLog({
+        commits,
+        pullRequests: sortedPullRequests,
+        config,
+      }),
       $CONTRIBUTORS: generateContributorsSentence({
         commits,
         pullRequests: sortedPullRequests,
+        config,
+      }),
+      $NEW_CONTRIBUTORS: generateNewContributorsList({
+        pullRequests: sortedPullRequests,
+        newContributorLogins,
         config,
       }),
       $OWNER: context.repo.owner,
@@ -104,7 +129,7 @@ export const buildReleasePayload = (params: {
     name: renderReleaseName({ inputName: input.name, config, versionInfo }),
     tag: renderTagName({ inputTagName: input.tag, config, versionInfo }),
     body,
-    targetCommitish: parseCommitishForRelease(config.commitish),
+    targetCommitish: await parseCommitishForRelease(config.commitish),
     prerelease: config.prerelease,
     make_latest: config.latest,
     draft: !input.publish,

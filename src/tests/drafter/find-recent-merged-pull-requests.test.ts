@@ -150,7 +150,7 @@ describe('findRecentMergedPullRequests', () => {
           title: 'Add new feature',
           mergeCommitOid: 'abc123',
           labels: ['enhancement'],
-          authorLogin: 'TimonVS',
+          authorLogin: 'step-security',
         }),
       ]),
     )
@@ -169,7 +169,7 @@ describe('findRecentMergedPullRequests', () => {
       merged: true,
       baseRepository: { nameWithOwner: `${OWNER}/${REPO}` },
       labels: { nodes: [{ name: 'enhancement' }] },
-      author: { login: 'TimonVS' },
+      author: { login: 'step-security' },
     })
   })
 

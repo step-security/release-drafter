@@ -21,7 +21,7 @@
                   "name": "Joseph Petersen",
                   "user": {
                     "__typename": "User",
-                    "login": "jetersen"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -34,8 +34,8 @@
                       "body": "✍️ writing docs all day",
                       "author": {
                         "__typename": "User",
-                        "login": "jetersen",
-                        "url": "https://github.com/jetersen"
+                        "login": "step-security",
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -66,7 +66,7 @@
                   "name": "Joseph Petersen",
                   "user": {
                     "__typename": "User",
-                    "login": "jetersen"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -79,8 +79,8 @@
                       "body": "📦 Package time! 📦",
                       "author": {
                         "__typename": "User",
-                        "login": "jetersen",
-                        "url": "https://github.com/jetersen"
+                        "login": "step-security",
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -107,7 +107,7 @@
                   "name": "Joseph Petersen",
                   "user": {
                     "__typename": "User",
-                    "login": "jetersen"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -120,8 +120,8 @@
                       "body": "🐛 squashing",
                       "author": {
                         "__typename": "User",
-                        "login": "jetersen",
-                        "url": "https://github.com/jetersen"
+                        "login": "step-security",
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -158,7 +158,7 @@
                   "name": "Joseph Petersen",
                   "user": {
                     "__typename": "User",
-                    "login": "jetersen"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -171,8 +171,8 @@
                       "body": "![I'm kind of a big deal](https://media.giphy.com/media/9LFBOD8a1Ip2M/giphy.gif)",
                       "author": {
                         "__typename": "User",
-                        "login": "jetersen",
-                        "url": "https://github.com/jetersen"
+                        "login": "step-security",
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -206,7 +206,7 @@
                   "name": "Joseph Petersen",
                   "user": {
                     "__typename": "User",
-                    "login": "jetersen"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -219,8 +219,8 @@
                       "body": "",
                       "author": {
                         "__typename": "User",
-                        "login": "jetersen",
-                        "url": "https://github.com/jetersen"
+                        "login": "step-security",
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -268,7 +268,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {

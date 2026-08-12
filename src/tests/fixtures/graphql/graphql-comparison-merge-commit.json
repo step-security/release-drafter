@@ -15,13 +15,13 @@
                 "__typename": "Commit",
                 "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjAwZGU2MzRjYjVmM2MwYjg1NGViMzBiMGFmZTViMTgxNmUzNzJlZDM=",
                 "committedDate": "2019-04-27T13:12:07Z",
-                "message": "Merge pull request #5 from TimonVS/add-documentation\n\nAdd documentation",
+                "message": "Merge pull request #5 from step-security/add-documentation\n\nAdd documentation",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -32,9 +32,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/5",
                       "body": "✍️ writing docs all day",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -59,13 +59,13 @@
                 "__typename": "Commit",
                 "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmQ4NTg3ZmRiMjYzNjM5Zjc2NTYxMjQ2ZDUzN2UwNDE4YTJmODZhZWU=",
                 "committedDate": "2019-04-27T13:11:55Z",
-                "message": "Merge pull request #4 from TimonVS/chore/update-dependencies\n\nUpdate dependencies",
+                "message": "Merge pull request #4 from step-security/chore/update-dependencies\n\nUpdate dependencies",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -76,9 +76,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/4",
                       "body": "📦 Package time! 📦",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -99,13 +99,13 @@
                 "__typename": "Commit",
                 "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjI1MzQ0MDhmZWI4MzZkYWNjNTFlYzdjMGFmNGYyNDdlN2JlMzlkNzQ=",
                 "committedDate": "2019-04-27T13:11:47Z",
-                "message": "Merge pull request #3 from TimonVS/fix/bug-fixes\n\nBug fixes",
+                "message": "Merge pull request #3 from step-security/fix/bug-fixes\n\nBug fixes",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -116,9 +116,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/3",
                       "body": "🐛 squashing",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -146,13 +146,13 @@
                 "__typename": "Commit",
                 "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjQ4ZTkwNTYwNWQ4ODkyNWI1MjJjMmIwMGY2NDZmNzQ0ZmQ5NzZkMjE=",
                 "committedDate": "2019-04-27T13:11:38Z",
-                "message": "Merge pull request #2 from TimonVS/feature/big-feature\n\nAdd big feature",
+                "message": "Merge pull request #2 from step-security/feature/big-feature\n\nAdd big feature",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -163,9 +163,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/2",
                       "body": "![I'm kind of a big deal](https://media.giphy.com/media/9LFBOD8a1Ip2M/giphy.gif)",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -193,13 +193,13 @@
                 "__typename": "Commit",
                 "id": "MDY6Q29tbWl0MTgzNzY2OTUzOjVmNTViZThiOTA2M2IzOWQ5Y2VkYzllNWRkOGZkMDIyMjFiZDMxZjQ=",
                 "committedDate": "2019-04-27T13:11:29Z",
-                "message": "Merge pull request #1 from TimonVS/feature/alien-technology\n\n👽 Add alien technology",
+                "message": "Merge pull request #1 from step-security/feature/alien-technology\n\n👽 Add alien technology",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -210,9 +210,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/1",
                       "body": "Space invasion 👾",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -243,7 +243,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -254,9 +254,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/5",
                       "body": "✍️ writing docs all day",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -287,7 +287,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -298,9 +298,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/5",
                       "body": "✍️ writing docs all day",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -331,7 +331,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -342,9 +342,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/4",
                       "body": "📦 Package time! 📦",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -371,7 +371,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -382,9 +382,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/4",
                       "body": "📦 Package time! 📦",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -411,7 +411,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -422,9 +422,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/3",
                       "body": "🐛 squashing",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -458,7 +458,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -469,9 +469,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/3",
                       "body": "🐛 squashing",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -505,7 +505,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -516,9 +516,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/2",
                       "body": "![I'm kind of a big deal](https://media.giphy.com/media/9LFBOD8a1Ip2M/giphy.gif)",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -552,7 +552,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -563,9 +563,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/2",
                       "body": "![I'm kind of a big deal](https://media.giphy.com/media/9LFBOD8a1Ip2M/giphy.gif)",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -599,7 +599,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -610,9 +610,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/1",
                       "body": "Space invasion 👾",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -656,7 +656,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {

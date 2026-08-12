@@ -12,8 +12,8 @@
             "body": "New feature description",
             "author": {
               "__typename": "User",
-              "login": "TimonVS",
-              "url": "https://github.com/TimonVS"
+              "login": "step-security",
+              "url": "https://github.com/step-security"
             },
             "baseRepository": {
               "__typename": "Repository",

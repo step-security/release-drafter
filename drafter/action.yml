@@ -64,8 +64,10 @@ inputs:
     default: ''
   commitish:
     description: |
-      The release target, i.e. branch or commit it should point to.
-      Default: the ref that release-drafter runs for, e.g. `refs/heads/master` if configured to run on pushes to `master`.
+      The release target, i.e. branch, commit SHA, or fully qualified tag or pull request ref it should point to.
+      Tag and pull request refs are resolved to commit SHAs.
+      Pull request merge refs force dry-run mode and disable publishing because they point to ephemeral merge commits.
+      Defaults to the branch that release-drafter runs for, e.g. `main` when configured to run on pushes to `main`.
     required: false
     default: ''
   header:

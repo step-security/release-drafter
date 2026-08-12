@@ -1,10 +1,17 @@
+import { context } from '@actions/github'
+import nock from 'nock'
 import { beforeEach, describe, expect, it } from 'vitest'
+import { parse } from 'yaml'
 import {
   actionInputSchema,
   configSchema,
   mergeInputAndConfig,
 } from '#src/actions/drafter/config/index.ts'
 import { generateChangeLog } from '#src/actions/drafter/lib/build-release-payload/generate-changelog.ts'
+import {
+  generateContributorsSentence,
+  generateNewContributorsList,
+} from '#src/actions/drafter/lib/build-release-payload/generate-contributors-sentence.ts'
 import { buildReleasePayload } from '#src/actions/drafter/lib/index.ts'
 import { mockContext, mocks as sharedMocks } from '#tests/mocks/index.ts'
 
@@ -16,7 +23,6 @@ describe('generate changelog', () => {
     config = mergeInputAndConfig({
       config: configSchema.parse({
         template: '$CHANGES',
-        references: ['master'],
       }),
       input: actionInputSchema.parse({
         token: 'test',
@@ -33,13 +39,13 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       * Rename __confgs\\confg.yml to __configs\\config.yml (#7) @ghost
       * Adds @nullable annotations to the 1*1+2*4 test in \`tests.java\` (#0) @Happypig375
-      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) @[dependabot[bot]](https://github.com/apps/dependabot)"
+      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
     `)
   })
 
@@ -52,13 +58,13 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       * Rename __confgs\\\\confg.yml to __configs\\\\config.yml (#7) @ghost
       * Adds @nullable annotations to the 1*1+2*4 test in \`tests.java\` (#0) @Happypig375
-      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) @[dependabot[bot]](https://github.com/apps/dependabot)"
+      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
     `)
   })
 
@@ -71,13 +77,13 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing \\<example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing \\<example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2\\*2 should equal to 4\\*1 (#6) @jetersen
+      * 2\\*2 should equal to 4\\*1 (#6) @step-security
       * Rename \\_\\_confgs\\\\confg.yml to \\_\\_configs\\\\config.yml (#7) @ghost
       * Adds @nullable annotations to the 1\\*1+2\\*4 test in \`tests.java\` (#0) @Happypig375
-      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) @[dependabot[bot]](https://github.com/apps/dependabot)"
+      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
     `)
   })
 
@@ -89,13 +95,13 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       * Rename __confgs\\confg.yml to __configs\\config.yml (#7) @ghost
       * Adds @<!---->nullable annotations to the 1*1+2*4 test in \`tests.java\` (#0) @Happypig375
-      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) @[dependabot[bot]](https://github.com/apps/dependabot)"
+      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
     `)
   })
 
@@ -108,13 +114,13 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #<!---->4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       * Rename __confgs\\confg.yml to __configs\\config.yml (#7) @ghost
       * Adds @<!---->nullable annotations to the 1*1+2*4 test in \`tests.java\` (#0) @Happypig375
-      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) @[dependabot[bot]](https://github.com/apps/dependabot)"
+      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
     `)
   })
 
@@ -127,13 +133,13 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing \\<example> (#3) @jetersen
-      * \\\`#<!---->code\\_block\\\` (#4) @jetersen
+      * Adds missing \\<example> (#3) @step-security
+      * \\\`#<!---->code\\_block\\\` (#4) @step-security
       * Fixes #<!---->4 (#5) @Happypig375
-      * 2\\*2 should equal to 4\\*1 (#6) @jetersen
+      * 2\\*2 should equal to 4\\*1 (#6) @step-security
       * Rename \\_\\_confgs\\\\confg.yml to \\_\\_configs\\\\config.yml (#7) @ghost
       * Adds @<!---->nullable annotations to the 1\\*1+2\\*4 test in \\\`tests.java\\\` (#0) @Happypig375
-      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) @[dependabot[bot]](https://github.com/apps/dependabot)"
+      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
     `)
   })
 
@@ -141,7 +147,6 @@ describe('generate changelog', () => {
     const categorizedConfig = mergeInputAndConfig({
       config: configSchema.parse({
         template: '$CHANGES',
-        references: ['master'],
         categories: [
           { title: 'Bugs', 'collapse-after': 3, when: { labels: ['bug'] } },
         ],
@@ -158,7 +163,7 @@ describe('generate changelog', () => {
       "* B2 (#2) @ghost
       * Rename __confgs\\confg.yml to __configs\\config.yml (#7) @ghost
       * Adds @nullable annotations to the 1*1+2*4 test in \`tests.java\` (#0) @Happypig375
-      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) @[dependabot[bot]](https://github.com/apps/dependabot)
+      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)
 
       ## Bugs
 
@@ -166,10 +171,10 @@ describe('generate changelog', () => {
       <summary>5 changes</summary>
 
       * A1 (#1) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       </details>"
     `)
   })
@@ -178,7 +183,6 @@ describe('generate changelog', () => {
     const categorizedConfig = mergeInputAndConfig({
       config: configSchema.parse({
         template: '$CHANGES',
-        references: ['master'],
         categories: [
           { title: 'Bugs', 'collapse-after': 0, when: { labels: ['bug'] } },
         ],
@@ -206,7 +210,6 @@ describe('generate changelog', () => {
     const categorizedConfig = mergeInputAndConfig({
       config: configSchema.parse({
         template: '$CHANGES',
-        references: ['master'],
         categories: [
           {
             title: 'Feature',
@@ -232,7 +235,6 @@ describe('generate changelog', () => {
     const categorizedConfig = mergeInputAndConfig({
       config: configSchema.parse({
         template: '$CHANGES',
-        references: ['master'],
         categories: [
           { title: 'Bugs', 'collapse-after': -1, when: { labels: ['bug'] } },
         ],
@@ -254,7 +256,6 @@ describe('generate changelog', () => {
     const categorizedConfig = mergeInputAndConfig({
       config: configSchema.parse({
         template: '$CHANGES',
-        references: ['master'],
         categories: [
           {
             title: 'Feature',
@@ -274,12 +275,12 @@ describe('generate changelog', () => {
 
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       * Rename __confgs\\confg.yml to __configs\\config.yml (#7) @ghost
-      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) @[dependabot[bot]](https://github.com/apps/dependabot)
+      * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)
 
       ## Feature
 
@@ -301,7 +302,6 @@ describe('generate changelog', () => {
     const excludedConfig = mergeInputAndConfig({
       config: configSchema.parse({
         template: '$CHANGES',
-        references: ['master'],
         'exclude-labels': ['bug', 'feature', 'bugfix', 'dependencies'],
       }),
       input: actionInputSchema.parse({
@@ -320,7 +320,6 @@ describe('generate changelog', () => {
     const includedConfig = mergeInputAndConfig({
       config: configSchema.parse({
         template: '$CHANGES',
-        references: ['master'],
         'include-labels': ['non-existent-label'],
       }),
       input: actionInputSchema.parse({
@@ -344,7 +343,6 @@ describe('build release payload', () => {
     config = mergeInputAndConfig({
       config: configSchema.parse({
         template: '$CHANGES',
-        references: ['master'],
       }),
       input: actionInputSchema.parse({
         token: 'test',
@@ -352,8 +350,24 @@ describe('build release payload', () => {
     })
   })
 
-  it('falls back to the default branch for tag refs', () => {
-    const releasePayload = buildReleasePayload({
+  it('resolves tag refs recursively to commit SHAs', async () => {
+    const commitSha = '0123456789abcdef0123456789abcdef01234567'
+    const scope = nock('https://api.github.com')
+      .post(
+        '/graphql',
+        (body) =>
+          body.query.includes('query resolveCommitish') &&
+          body.variables.expression === 'refs/tags/v1.2.3^{commit}',
+      )
+      .reply(200, {
+        data: {
+          repository: {
+            object: { __typename: 'Commit', oid: commitSha },
+          },
+        },
+      })
+
+    const releasePayload = await buildReleasePayload({
       commits: [],
       config: { ...config, commitish: 'refs/tags/v1.2.3' },
       input: actionInputSchema.parse({ token: 'test' }),
@@ -361,14 +375,104 @@ describe('build release payload', () => {
       pullRequests: [],
     })
 
-    expect(releasePayload.targetCommitish).toBe('')
-    expect(sharedMocks.core.warning).toHaveBeenCalledWith(
-      'refs/tags/v1.2.3 is not supported as release target (commitish), falling back to default branch',
-    )
+    expect(releasePayload.targetCommitish).toBe(commitSha)
+    expect(sharedMocks.core.warning).not.toHaveBeenCalled()
+    expect(scope.pendingMocks()).toHaveLength(0)
   })
 
-  it('falls back to the default branch for pull request refs', () => {
-    const releasePayload = buildReleasePayload({
+  it('falls back to the default branch when a tag cannot be resolved', async () => {
+    const scope = nock('https://api.github.com')
+      .post(
+        '/graphql',
+        (body) =>
+          body.query.includes('query resolveCommitish') &&
+          body.variables.expression === 'refs/tags/missing^{commit}',
+      )
+      .reply(200, { data: { repository: { object: null } } })
+
+    const releasePayload = await buildReleasePayload({
+      commits: [],
+      config: { ...config, commitish: 'refs/tags/missing' },
+      input: actionInputSchema.parse({ token: 'test' }),
+      lastRelease: undefined,
+      pullRequests: [],
+    })
+
+    expect(releasePayload.targetCommitish).toBe('')
+    expect(sharedMocks.core.warning).toHaveBeenCalledWith(
+      'refs/tags/missing could not be resolved to a commit SHA, falling back to default branch',
+    )
+    expect(scope.pendingMocks()).toHaveLength(0)
+  })
+
+  it.each([
+    {
+      commitish: 'refs/pull/123/head',
+      expectedCommitSha: '1111111111111111111111111111111111111111',
+      pullRequest: {
+        headRefOid: '1111111111111111111111111111111111111111',
+        mergeCommit: null,
+        potentialMergeCommit: null,
+      },
+    },
+    {
+      commitish: 'refs/pull/123/merge',
+      expectedCommitSha: '2222222222222222222222222222222222222222',
+      pullRequest: {
+        headRefOid: '1111111111111111111111111111111111111111',
+        mergeCommit: null,
+        potentialMergeCommit: {
+          oid: '2222222222222222222222222222222222222222',
+        },
+      },
+    },
+    {
+      commitish: 'refs/pull/123/merge',
+      expectedCommitSha: '3333333333333333333333333333333333333333',
+      pullRequest: {
+        headRefOid: '1111111111111111111111111111111111111111',
+        mergeCommit: { oid: '3333333333333333333333333333333333333333' },
+        potentialMergeCommit: null,
+      },
+    },
+  ])('resolves $commitish to its commit SHA', async ({
+    commitish,
+    expectedCommitSha,
+    pullRequest,
+  }) => {
+    const scope = nock('https://api.github.com')
+      .post(
+        '/graphql',
+        (body) =>
+          body.query.includes('query resolvePullRequestCommitish') &&
+          body.variables.number === 123,
+      )
+      .reply(200, { data: { repository: { pullRequest } } })
+
+    const releasePayload = await buildReleasePayload({
+      commits: [],
+      config: { ...config, commitish },
+      input: actionInputSchema.parse({ token: 'test' }),
+      lastRelease: undefined,
+      pullRequests: [],
+    })
+
+    expect(releasePayload.targetCommitish).toBe(expectedCommitSha)
+    expect(sharedMocks.core.warning).not.toHaveBeenCalled()
+    expect(scope.pendingMocks()).toHaveLength(0)
+  })
+
+  it('falls back to the default branch when a pull request ref cannot be resolved', async () => {
+    const scope = nock('https://api.github.com')
+      .post(
+        '/graphql',
+        (body) =>
+          body.query.includes('query resolvePullRequestCommitish') &&
+          body.variables.number === 123,
+      )
+      .reply(200, { data: { repository: { pullRequest: null } } })
+
+    const releasePayload = await buildReleasePayload({
       commits: [],
       config: { ...config, commitish: 'refs/pull/123/merge' },
       input: actionInputSchema.parse({ token: 'test' }),
@@ -378,12 +482,13 @@ describe('build release payload', () => {
 
     expect(releasePayload.targetCommitish).toBe('')
     expect(sharedMocks.core.warning).toHaveBeenCalledWith(
-      'refs/pull/123/merge is not supported as release target (commitish), falling back to default branch',
+      'refs/pull/123/merge could not be resolved to a commit SHA, falling back to default branch',
     )
+    expect(scope.pendingMocks()).toHaveLength(0)
   })
 
-  it('keeps branch refs unchanged', () => {
-    const releasePayload = buildReleasePayload({
+  it('normalizes fully qualified branch refs', async () => {
+    const releasePayload = await buildReleasePayload({
       commits: [],
       config,
       input: actionInputSchema.parse({ token: 'test' }),
@@ -391,7 +496,27 @@ describe('build release payload', () => {
       pullRequests: [],
     })
 
-    expect(releasePayload.targetCommitish).toBe('refs/heads/master')
+    expect(releasePayload.targetCommitish).toBe('master')
+    expect(sharedMocks.core.warning).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['refs/heads/release/next', 'release/next'],
+    ['main', 'main'],
+    [
+      '0123456789abcdef0123456789abcdef01234567',
+      '0123456789abcdef0123456789abcdef01234567',
+    ],
+  ])('maps commitish %s to %s', async (commitish, expectedTargetCommitish) => {
+    const releasePayload = await buildReleasePayload({
+      commits: [],
+      config: { ...config, commitish },
+      input: actionInputSchema.parse({ token: 'test' }),
+      lastRelease: undefined,
+      pullRequests: [],
+    })
+
+    expect(releasePayload.targetCommitish).toBe(expectedTargetCommitish)
     expect(sharedMocks.core.warning).not.toHaveBeenCalled()
   })
 })
@@ -460,8 +585,8 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       },
       author: {
         __typename: 'User',
-        login: 'jetersen',
-        url: 'https://github.com/jetersen',
+        login: 'step-security',
+        url: 'https://github.com/step-security',
       },
       baseRefName: 'master',
       headRefName: 'fix-bug',
@@ -485,8 +610,8 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       },
       author: {
         __typename: 'User',
-        login: 'jetersen',
-        url: 'https://github.com/jetersen',
+        login: 'step-security',
+        url: 'https://github.com/step-security',
       },
       baseRefName: 'master',
       headRefName: 'fix-bug',
@@ -535,8 +660,8 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       },
       author: {
         __typename: 'User',
-        login: 'jetersen',
-        url: 'https://github.com/jetersen',
+        login: 'step-security',
+        url: 'https://github.com/step-security',
       },
       baseRefName: 'master',
       headRefName: 'fix-bug',
@@ -625,3 +750,496 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       },
     },
   ]
+
+describe('generate contributors sentence', () => {
+  let config: ReturnType<typeof mergeInputAndConfig>
+
+  beforeEach(async () => {
+    await mockContext('push')
+    config = mergeInputAndConfig({
+      config: configSchema.parse({ template: '$CONTRIBUTORS' }),
+      input: actionInputSchema.parse({ token: 'test' }),
+    })
+  })
+
+  const botPullRequest = pullRequests.at(-1)
+  if (!botPullRequest) throw new Error('Missing bot pull request fixture')
+  const ghostPullRequest = pullRequests.at(0)
+  if (!ghostPullRequest) throw new Error('Missing ghost pull request fixture')
+  const todoPullRequest = pullRequests.at(1)
+  if (!todoPullRequest) throw new Error('Missing todo pull request fixture')
+  const userPullRequest = pullRequests.find(
+    (pullRequest) => pullRequest.author?.login === 'step-security',
+  )
+  if (!userPullRequest) throw new Error('Missing user pull request fixture')
+  const botCommit = {
+    __typename: 'Commit',
+    id: 'commit-id',
+    oid: 'commit-oid',
+    committedDate: '2024-01-01T00:00:00Z',
+    message: 'Update dependencies',
+    author: {
+      __typename: 'GitActor',
+      name: 'dependabot[bot]',
+      user: { __typename: 'User', login: 'dependabot[bot]' },
+    },
+    authors: {
+      __typename: 'GitActorConnection',
+      nodes: [
+        {
+          __typename: 'GitActor',
+          name: 'dependabot[bot]',
+          user: { __typename: 'User', login: 'dependabot[bot]' },
+        },
+      ],
+    },
+    associatedPullRequests: {
+      __typename: 'PullRequestConnection',
+      nodes: [botPullRequest],
+    },
+  } as Parameters<typeof generateContributorsSentence>[0]['commits'][number]
+  const pullRequest = {
+    ...userPullRequest,
+    author: {
+      __typename: 'User' as const,
+      login: 'octocat',
+      url: 'https://github.com/octocat',
+    },
+  }
+  const commit = {
+    ...botCommit,
+    authors: {
+      __typename: 'GitActorConnection' as const,
+      nodes: [
+        {
+          __typename: 'GitActor' as const,
+          name: 'The Octocat',
+          user: {
+            __typename: 'User' as const,
+            login: 'octocat',
+          },
+        },
+        {
+          __typename: 'GitActor' as const,
+          name: 'Joseph Petersen',
+          user: { __typename: 'User' as const, login: 'step-security' },
+        },
+        {
+          __typename: 'GitActor' as const,
+          name: 'Clément Chanchevrier',
+          user: { __typename: 'User' as const, login: 'cchanche' },
+        },
+      ],
+    },
+    associatedPullRequests: {
+      __typename: 'PullRequestConnection' as const,
+      nodes: [pullRequest],
+    },
+  }
+  const commitWithBotCoAuthor = {
+    ...commit,
+    authors: {
+      ...commit.authors,
+      nodes: [
+        ...commit.authors.nodes,
+        {
+          __typename: 'GitActor' as const,
+          name: 'Automation',
+          user: {
+            __typename: 'User' as const,
+            login: 'github-actions[bot]',
+          },
+        },
+      ],
+    },
+  }
+
+  it('normalizes and deduplicates bot contributors before rendering', () => {
+    expect(
+      generateContributorsSentence({
+        commits: [botCommit],
+        pullRequests: [userPullRequest, botPullRequest],
+        config,
+      }),
+    ).toBe(
+      '@step-security and [@dependabot[bot]](https://github.com/apps/dependabot)',
+    )
+  })
+
+  it('includes co-authors after the pull request author', () => {
+    expect(
+      generateContributorsSentence({
+        commits: [commit],
+        pullRequests: [pullRequest],
+        config,
+      }),
+    ).toBe('@octocat, @cchanche and @step-security')
+
+    expect(
+      generateChangeLog({
+        commits: [commit],
+        pullRequests: [pullRequest],
+        config: { ...config, 'change-template': '$AUTHORS' },
+      }),
+    ).toBe('@octocat, @cchanche, @step-security')
+
+    expect(
+      generateChangeLog({
+        commits: [commit],
+        pullRequests: [pullRequest],
+        config: {
+          ...config,
+          'change-template': '$AUTHORS',
+          'change-authors-final-separator': ' and ',
+        },
+      }),
+    ).toBe('@octocat, @cchanche and @step-security')
+  })
+
+  it('sorts and links commit-only bots after human co-authors', () => {
+    const params = {
+      commits: [commitWithBotCoAuthor],
+      pullRequests: [pullRequest],
+      config,
+    }
+
+    expect(generateContributorsSentence(params)).toBe(
+      '@octocat, @cchanche, @step-security and [@github-actions[bot]](https://github.com/apps/github-actions)',
+    )
+
+    const serverUrl = context.serverUrl
+    try {
+      context.serverUrl = 'https://github.example.com/'
+      expect(generateContributorsSentence(params)).toBe(
+        '@octocat, @cchanche, @step-security and [@github-actions[bot]](https://github.example.com/apps/github-actions)',
+      )
+    } finally {
+      context.serverUrl = serverUrl
+    }
+  })
+
+  it('renders author placeholders in pull request changelogs', () => {
+    expect(
+      generateChangeLog({
+        commits: [commitWithBotCoAuthor],
+        pullRequests: [pullRequest],
+        config: {
+          ...config,
+          'change-template': '$AUTHOR | $AUTHORS',
+          'change-author-template': '$AUTHOR: $AUTHOR_MENTION',
+        },
+      }),
+    ).toBe(
+      'octocat | octocat: @octocat, cchanche: @cchanche, step-security: @step-security, github-actions[bot]: [@github-actions[bot]](https://github.com/apps/github-actions)',
+    )
+  })
+
+  it('renders pull request authors as markdown links', () => {
+    expect(
+      generateChangeLog({
+        pullRequests: [pullRequest],
+        config: {
+          ...config,
+          'change-template':
+            '* $TITLE ([#$NUMBER]($URL)) [$AUTHOR]($AUTHOR_URL)',
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"* Adds missing <example> ([#3](https://github.com)) [octocat](https://github.com/octocat)"`,
+    )
+  })
+
+  it('renders deleted pull request authors with the author template', () => {
+    expect(
+      generateChangeLog({
+        pullRequests: [{ ...pullRequest, author: null }],
+        config: {
+          ...config,
+          'change-template': '$AUTHORS',
+          'change-author-template': '$AUTHOR: $AUTHOR_MENTION',
+        },
+      }),
+    ).toBe('ghost: @ghost')
+  })
+
+  it('includes co-authors for a pull request recovered by merge commit', () => {
+    expect(
+      generateChangeLog({
+        commits: [
+          {
+            ...commit,
+            associatedPullRequests: {
+              __typename: 'PullRequestConnection' as const,
+              nodes: [],
+            },
+          },
+        ],
+        pullRequests: [
+          {
+            ...pullRequest,
+            mergeCommit: {
+              __typename: 'Commit' as const,
+              oid: commit.oid,
+            },
+          },
+        ],
+        config: { ...config, 'change-template': '$AUTHORS' },
+      }),
+    ).toBe('@octocat, @cchanche, @step-security')
+  })
+
+  it('renders the README multiline author configuration as valid YAML', () => {
+    const readmeConfig = mergeInputAndConfig({
+      config: configSchema.parse(
+        parse(`
+          template: "$CHANGES"
+          categories:
+            - title: bug
+              when:
+                label: bug
+            - title: todo
+          category-template: ""
+          change-template: |-
+            - type: $CATEGORY
+              message: |-
+                $TITLE
+              pull: $NUMBER
+              authors:
+                $AUTHORS
+          change-author-template: "- $AUTHOR"
+          change-authors-separator: "\\n    "
+        `),
+      ),
+      input: actionInputSchema.parse({ token: 'test' }),
+    })
+
+    const changelog = generateChangeLog({
+      commits: [commit],
+      pullRequests: [pullRequest, todoPullRequest],
+      config: readmeConfig,
+    })
+
+    expect(parse(changelog)).toEqual([
+      {
+        type: 'bug',
+        message: 'Adds missing <example>',
+        pull: 3,
+        authors: ['octocat', 'cchanche', 'step-security'],
+      },
+      {
+        type: 'todo',
+        message: 'B2',
+        pull: 2,
+        authors: ['ghost'],
+      },
+    ])
+    expect(changelog).toMatchInlineSnapshot(`
+      "- type: bug
+        message: |-
+          Adds missing <example>
+        pull: 3
+        authors:
+          - octocat
+          - cchanche
+          - step-security
+
+      - type: todo
+        message: |-
+          B2
+        pull: 2
+        authors:
+          - ghost"
+    `)
+  })
+
+  it('sorts users before bots regardless of pull request order', () => {
+    const renovatePullRequest = {
+      ...botPullRequest,
+      number: 10,
+      author: {
+        __typename: 'Bot' as const,
+        login: 'renovate',
+        url: 'https://github.com/apps/renovate',
+      },
+    }
+    const cchanchePullRequest = {
+      ...userPullRequest,
+      number: 11,
+      author: {
+        __typename: 'User' as const,
+        login: 'cchanche',
+        url: 'https://github.com/cchanche',
+      },
+    }
+
+    expect(
+      generateContributorsSentence({
+        commits: [],
+        pullRequests: [
+          renovatePullRequest,
+          userPullRequest,
+          botPullRequest,
+          cchanchePullRequest,
+        ],
+        config,
+      }),
+    ).toBe(
+      '@cchanche, @step-security, [@dependabot[bot]](https://github.com/apps/dependabot) and [@renovate[bot]](https://github.com/apps/renovate)',
+    )
+  })
+
+  it('renders deleted users as @ghost', () => {
+    expect(
+      generateContributorsSentence({
+        commits: [],
+        pullRequests: [ghostPullRequest],
+        config,
+      }),
+    ).toBe('@ghost')
+  })
+
+  it('renders the GitHub-style new contributors list', () => {
+    const newContributorPullRequest = {
+      ...userPullRequest,
+      number: 42,
+      author: {
+        __typename: 'User' as const,
+        login: 'first-timer',
+        url: 'https://github.com/first-timer',
+      },
+    }
+
+    expect(
+      generateNewContributorsList({
+        pullRequests: [userPullRequest, newContributorPullRequest],
+        newContributorLogins: new Set(['first-timer']),
+        config,
+      }),
+    ).toBe('* @first-timer made their first contribution in #42')
+  })
+
+  it('renders default placeholder when there are no new contributors', () => {
+    expect(
+      generateNewContributorsList({
+        pullRequests: [userPullRequest],
+        newContributorLogins: new Set(),
+        config,
+      }),
+    ).toBe('* No new contributors')
+  })
+
+  it('renders a custom placeholder when there are no new contributors', () => {
+    expect(
+      generateNewContributorsList({
+        pullRequests: [userPullRequest],
+        newContributorLogins: new Set(),
+        config: {
+          ...config,
+          'no-new-contributor-template': 'Nobody made their first contribution',
+        },
+      }),
+    ).toBe('Nobody made their first contribution')
+  })
+
+  it('renders new contributors with a custom template', () => {
+    const newContributorPullRequest = {
+      ...userPullRequest,
+      number: 42,
+      url: 'https://github.com/release-drafter/release-drafter/pull/42',
+      author: {
+        __typename: 'User' as const,
+        login: 'first-timer',
+        url: 'https://github.com/first-timer',
+      },
+    }
+
+    expect(
+      generateNewContributorsList({
+        pullRequests: [newContributorPullRequest],
+        newContributorLogins: new Set(['first-timer']),
+        config: {
+          ...config,
+          'new-contributor-template':
+            '* [$AUTHOR]($AUTHOR_URL) made their first contribution in [#$NUMBER]($URL)',
+        },
+      }),
+    ).toMatchInlineSnapshot(
+      `"* [first-timer](https://github.com/first-timer) made their first contribution in [#42](https://github.com/release-drafter/release-drafter/pull/42)"`,
+    )
+  })
+
+  it('omits a contributor whose actual first pull request is excluded', () => {
+    const author = {
+      __typename: 'User' as const,
+      login: 'first-timer',
+      url: 'https://github.com/first-timer',
+    }
+    const firstPullRequest = {
+      ...userPullRequest,
+      number: 41,
+      mergedAt: '2024-01-01T00:00:00Z',
+      author,
+      labels: {
+        __typename: 'LabelConnection' as const,
+        nodes: [{ __typename: 'Label' as const, name: 'skip-changelog' }],
+      },
+    }
+    const laterPullRequest = {
+      ...userPullRequest,
+      number: 42,
+      mergedAt: '2024-01-02T00:00:00Z',
+      author,
+    }
+    const skipConfig = mergeInputAndConfig({
+      config: configSchema.parse({
+        template: '$NEW_CONTRIBUTORS',
+        categories: [
+          { type: 'pre-exclude', when: { label: 'skip-changelog' } },
+        ],
+      }),
+      input: actionInputSchema.parse({ token: 'test' }),
+    })
+
+    expect(
+      generateNewContributorsList({
+        pullRequests: [laterPullRequest, firstPullRequest],
+        newContributorLogins: new Set(['first-timer']),
+        config: skipConfig,
+      }),
+    ).toBe('* No new contributors')
+  })
+
+  it('excludes contributors whose pull requests are excluded', () => {
+    const skippedPullRequest = {
+      ...botPullRequest,
+      labels: {
+        __typename: 'LabelConnection' as const,
+        nodes: [{ __typename: 'Label' as const, name: 'skip-changelog' }],
+      },
+    }
+    const skippedCommit = {
+      ...botCommit,
+      associatedPullRequests: {
+        __typename: 'PullRequestConnection' as const,
+        nodes: [skippedPullRequest],
+      },
+    }
+    const skipConfig = mergeInputAndConfig({
+      config: configSchema.parse({
+        template: '$CONTRIBUTORS',
+        categories: [
+          { type: 'pre-exclude', when: { label: 'skip-changelog' } },
+        ],
+      }),
+      input: actionInputSchema.parse({ token: 'test' }),
+    })
+
+    expect(
+      generateContributorsSentence({
+        commits: [skippedCommit],
+        pullRequests: [skippedPullRequest],
+        config: skipConfig,
+      }),
+    ).toBe('No contributors')
+  })
+})

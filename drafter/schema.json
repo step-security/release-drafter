@@ -2,8 +2,57 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "type": "object",
   "properties": {
+    "_extends": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "pattern": "\\S"
+            },
+            "strategy": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "string",
+                    "enum": ["override", "append", "prepend"]
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": ["from"],
+          "additionalProperties": false
+        }
+      ]
+    },
     "change-template": {
-      "default": "* $TITLE (#$NUMBER) @$AUTHOR",
+      "default": "* $TITLE (#$NUMBER) $AUTHORS",
+      "type": "string"
+    },
+    "change-author-template": {
+      "default": "$AUTHOR_MENTION",
+      "type": "string"
+    },
+    "change-authors-separator": {
+      "default": ", ",
+      "type": "string"
+    },
+    "change-authors-final-separator": {
       "type": "string"
     },
     "change-title-escapes": {
@@ -60,6 +109,14 @@
       "items": {
         "type": "string"
       }
+    },
+    "new-contributor-template": {
+      "default": "* $AUTHOR_MENTION made their first contribution in #$NUMBER",
+      "type": "string"
+    },
+    "no-new-contributor-template": {
+      "default": "* No new contributors",
+      "type": "string"
     },
     "no-contributors-template": {
       "default": "No contributors",
@@ -162,6 +219,46 @@
               {
                 "type": "object",
                 "properties": {
+                  "conventional": {
+                    "anyOf": [
+                      {
+                        "type": "boolean",
+                        "const": true
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "types": {
+                            "default": [],
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "scope": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "scopes": {
+                            "default": [],
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "breaking": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    ]
+                  },
                   "label": {
                     "type": "string",
                     "minLength": 1
@@ -203,6 +300,46 @@
                 "items": {
                   "type": "object",
                   "properties": {
+                    "conventional": {
+                      "anyOf": [
+                        {
+                          "type": "boolean",
+                          "const": true
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "types": {
+                              "default": [],
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "scope": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "scopes": {
+                              "default": [],
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            },
+                            "breaking": {
+                              "type": "boolean"
+                            }
+                          }
+                        }
+                      ]
+                    },
                     "label": {
                       "type": "string",
                       "minLength": 1

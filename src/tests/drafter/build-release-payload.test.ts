@@ -39,10 +39,10 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       * Rename __confgs\\confg.yml to __configs\\config.yml (#7) @ghost
       * Adds @nullable annotations to the 1*1+2*4 test in \`tests.java\` (#0) @Happypig375
       * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
@@ -58,10 +58,10 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       * Rename __confgs\\\\confg.yml to __configs\\\\config.yml (#7) @ghost
       * Adds @nullable annotations to the 1*1+2*4 test in \`tests.java\` (#0) @Happypig375
       * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
@@ -77,10 +77,10 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing \\<example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing \\<example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2\\*2 should equal to 4\\*1 (#6) @jetersen
+      * 2\\*2 should equal to 4\\*1 (#6) @step-security
       * Rename \\_\\_confgs\\\\confg.yml to \\_\\_configs\\\\config.yml (#7) @ghost
       * Adds @nullable annotations to the 1\\*1+2\\*4 test in \`tests.java\` (#0) @Happypig375
       * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
@@ -95,10 +95,10 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       * Rename __confgs\\confg.yml to __configs\\config.yml (#7) @ghost
       * Adds @<!---->nullable annotations to the 1*1+2*4 test in \`tests.java\` (#0) @Happypig375
       * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
@@ -114,10 +114,10 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #<!---->4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       * Rename __confgs\\confg.yml to __configs\\config.yml (#7) @ghost
       * Adds @<!---->nullable annotations to the 1*1+2*4 test in \`tests.java\` (#0) @Happypig375
       * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
@@ -133,10 +133,10 @@ describe('generate changelog', () => {
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
       * B2 (#2) @ghost
-      * Adds missing \\<example> (#3) @jetersen
-      * \\\`#<!---->code\\_block\\\` (#4) @jetersen
+      * Adds missing \\<example> (#3) @step-security
+      * \\\`#<!---->code\\_block\\\` (#4) @step-security
       * Fixes #<!---->4 (#5) @Happypig375
-      * 2\\*2 should equal to 4\\*1 (#6) @jetersen
+      * 2\\*2 should equal to 4\\*1 (#6) @step-security
       * Rename \\_\\_confgs\\\\confg.yml to \\_\\_configs\\\\config.yml (#7) @ghost
       * Adds @<!---->nullable annotations to the 1\\*1+2\\*4 test in \\\`tests.java\\\` (#0) @Happypig375
       * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)"
@@ -171,10 +171,10 @@ describe('generate changelog', () => {
       <summary>5 changes</summary>
 
       * A1 (#1) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       </details>"
     `)
   })
@@ -275,10 +275,10 @@ describe('generate changelog', () => {
 
     expect(changelog).toMatchInlineSnapshot(`
       "* A1 (#1) @ghost
-      * Adds missing <example> (#3) @jetersen
-      * \`#code_block\` (#4) @jetersen
+      * Adds missing <example> (#3) @step-security
+      * \`#code_block\` (#4) @step-security
       * Fixes #4 (#5) @Happypig375
-      * 2*2 should equal to 4*1 (#6) @jetersen
+      * 2*2 should equal to 4*1 (#6) @step-security
       * Rename __confgs\\confg.yml to __configs\\config.yml (#7) @ghost
       * Bump golang.org/x/crypto from 0.14.0 to 0.17.0 in /examples (#0) [@dependabot[bot]](https://github.com/apps/dependabot)
 
@@ -585,8 +585,8 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       },
       author: {
         __typename: 'User',
-        login: 'jetersen',
-        url: 'https://github.com/jetersen',
+        login: 'step-security',
+        url: 'https://github.com/step-security',
       },
       baseRefName: 'master',
       headRefName: 'fix-bug',
@@ -610,8 +610,8 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       },
       author: {
         __typename: 'User',
-        login: 'jetersen',
-        url: 'https://github.com/jetersen',
+        login: 'step-security',
+        url: 'https://github.com/step-security',
       },
       baseRefName: 'master',
       headRefName: 'fix-bug',
@@ -660,8 +660,8 @@ const pullRequests: Parameters<typeof buildReleasePayload>[0]['pullRequests'] =
       },
       author: {
         __typename: 'User',
-        login: 'jetersen',
-        url: 'https://github.com/jetersen',
+        login: 'step-security',
+        url: 'https://github.com/step-security',
       },
       baseRefName: 'master',
       headRefName: 'fix-bug',
@@ -769,7 +769,7 @@ describe('generate contributors sentence', () => {
   const todoPullRequest = pullRequests.at(1)
   if (!todoPullRequest) throw new Error('Missing todo pull request fixture')
   const userPullRequest = pullRequests.find(
-    (pullRequest) => pullRequest.author?.login === 'jetersen',
+    (pullRequest) => pullRequest.author?.login === 'step-security',
   )
   if (!userPullRequest) throw new Error('Missing user pull request fixture')
   const botCommit = {
@@ -822,7 +822,7 @@ describe('generate contributors sentence', () => {
         {
           __typename: 'GitActor' as const,
           name: 'Joseph Petersen',
-          user: { __typename: 'User' as const, login: 'jetersen' },
+          user: { __typename: 'User' as const, login: 'step-security' },
         },
         {
           __typename: 'GitActor' as const,
@@ -862,7 +862,7 @@ describe('generate contributors sentence', () => {
         config,
       }),
     ).toBe(
-      '@jetersen and [@dependabot[bot]](https://github.com/apps/dependabot)',
+      '@step-security and [@dependabot[bot]](https://github.com/apps/dependabot)',
     )
   })
 
@@ -873,7 +873,7 @@ describe('generate contributors sentence', () => {
         pullRequests: [pullRequest],
         config,
       }),
-    ).toBe('@octocat, @cchanche and @jetersen')
+    ).toBe('@octocat, @cchanche and @step-security')
 
     expect(
       generateChangeLog({
@@ -881,7 +881,7 @@ describe('generate contributors sentence', () => {
         pullRequests: [pullRequest],
         config: { ...config, 'change-template': '$AUTHORS' },
       }),
-    ).toBe('@octocat, @cchanche, @jetersen')
+    ).toBe('@octocat, @cchanche, @step-security')
 
     expect(
       generateChangeLog({
@@ -893,7 +893,7 @@ describe('generate contributors sentence', () => {
           'change-authors-final-separator': ' and ',
         },
       }),
-    ).toBe('@octocat, @cchanche and @jetersen')
+    ).toBe('@octocat, @cchanche and @step-security')
   })
 
   it('sorts and links commit-only bots after human co-authors', () => {
@@ -904,14 +904,14 @@ describe('generate contributors sentence', () => {
     }
 
     expect(generateContributorsSentence(params)).toBe(
-      '@octocat, @cchanche, @jetersen and [@github-actions[bot]](https://github.com/apps/github-actions)',
+      '@octocat, @cchanche, @step-security and [@github-actions[bot]](https://github.com/apps/github-actions)',
     )
 
     const serverUrl = context.serverUrl
     try {
       context.serverUrl = 'https://github.example.com/'
       expect(generateContributorsSentence(params)).toBe(
-        '@octocat, @cchanche, @jetersen and [@github-actions[bot]](https://github.example.com/apps/github-actions)',
+        '@octocat, @cchanche, @step-security and [@github-actions[bot]](https://github.example.com/apps/github-actions)',
       )
     } finally {
       context.serverUrl = serverUrl
@@ -930,7 +930,7 @@ describe('generate contributors sentence', () => {
         },
       }),
     ).toBe(
-      'octocat | octocat: @octocat, cchanche: @cchanche, jetersen: @jetersen, github-actions[bot]: [@github-actions[bot]](https://github.com/apps/github-actions)',
+      'octocat | octocat: @octocat, cchanche: @cchanche, step-security: @step-security, github-actions[bot]: [@github-actions[bot]](https://github.com/apps/github-actions)',
     )
   })
 
@@ -985,7 +985,7 @@ describe('generate contributors sentence', () => {
         ],
         config: { ...config, 'change-template': '$AUTHORS' },
       }),
-    ).toBe('@octocat, @cchanche, @jetersen')
+    ).toBe('@octocat, @cchanche, @step-security')
   })
 
   it('renders the README multiline author configuration as valid YAML', () => {
@@ -1024,7 +1024,7 @@ describe('generate contributors sentence', () => {
         type: 'bug',
         message: 'Adds missing <example>',
         pull: 3,
-        authors: ['octocat', 'cchanche', 'jetersen'],
+        authors: ['octocat', 'cchanche', 'step-security'],
       },
       {
         type: 'todo',
@@ -1041,7 +1041,7 @@ describe('generate contributors sentence', () => {
         authors:
           - octocat
           - cchanche
-          - jetersen
+          - step-security
 
       - type: todo
         message: |-
@@ -1084,7 +1084,7 @@ describe('generate contributors sentence', () => {
         config,
       }),
     ).toBe(
-      '@cchanche, @jetersen, [@dependabot[bot]](https://github.com/apps/dependabot) and [@renovate[bot]](https://github.com/apps/renovate)',
+      '@cchanche, @step-security, [@dependabot[bot]](https://github.com/apps/dependabot) and [@renovate[bot]](https://github.com/apps/renovate)',
     )
   })
 

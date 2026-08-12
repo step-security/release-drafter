@@ -16,11 +16,11 @@
                 "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWE=",
                 "oid": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
                 "committedDate": "2019-04-27T14:00:00Z",
-                "message": "Merge pull request #100 from TimonVS/touches-src\n\nDocs change",
+                "message": "Merge pull request #100 from step-security/touches-src\n\nDocs change",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Timon van Spronsen",
-                  "user": { "__typename": "User", "login": "TimonVS" }
+                  "user": { "__typename": "User", "login": "step-security" }
                 },
                 "associatedPullRequests": { "nodes": [] }
               },
@@ -29,11 +29,11 @@
                 "id": "MDY6Q29tbWl0MTgzNzY2OTUzOmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmI=",
                 "oid": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
                 "committedDate": "2019-04-27T15:00:00Z",
-                "message": "Merge pull request #101 from TimonVS/touches-other\n\nUnrelated change",
+                "message": "Merge pull request #101 from step-security/touches-other\n\nUnrelated change",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Timon van Spronsen",
-                  "user": { "__typename": "User", "login": "TimonVS" }
+                  "user": { "__typename": "User", "login": "step-security" }
                 },
                 "associatedPullRequests": { "nodes": [] }
               }

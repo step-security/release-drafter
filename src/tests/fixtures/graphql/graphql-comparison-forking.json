@@ -15,13 +15,13 @@
                 "__typename": "Commit",
                 "id": "MDY6Q29tbWl0MjY3MTQyMTYxOjk2Y2Y3NmJiMzQ3MDkxM2E0NDlkNTA1ZjIwMTE1NDRiNjYxNjUyZjQ=",
                 "committedDate": "2020-05-26T20:33:00Z",
-                "message": "Merge pull request #1 from TimonVS/forking",
+                "message": "Merge pull request #1 from step-security/forking",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Joseph Petersen",
                   "user": {
                     "__typename": "User",
-                    "login": "jetersen"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -29,15 +29,15 @@
                     {
                       "title": "🙅‍♂️ Forking PR 🙅‍♂️",
                       "number": 1,
-                      "url": "https://github.com/jetersen/release-drafter-test-repo/pull/1",
+                      "url": "https://github.com/step-security/release-drafter-test-repo/pull/1",
                       "body": "No thanks to forking PRs",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
-                        "nameWithOwner": "jetersen/release-drafter-test-repo"
+                        "nameWithOwner": "step-security/release-drafter-test-repo"
                       },
                       "mergedAt": "2020-05-26T20:33:01Z",
                       "isCrossRepository": true,
@@ -55,13 +55,13 @@
                 "__typename": "Commit",
                 "id": "MDY6Q29tbWl0MjY3MTQyMTYxOjlhZjJlZWMyYjY4NDA0MWY5ZDE3YmFlM2IwNTAwMjYwNGU5NGE4MzM=",
                 "committedDate": "2020-05-26T20:30:59Z",
-                "message": "Merge pull request #28 from TimonVS/add-documentation",
+                "message": "Merge pull request #28 from step-security/add-documentation",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Joseph Petersen",
                   "user": {
                     "__typename": "User",
-                    "login": "jetersen"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -72,9 +72,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/28",
                       "body": "✍️ writing docs all day",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -95,15 +95,15 @@
                     {
                       "title": "🙅‍♂️ Forking PR 🙅‍♂️",
                       "number": 1,
-                      "url": "https://github.com/jetersen/release-drafter-test-repo/pull/1",
+                      "url": "https://github.com/step-security/release-drafter-test-repo/pull/1",
                       "body": "No thanks to forking PRs",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
-                        "nameWithOwner": "jetersen/release-drafter-test-repo"
+                        "nameWithOwner": "step-security/release-drafter-test-repo"
                       },
                       "mergedAt": "2020-05-26T20:33:01Z",
                       "isCrossRepository": true,
@@ -121,13 +121,13 @@
                 "__typename": "Commit",
                 "id": "MDY6Q29tbWl0MjY3MTQyMTYxOjYxMTAwMDY2OWJmZTRlYjQ2NjUzYTQ0YjU2MGUzNjFkYjRhZDc5MjQ=",
                 "committedDate": "2020-05-26T20:29:54Z",
-                "message": "Merge pull request #27 from TimonVS/chore/update-dependencies",
+                "message": "Merge pull request #27 from step-security/chore/update-dependencies",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Joseph Petersen",
                   "user": {
                     "__typename": "User",
-                    "login": "jetersen"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -138,9 +138,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/27",
                       "body": "📦 Package time! 📦",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -157,15 +157,15 @@
                     {
                       "title": "🙅‍♂️ Forking PR 🙅‍♂️",
                       "number": 1,
-                      "url": "https://github.com/jetersen/release-drafter-test-repo/pull/1",
+                      "url": "https://github.com/step-security/release-drafter-test-repo/pull/1",
                       "body": "No thanks to forking PRs",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
-                        "nameWithOwner": "jetersen/release-drafter-test-repo"
+                        "nameWithOwner": "step-security/release-drafter-test-repo"
                       },
                       "mergedAt": "2020-05-26T20:33:01Z",
                       "isCrossRepository": true,
@@ -189,7 +189,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -200,9 +200,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/25",
                       "body": "🐛 squashing",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -226,15 +226,15 @@
                     {
                       "title": "🙅‍♂️ Forking PR 🙅‍♂️",
                       "number": 1,
-                      "url": "https://github.com/jetersen/release-drafter-test-repo/pull/1",
+                      "url": "https://github.com/step-security/release-drafter-test-repo/pull/1",
                       "body": "No thanks to forking PRs",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
-                        "nameWithOwner": "jetersen/release-drafter-test-repo"
+                        "nameWithOwner": "step-security/release-drafter-test-repo"
                       },
                       "mergedAt": "2020-05-26T20:33:01Z",
                       "isCrossRepository": true,
@@ -258,7 +258,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -269,9 +269,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/25",
                       "body": "🐛 squashing",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -295,15 +295,15 @@
                     {
                       "title": "🙅‍♂️ Forking PR 🙅‍♂️",
                       "number": 1,
-                      "url": "https://github.com/jetersen/release-drafter-test-repo/pull/1",
+                      "url": "https://github.com/step-security/release-drafter-test-repo/pull/1",
                       "body": "No thanks to forking PRs",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
-                        "nameWithOwner": "jetersen/release-drafter-test-repo"
+                        "nameWithOwner": "step-security/release-drafter-test-repo"
                       },
                       "mergedAt": "2020-05-26T20:33:01Z",
                       "isCrossRepository": true,
@@ -327,7 +327,7 @@
                   "name": "Joseph Petersen",
                   "user": {
                     "__typename": "User",
-                    "login": "jetersen"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -338,9 +338,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/24",
                       "body": "![I'm kind of a big deal](https://media.giphy.com/media/9LFBOD8a1Ip2M/giphy.gif)",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -364,15 +364,15 @@
                     {
                       "title": "🙅‍♂️ Forking PR 🙅‍♂️",
                       "number": 1,
-                      "url": "https://github.com/jetersen/release-drafter-test-repo/pull/1",
+                      "url": "https://github.com/step-security/release-drafter-test-repo/pull/1",
                       "body": "No thanks to forking PRs",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
-                        "nameWithOwner": "jetersen/release-drafter-test-repo"
+                        "nameWithOwner": "step-security/release-drafter-test-repo"
                       },
                       "mergedAt": "2020-05-26T20:33:01Z",
                       "isCrossRepository": true,
@@ -390,13 +390,13 @@
                 "__typename": "Commit",
                 "id": "MDY6Q29tbWl0MjY3MTQyMTYxOmNjNTliYjUxN2EwOGYxNDhkZThlM2JiMDIxOTkyNjQ1YTQwMGNlNzY=",
                 "committedDate": "2020-05-26T20:16:43Z",
-                "message": "Merge pull request #23 from TimonVS/feature/alien-technology",
+                "message": "Merge pull request #23 from step-security/feature/alien-technology",
                 "author": {
                   "__typename": "GitActor",
                   "name": "Joseph Petersen",
                   "user": {
                     "__typename": "User",
-                    "login": "jetersen"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -407,9 +407,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/23",
                       "body": "Space invasion 👾",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -433,15 +433,15 @@
                     {
                       "title": "🙅‍♂️ Forking PR 🙅‍♂️",
                       "number": 1,
-                      "url": "https://github.com/jetersen/release-drafter-test-repo/pull/1",
+                      "url": "https://github.com/step-security/release-drafter-test-repo/pull/1",
                       "body": "No thanks to forking PRs",
                       "author": {
-                        "login": "jetersen",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/jetersen"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
-                        "nameWithOwner": "jetersen/release-drafter-test-repo"
+                        "nameWithOwner": "step-security/release-drafter-test-repo"
                       },
                       "mergedAt": "2020-05-26T20:33:01Z",
                       "isCrossRepository": true,
@@ -465,7 +465,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -476,9 +476,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/5",
                       "body": "✍️ writing docs all day",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -509,7 +509,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -520,9 +520,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/5",
                       "body": "✍️ writing docs all day",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -553,7 +553,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -564,9 +564,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/4",
                       "body": "📦 Package time! 📦",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -593,7 +593,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -604,9 +604,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/4",
                       "body": "📦 Package time! 📦",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -633,7 +633,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {
@@ -644,9 +644,9 @@
                       "url": "https://github.com/toolmantim/release-drafter-test-project/pull/1",
                       "body": "Space invasion 👾",
                       "author": {
-                        "login": "TimonVS",
+                        "login": "step-security",
                         "__typename": "User",
-                        "url": "https://github.com/TimonVS"
+                        "url": "https://github.com/step-security"
                       },
                       "baseRepository": {
                         "nameWithOwner": "toolmantim/release-drafter-test-project"
@@ -691,7 +691,7 @@
                   "name": "Timon van Spronsen",
                   "user": {
                     "__typename": "User",
-                    "login": "TimonVS"
+                    "login": "step-security"
                   }
                 },
                 "associatedPullRequests": {

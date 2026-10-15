@@ -9,5 +9,5 @@ action. The repository root runs the same action.
 steps:
   - uses: step-security/release-drafter@v7
   # This entrypoint is equivalent to the repository root.
-  - uses: release-drafter/release-drafter/drafter@v7
+  - uses: step-security/release-drafter/drafter@v7
 ```

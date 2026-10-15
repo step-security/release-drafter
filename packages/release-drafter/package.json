@@ -3,13 +3,13 @@
   "version": "7.10.0",
   "description": "Programmatic API and command-line interface for Release Drafter.",
   "type": "module",
-  "homepage": "https://github.com/release-drafter/release-drafter",
+  "homepage": "https://github.com/step-security/release-drafter",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/release-drafter/release-drafter.git"
+    "url": "git+https://github.com/step-security/release-drafter.git"
   },
   "bugs": {
-    "url": "https://github.com/release-drafter/release-drafter/issues"
+    "url": "https://github.com/step-security/release-drafter/issues"
   },
   "keywords": [
     "actions",

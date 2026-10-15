@@ -185,7 +185,7 @@ var parseHeading = (line) => {
 /** Selects the first matching hash-style section, preserving its raw contents and line endings. */
 var selectSection = (input, selector) => {
 	const selected = parseHeading(selector);
-	if (!selected?.text) throw new Error("Section selectors must be nonempty hash-style headings, such as ## Release information");
+	if (!selected || !selected.text) throw new Error("Section selectors must be nonempty hash-style headings, such as ## Release information");
 	let start;
 	let fence;
 	let inComment = false;

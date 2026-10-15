@@ -1,12 +1,12 @@
-import { describe, expect, it } from 'vitest'
-import { globalRegistry, object, toJSONSchema } from 'zod'
-import { configSchema as autolabelerConfigSchema } from '#src/actions/autolabeler/config/index.ts'
+import { configSchema as autolabelerConfigSchema } from '@release-drafter/autolabeler'
 import {
   commonConfigSchema,
   configSchema as drafterConfigSchema,
   exclusiveConfigSchema,
-} from '#src/actions/drafter/config/index.ts'
-import { extendsDeclarationSchema } from '#src/common/config/extends.schema.ts'
+} from '@release-drafter/core'
+import { describe, expect, it } from 'vitest'
+import { globalRegistry, object, toJSONSchema } from 'zod'
+import { extendsDeclarationSchema } from '#gh-actions/common/config/extends.schema.ts'
 
 /**
  * Mirrors the schema generation in src/scripts/json-schema.ts
@@ -39,6 +39,45 @@ function generateAutolabelerJSONSchema() {
 describe('JSON schema', () => {
   it('should not emit the Zod registry id as a JSON Schema keyword', () => {
     expect(generateAutolabelerJSONSchema()).not.toHaveProperty('id')
+  })
+
+  it('exposes compatible labels, stop defaults and an optional fallback', () => {
+    const schema = generateAutolabelerJSONSchema()
+    const ruleProperties = {
+      labels: {
+        type: 'array',
+        minItems: 1,
+        items: { type: 'string', minLength: 1 },
+      },
+      label: { type: 'string', minLength: 1 },
+      'stop-on-match': { type: 'boolean', default: false },
+      fallback: { type: 'boolean', default: false },
+    }
+    expect(schema).toMatchObject({
+      required: ['autolabeler'],
+      properties: {
+        'sync-labels': { type: 'boolean', default: false },
+        autolabeler: {
+          type: 'array',
+          items: {
+            anyOf: [
+              {
+                type: 'object',
+                required: ['labels'],
+                properties: ruleProperties,
+              },
+              {
+                type: 'object',
+                required: ['label'],
+                properties: ruleProperties,
+              },
+            ],
+          },
+        },
+      },
+    })
+    expect(schema.properties?.autolabeler).not.toHaveProperty('minItems')
+    expect(schema.properties).not.toHaveProperty('fallback-label')
   })
 
   /**

@@ -58,6 +58,9 @@
     "change-title-escapes": {
       "type": "string"
     },
+    "change-body-escapes": {
+      "type": "string"
+    },
     "no-changes-template": {
       "default": "* No changes",
       "type": "string"
@@ -152,18 +155,75 @@
       "default": [],
       "type": "array",
       "items": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "search": {
+                "type": "string",
+                "minLength": 1
+              },
+              "replace": {
+                "type": "string",
+                "minLength": 0
+              },
+              "section": {
+                "not": {}
+              },
+              "target": {
+                "type": "string",
+                "enum": ["global", "change-body", "change-title"]
+              },
+              "not-found": {
+                "type": "string",
+                "enum": ["empty", "full"]
+              }
+            },
+            "required": ["search", "replace"]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "section": {
+                "type": "string",
+                "pattern": "^#{1,6}[ \\t]+(?=[^\\r\\n]*[^# \\t\\r\\n])\\S[^\\r\\n]*$"
+              },
+              "target": {
+                "type": "string",
+                "const": "change-body"
+              },
+              "search": {
+                "not": {}
+              },
+              "replace": {
+                "not": {}
+              },
+              "not-found": {
+                "type": "string",
+                "enum": ["empty", "full"]
+              }
+            },
+            "required": ["section", "target"]
+          }
+        ]
+      }
+    },
+    "group-changes": {
+      "default": [],
+      "type": "array",
+      "items": {
         "type": "object",
         "properties": {
-          "search": {
+          "pattern": {
             "type": "string",
             "minLength": 1
           },
-          "replace": {
+          "title-template": {
             "type": "string",
-            "minLength": 0
+            "minLength": 1
           }
         },
-        "required": ["search", "replace"]
+        "required": ["pattern", "title-template"]
       }
     },
     "categories": {
@@ -461,37 +521,16 @@
       "type": "string"
     },
     "latest": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "type": ["string", "boolean"]
     },
     "prerelease": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "type": ["string", "boolean"]
     },
     "prerelease-identifier": {
       "type": "string"
     },
     "include-pre-releases": {
-      "anyOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "boolean"
-        }
-      ]
+      "type": ["string", "boolean"]
     },
     "commitish": {
       "type": "string"

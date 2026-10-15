@@ -15,6 +15,9 @@ const logger = {
   error: vi.fn(),
 } satisfies Logger
 
+const migrationDocumentationUrl =
+  'https://github.com/release-drafter/release-drafter/pull/1558'
+
 describe('parseCategories', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -216,12 +219,9 @@ describe('parseCategories', () => {
     expect(logger.warning).toHaveBeenCalledWith(
       expect.stringContaining("deprecated 'version-resolver.major.labels'"),
     )
-<<<<<<< 83a2924ab2e2de3a28b645ce272166713497579e:src/tests/drafter/parse-categories.test.ts
-=======
     expect(logger.warning).toHaveBeenCalledWith(
       expect.stringContaining(migrationDocumentationUrl),
     )
->>>>>>> 65592c28261f7612b3824e97cd371ea0c1126f0a:packages/core/src/config/parse-categories.test.ts
   })
 
   it('warns when collapse-after is set on non-changelog categories', () => {
@@ -335,12 +335,9 @@ describe('parseCategories', () => {
         "deprecated 'categories[*].label' or 'categories[*].labels'",
       ),
     )
-<<<<<<< 83a2924ab2e2de3a28b645ce272166713497579e:src/tests/drafter/parse-categories.test.ts
-=======
     expect(logger.warning).toHaveBeenCalledWith(
       expect.stringContaining(migrationDocumentationUrl),
     )
->>>>>>> 65592c28261f7612b3824e97cd371ea0c1126f0a:packages/core/src/config/parse-categories.test.ts
   })
 
   it('throws when exclusive is set on pre-categories', () => {

@@ -10,7 +10,11 @@ import {
 
 type RawCategory = CategoryConfig
 
-const withMigrationDocumentationLink = (message: string) => message
+const categoryMigrationDocumentationUrl =
+  'https://github.com/release-drafter/release-drafter/pull/1558'
+
+const withMigrationDocumentationLink = (message: string) =>
+  `${message} Migration documentation: ${categoryMigrationDocumentationUrl}`
 
 const normalizeConventional = (
   conventional: ChangeConditionConfig['conventional'],

@@ -48,7 +48,7 @@ describe('drafter e2e', () => {
           > Treat this draft as a manual starting point.
           > Review the proposed version, tag, and notes before publishing.
 
-          If you did not expect this to happen, [open an issue](https://github.com/release-drafter/release-drafter/issues/new?template=previous-published-release-not-found.yml).
+          If you did not expect this to happen, [open an issue](https://github.com/step-security/release-drafter/issues/new?template=previous-published-release-not-found.yml).
 
           ---
           ",
@@ -143,7 +143,7 @@ describe('drafter e2e', () => {
           > Treat this draft as a manual starting point.
           > Review the proposed version, tag, and notes before publishing.
 
-          If you did not expect this to happen, [open an issue](https://github.com/release-drafter/release-drafter/issues/new?template=previous-published-release-not-found.yml).
+          If you did not expect this to happen, [open an issue](https://github.com/step-security/release-drafter/issues/new?template=previous-published-release-not-found.yml).
 
           ---
           ",
@@ -523,7 +523,7 @@ describe('drafter e2e', () => {
           > Treat this draft as a manual starting point.
           > Review the proposed version, tag, and notes before publishing.
 
-          If you did not expect this to happen, [open an issue](https://github.com/release-drafter/release-drafter/issues/new?template=previous-published-release-not-found.yml).
+          If you did not expect this to happen, [open an issue](https://github.com/step-security/release-drafter/issues/new?template=previous-published-release-not-found.yml).
 
           ---
           ",

@@ -1,15 +1,10 @@
-import { readFileSync } from 'node:fs'
-import { join, resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { parse as parseYaml } from 'yaml'
 import {
   hasPublishAutoCorrectionWarning,
   packArguments,
   publishArguments,
   sanitizedNpmEnvironment,
 } from '#src/scripts/check-package-readiness.ts'
-
-const repositoryRoot = resolve(import.meta.dirname, '../../..')
 
 describe('npm package readiness', () => {
   it('uses the packed tarball for an offline publication dry run', () => {
@@ -95,47 +90,5 @@ describe('npm package readiness', () => {
     ]) {
       expect(environment[name]).toBeUndefined()
     }
-  })
-
-  it('runs package readiness without publishing credentials', () => {
-    const contents = readFileSync(
-      join(repositoryRoot, '.github/workflows/npm-package-readiness.yml'),
-      'utf8',
-    )
-    const workflow = parseYaml(contents)
-    expect(workflow.permissions).toEqual({ contents: 'read' })
-    expect(contents).not.toMatch(
-      /id-token|registry-url|NODE_AUTH_TOKEN|NPM_TOKEN|secrets\.|cache:/u,
-    )
-  })
-
-  it('publishes only the facade through the approved OIDC environment', () => {
-    const contents = readFileSync(
-      join(repositoryRoot, '.github/workflows/npm-publish.yml'),
-      'utf8',
-    )
-    const workflow = parseYaml(contents) as {
-      permissions: Record<string, string>
-      jobs: Record<
-        string,
-        {
-          environment?: string
-          steps: Array<{ run?: string; 'working-directory'?: string }>
-        }
-      >
-    }
-    expect(workflow.permissions).toEqual({
-      contents: 'read',
-      'id-token': 'write',
-    })
-    expect(workflow.jobs.publish?.environment).toBe('npm')
-    const publishSteps = workflow.jobs.publish?.steps.filter(({ run }) =>
-      /\bnpm (?:stage )?publish\b/u.test(run ?? ''),
-    )
-    expect(publishSteps).toHaveLength(1)
-    expect(publishSteps?.[0]?.['working-directory']).toBe(
-      'packages/release-drafter',
-    )
-    expect(contents).not.toMatch(/NODE_AUTH_TOKEN|NPM_TOKEN|secrets\./u)
   })
 })

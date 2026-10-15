@@ -561,11 +561,11 @@ describe('drafter e2e', () => {
             {
               "body": "# What's Changed
 
-          * Add documentation (#1000) @TimonVS
-          * Update dependencies (#4) @TimonVS
-          * Bug fixes (#3) @TimonVS
-          * Add big feature (#2) @TimonVS
-          * 👽 Add alien technology (#1) @TimonVS
+          * Add documentation (#1000) @step-security
+          * Update dependencies (#4) @step-security
+          * Bug fixes (#3) @step-security
+          * Add big feature (#2) @step-security
+          * 👽 Add alien technology (#1) @step-security
           ",
               "draft": true,
               "make_latest": "true",

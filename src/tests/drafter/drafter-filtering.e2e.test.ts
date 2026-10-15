@@ -30,17 +30,17 @@ describe('drafter e2e', () => {
             {
               "body": "# What's Changed
 
-          * Add documentation (#5) @TimonVS
-          * Update dependencies (#4) @TimonVS
+          * Add documentation (#5) @step-security
+          * Update dependencies (#4) @step-security
 
           ## 🚀 Features
 
-          * Add big feature (#2) @TimonVS
-          * 👽 Add alien technology (#1) @TimonVS
+          * Add big feature (#2) @step-security
+          * 👽 Add alien technology (#1) @step-security
 
           ## 🐛 Bug Fixes
 
-          * Bug fixes (#3) @TimonVS
+          * Bug fixes (#3) @step-security
           ",
               "draft": true,
               "make_latest": "true",
@@ -79,17 +79,17 @@ describe('drafter e2e', () => {
 
           ## 🚀 Features
 
-          * Add big feature (#2) @TimonVS
-          * 👽 Add alien technology (#1) @TimonVS
+          * Add big feature (#2) @step-security
+          * 👽 Add alien technology (#1) @step-security
 
           ## 🐛 Bug Fixes
 
-          * Bug fixes (#3) @TimonVS
+          * Bug fixes (#3) @step-security
 
           ## 📝 Other Changes
 
-          * Add documentation (#5) @TimonVS
-          * Update dependencies (#4) @TimonVS
+          * Add documentation (#5) @step-security
+          * Update dependencies (#4) @step-security
           ",
               "draft": true,
               "make_latest": "true",
@@ -124,17 +124,17 @@ describe('drafter e2e', () => {
             {
               "body": "# What's Changed
 
-          * Add documentation (#5) @TimonVS
-          * Update dependencies (#4) @TimonVS
+          * Add documentation (#5) @step-security
+          * Update dependencies (#4) @step-security
 
           ## 🚀 Features
 
-          * Add big feature (#2) @TimonVS
-          * 👽 Add alien technology (#1) @TimonVS
+          * Add big feature (#2) @step-security
+          * 👽 Add alien technology (#1) @step-security
 
           ## 🐛 Bug Fixes
 
-          * Bug fixes (#3) @TimonVS
+          * Bug fixes (#3) @step-security
           ",
               "draft": true,
               "make_latest": "true",
@@ -169,17 +169,17 @@ describe('drafter e2e', () => {
             {
               "body": "# What's Changed
 
-          * Add documentation (#22) @jetersen
-          * Update dependencies (#21) @jetersen
+          * Add documentation (#22) @step-security
+          * Update dependencies (#21) @step-security
 
           ## 🚀 Features
 
-          * Add big feature (#19) @jetersen
-          * Add alien technology (#18) @jetersen
+          * Add big feature (#19) @step-security
+          * Add alien technology (#18) @step-security
 
           ## 🐛 Bug Fixes
 
-          * Bug fixes (#20) @jetersen
+          * Bug fixes (#20) @step-security
           ",
               "draft": true,
               "make_latest": "true",
@@ -214,21 +214,21 @@ describe('drafter e2e', () => {
             {
               "body": "# What's Changed
 
-          * Add documentation (#22) @jetersen
-          * Update dependencies (#21) @jetersen
+          * Add documentation (#22) @step-security
+          * Update dependencies (#21) @step-security
 
           ## 🚀 Features
 
-          * Add big feature (#19) @jetersen
-          * Add alien technology (#18) @jetersen
+          * Add big feature (#19) @step-security
+          * Add alien technology (#18) @step-security
 
           ## 🐛 Bug Fixes
 
-          * Bug fixes (#20) @jetersen
+          * Bug fixes (#20) @step-security
 
           ## 🎖️ Sentry
 
-          * Bug fixes (#20) @jetersen
+          * Bug fixes (#20) @step-security
           ",
               "draft": true,
               "make_latest": "true",
@@ -265,17 +265,17 @@ describe('drafter e2e', () => {
             {
               "body": "# What's Changed
 
-          * Update dependencies (#4) @TimonVS
+          * Update dependencies (#4) @step-security
 
           ## 🚀 All the things!
 
           <details>
           <summary>4 changes</summary>
 
-          * Add documentation (#5) @TimonVS
-          * Bug fixes (#3) @TimonVS
-          * Add big feature (#2) @TimonVS
-          * 👽 Add alien technology (#1) @TimonVS
+          * Add documentation (#5) @step-security
+          * Bug fixes (#3) @step-security
+          * Add big feature (#2) @step-security
+          * 👽 Add alien technology (#1) @step-security
           </details>
           ",
               "draft": true,
@@ -313,11 +313,11 @@ describe('drafter e2e', () => {
             {
               "body": "# What's Changed
 
-          * Add documentation (#5) @TimonVS
-          * Update dependencies (#4) @TimonVS
-          * Bug fixes (#3) @TimonVS
-          * Add big feature (#2) @TimonVS
-          * 👽 Add alien technology (#1) @TimonVS
+          * Add documentation (#5) @step-security
+          * Update dependencies (#4) @step-security
+          * Bug fixes (#3) @step-security
+          * Add big feature (#2) @step-security
+          * 👽 Add alien technology (#1) @step-security
           ",
               "draft": true,
               "make_latest": "true",
@@ -355,11 +355,11 @@ describe('drafter e2e', () => {
             {
               "body": "# What's Changed
 
-          * Add documentation (#5) @TimonVS
-          * Update dependencies (#4) @TimonVS
-          * Bug fixes (#3) @TimonVS
-          * Add big feature (#2) @TimonVS
-          * 👽 Add alien technology (#1) @TimonVS
+          * Add documentation (#5) @step-security
+          * Update dependencies (#4) @step-security
+          * Bug fixes (#3) @step-security
+          * Add big feature (#2) @step-security
+          * 👽 Add alien technology (#1) @step-security
           ",
               "draft": true,
               "make_latest": "true",
@@ -414,30 +414,30 @@ describe('drafter e2e', () => {
         })
         await runDrafter()
         expect(mocks.postReleaseBody.mock.lastCall).toMatchInlineSnapshot(`
-            [
-              {
-                "body": "# What's Changed
+          [
+            {
+              "body": "# What's Changed
 
-            * Update dependencies (#4) @TimonVS
+          * Update dependencies (#4) @step-security
 
-            ## 🚀 Features
+          ## 🚀 Features
 
-            * Add big feature (#2) @TimonVS
-            * 👽 Add alien technology (#1) @TimonVS
+          * Add big feature (#2) @step-security
+          * 👽 Add alien technology (#1) @step-security
 
-            ## 🐛 Bug Fixes
+          ## 🐛 Bug Fixes
 
-            * Bug fixes (#3) @TimonVS
-            ",
-                "draft": true,
-                "make_latest": "true",
-                "name": "",
-                "prerelease": false,
-                "tag_name": "",
-                "target_commitish": "master",
-              },
-            ]
-          `)
+          * Bug fixes (#3) @step-security
+          ",
+              "draft": true,
+              "make_latest": "true",
+              "name": "",
+              "prerelease": false,
+              "tag_name": "",
+              "target_commitish": "master",
+            },
+          ]
+        `)
         expect(scope.isDone()).toBe(true) // should call the mocked endpoints
         expect(gqlScope.isDone()).toBe(true) // should call the mocked endpoints
         expect(mocks.core.setFailed).not.toHaveBeenCalled()
@@ -462,8 +462,8 @@ describe('drafter e2e', () => {
 
           ## 🚀 Features
 
-          * Add big feature (#2) @TimonVS
-          * 👽 Add alien technology (#1) @TimonVS
+          * Add big feature (#2) @step-security
+          * 👽 Add alien technology (#1) @step-security
           ",
               "draft": true,
               "make_latest": "true",
@@ -614,7 +614,7 @@ describe('drafter e2e', () => {
         [
           {
             "body": "# What's Changed
-        * Add documentation (#5) @TimonVS
+        * Add documentation (#5) @step-security
         ",
             "draft": true,
             "make_latest": "true",
@@ -661,9 +661,9 @@ describe('drafter e2e', () => {
         [
           {
             "body": "# What's Changed
-        * Bug fixes (#3) @TimonVS
-        * Add big feature (#2) @TimonVS
-        * 👽 Add alien technology (#1) @TimonVS
+        * Bug fixes (#3) @step-security
+        * Add big feature (#2) @step-security
+        * 👽 Add alien technology (#1) @step-security
         ",
             "draft": true,
             "make_latest": "true",
@@ -759,7 +759,7 @@ describe('drafter e2e', () => {
         [
           {
             "body": "# What's Changed
-        * Add documentation (#5) @TimonVS
+        * Add documentation (#5) @step-security
         ",
             "draft": true,
             "make_latest": "true",

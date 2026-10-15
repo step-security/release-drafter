@@ -2,15 +2,12 @@ import nock from 'nock'
 import { describe, expect, it } from 'vitest'
 import { runDrafter } from '#tests/helpers/index.ts'
 import {
-  getGqlPayload,
   mockContext,
   mockGraphqlQuery,
-  mockInput,
   mocks,
   nockGetAndPatchReleases,
   nockGetAndPostReleases,
   nockGetPrFiles,
-  nockGetReleases,
 } from '#tests/mocks/index.ts'
 
 describe('drafter e2e', () => {
@@ -66,6 +63,20 @@ describe('drafter e2e', () => {
           'Config fetched from "toolmantim/release-drafter/.github/release-drafter.yml@master".',
           'Config fetched from "toolmantim/.github/.github/release-drafter-base.yml" on the default branch.',
         ])
+        expect(mocks.core.setOutput).toHaveBeenCalledWith('id', '11691725')
+        expect(mocks.core.setOutput).toHaveBeenCalledWith(
+          'html_url',
+          'https://github.com/toolmantim/release-drafter-test-project/releases/tag/v2.0.0',
+        )
+        expect(mocks.core.setOutput).toHaveBeenCalledWith(
+          'upload_url',
+          'https://uploads.github.com/repos/toolmantim/release-drafter-test-project/releases/11691725/assets{?name,label}',
+        )
+        expect(mocks.core.setOutput).toHaveBeenCalledWith('tag_name', 'v2.0.0')
+        expect(mocks.core.setOutput).toHaveBeenCalledWith(
+          'name',
+          'v2.0.0 (✏️ Code Name)',
+        )
 
         expect(scope.isDone()).toBe(true) // should call the mocked endpoints
         expect(gqlScope.pendingMocks().length).toBe(0) // should call the mocked endpoints
@@ -116,6 +127,7 @@ describe('drafter e2e', () => {
 
         const gqlScope = mockGraphqlQuery({
           payload: 'graphql-comparison-merge-commit',
+          suppressRecentPullRequestMock: true,
         })
 
         const scope = nockGetAndPostReleases({ fetchedReleases: ['release'] })
@@ -349,6 +361,41 @@ describe('drafter e2e', () => {
             * Change: #3 'Bug fixes' @step-security
             * Change: #2 'Add big feature' @step-security
             * Change: #1 '👽 Add alien technology' @step-security",
+                "draft": true,
+                "make_latest": "true",
+                "name": "",
+                "prerelease": false,
+                "tag_name": "",
+                "target_commitish": "master",
+              },
+            ]
+          `)
+
+          expect(scope.isDone()).toBe(true) // should call the mocked endpoints
+          expect(gqlScope.isDone()).toBe(true) // should call the mocked endpoints
+          expect(mocks.core.setFailed).not.toHaveBeenCalled()
+        })
+      })
+
+      describe('with group-changes config', () => {
+        it('creates a new draft with matching changes merged into one entry', async () => {
+          await mockContext('push')
+          mocks.config.mockReturnValue('config-with-group-changes')
+
+          const scope = nockGetAndPostReleases({
+            fetchedReleases: ['release'],
+          })
+          const gqlScope = mockGraphqlQuery({
+            payload: 'graphql-comparison-dependabot-bumps',
+          })
+
+          await runDrafter()
+
+          expect(mocks.postReleaseBody.mock.lastCall).toMatchInlineSnapshot(`
+            [
+              {
+                "body": "* Bump njord.version from 0.9.1 to 0.9.5 (#308, #310, #316) [@dependabot[bot]](https://github.com/apps/dependabot)
+            * Bump org.codehaus.mojo:versions-maven-plugin from 2.20.1 to 2.21.0 (#309) [@dependabot[bot]](https://github.com/apps/dependabot)",
                 "draft": true,
                 "make_latest": "true",
                 "name": "",
@@ -646,6 +693,20 @@ describe('drafter e2e', () => {
             },
           ]
         `)
+        expect(mocks.core.setOutput).toHaveBeenCalledWith('id', '11691725')
+        expect(mocks.core.setOutput).toHaveBeenCalledWith(
+          'html_url',
+          'https://github.com/toolmantim/release-drafter-test-project/releases/tag/v2.0.0',
+        )
+        expect(mocks.core.setOutput).toHaveBeenCalledWith(
+          'upload_url',
+          'https://uploads.github.com/repos/toolmantim/release-drafter-test-project/releases/11691725/assets{?name,label}',
+        )
+        expect(mocks.core.setOutput).toHaveBeenCalledWith('tag_name', 'v2.0.0')
+        expect(mocks.core.setOutput).toHaveBeenCalledWith(
+          'name',
+          'v2.0.0 (✏️ Code Name)',
+        )
 
         expect(scope.isDone()).toBe(true) // should call the mocked endpoints
         expect(gqlScope.isDone()).toBe(true) // should call the mocked endpoints
@@ -702,6 +763,7 @@ describe('drafter e2e', () => {
       })
     })
 
+<<<<<<< 83a2924ab2e2de3a28b645ce272166713497579e
     describe('with categories config', () => {
       it('categorizes pull requests with single label', async () => {
         await mockContext('push')
@@ -1706,6 +1768,8 @@ describe('drafter e2e', () => {
       })
     })
 
+=======
+>>>>>>> 65592c28261f7612b3824e97cd371ea0c1126f0a
     describe('merging strategies', () => {
       describe('merge commit', () => {
         it('sets $CHANGES based on all commits', async () => {
@@ -1904,11 +1968,11 @@ describe('drafter e2e', () => {
         const scope = nockGetAndPostReleases({
           fetchedReleases: ['release'],
         })
-        const gqlScope1 = mockGraphqlQuery({
-          payload: 'graphql-comparison-paginated-1',
-        })
-        const gqlScope2 = mockGraphqlQuery({
-          payload: 'graphql-comparison-paginated-2',
+        const gqlScope = mockGraphqlQuery({
+          payload: [
+            'graphql-comparison-paginated-1',
+            'graphql-comparison-paginated-2',
+          ],
         })
         await runDrafter()
         expect(mocks.postReleaseBody.mock.lastCall).toMatchInlineSnapshot(`
@@ -1943,6 +2007,7 @@ describe('drafter e2e', () => {
           ]
         `)
         expect(scope.isDone()).toBe(true) // should call the mocked endpoints
+<<<<<<< 83a2924ab2e2de3a28b645ce272166713497579e
         expect(gqlScope1.isDone()).toBe(true) // should call the mocked endpoints
         expect(gqlScope2.isDone()).toBe(true) // should call the mocked endpoints
         expect(mocks.core.setFailed).not.toHaveBeenCalled()
@@ -1981,12 +2046,15 @@ describe('drafter e2e', () => {
           ]
         `)
         expect(scope.isDone()).toBe(true) // should call the mocked endpoints
+=======
+>>>>>>> 65592c28261f7612b3824e97cd371ea0c1126f0a
         expect(gqlScope.isDone()).toBe(true) // should call the mocked endpoints
         expect(mocks.core.setFailed).not.toHaveBeenCalled()
       })
     })
   })
 
+<<<<<<< 83a2924ab2e2de3a28b645ce272166713497579e
   describe('with sort-by config', () => {
     it('sorts by title', async () => {
       await mockContext('push')
@@ -3604,6 +3672,8 @@ describe('drafter e2e', () => {
     })
   })
 
+=======
+>>>>>>> 65592c28261f7612b3824e97cd371ea0c1126f0a
   describe('recent PR safety net', () => {
     it('recovers a PR missing from GraphQL associatedPullRequests index via direct PR query', async () => {
       await mockContext('push')

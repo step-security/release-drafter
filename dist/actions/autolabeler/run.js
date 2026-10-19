@@ -25,7 +25,7 @@ var configSchema = object({
 	autolabeler: array(ruleSchema.extend({ labels: labelsSchema }).or(ruleSchema.extend({ label: labelSchema })))
 }).meta({
 	title: "JSON schema for Release Drafter's autolabeler action config.",
-	id: "https://github.com/release-drafter/release-drafter/blob/main/autolabeler/schema.json"
+	id: "https://github.com/step-security/release-drafter/blob/main/autolabeler/schema.json"
 });
 //#endregion
 //#region packages/autolabeler/src/util.ts

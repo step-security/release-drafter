@@ -6,7 +6,7 @@ import { vi } from 'vitest'
 import { defineForgeAdapterConformance } from './contract.ts'
 
 const repository = {
-  owner: 'release-drafter',
+  owner: 'step-security',
   name: 'release-drafter',
   serverUrl: 'https://github.com',
 }
@@ -19,7 +19,7 @@ const baselineRelease = {
   draft: false,
   prerelease: false,
   html_url:
-    'https://github.com/release-drafter/release-drafter/releases/tag/v1.0.0',
+    'https://github.com/step-security/release-drafter/releases/tag/v1.0.0',
 }
 const releases = [baselineRelease]
 const releaseBodies = new Map([[baselineRelease.id, 'Baseline release.']])
@@ -34,7 +34,7 @@ const createRelease = vi.fn(async (request: Record<string, unknown>) => {
     target_commitish: String(request.target_commitish),
     draft: Boolean(request.draft),
     prerelease: Boolean(request.prerelease),
-    html_url: `https://github.com/release-drafter/release-drafter/releases/tag/${String(request.tag_name)}`,
+    html_url: `https://github.com/step-security/release-drafter/releases/tag/${String(request.tag_name)}`,
   }
   releases.push(release)
   releaseBodies.set(release.id, String(request.body))
@@ -115,12 +115,12 @@ const graphql = vi.fn(
                         number: 7,
                         title: 'Exercise shared conformance',
                         body: 'Shared contract coverage for GitHub.',
-                        url: 'https://github.com/release-drafter/release-drafter/pull/7',
+                        url: 'https://github.com/step-security/release-drafter/pull/7',
                         mergedAt: '2026-08-04T00:00:00Z',
                         baseRefName: 'main',
                         headRefName: 'feature/conformance',
                         baseRepository: {
-                          nameWithOwner: 'release-drafter/release-drafter',
+                          nameWithOwner: 'step-security/release-drafter',
                         },
                         isCrossRepository: false,
                         author: {
@@ -206,11 +206,11 @@ defineForgeAdapterConformance({
           number: 7,
           title: 'Exercise shared conformance',
           body: 'Shared contract coverage for GitHub.',
-          url: 'https://github.com/release-drafter/release-drafter/pull/7',
+          url: 'https://github.com/step-security/release-drafter/pull/7',
           mergedAt: '2026-08-04T00:00:00Z',
           baseRefName: 'main',
           headRefName: 'feature/conformance',
-          baseRepository: 'release-drafter/release-drafter',
+          baseRepository: 'step-security/release-drafter',
           isCrossRepository: false,
           author: {
             login: 'octocat',

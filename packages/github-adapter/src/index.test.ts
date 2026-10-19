@@ -5,7 +5,7 @@ import { GitHubAdapter, type GitHubOctokit } from './index.ts'
 afterEach(() => vi.restoreAllMocks())
 
 const repository: Repository = {
-  owner: 'release-drafter',
+  owner: 'step-security',
   name: 'release-drafter',
   serverUrl: 'https://github.com',
 }
@@ -304,7 +304,7 @@ describe('GitHubAdapter', () => {
     await expect(github.getDefaultBranch(repository)).resolves.toBe('main')
     expect(runtimeFetch).toHaveBeenCalledOnce()
     expect(runtimeFetch).toHaveBeenCalledWith(
-      'https://api.github.com/repos/release-drafter/release-drafter',
+      'https://api.github.com/repos/step-security/release-drafter',
       expect.not.objectContaining({ dispatcher: expect.anything() }),
     )
   })
@@ -873,7 +873,7 @@ describe('GitHub adapter response boundaries', () => {
         number: 7,
         title: 'Change',
         merged: true,
-        baseRepository: { nameWithOwner: 'release-drafter/release-drafter' },
+        baseRepository: { nameWithOwner: 'step-security/release-drafter' },
       },
     ])
     vi.mocked(octokit.graphql).mockResolvedValueOnce({ repository: null })
@@ -900,7 +900,7 @@ describe('GitHub adapter response boundaries', () => {
       merged: true,
       mergedAt,
       author: { __typename: type, login },
-      baseRepository: { nameWithOwner: 'release-drafter/release-drafter' },
+      baseRepository: { nameWithOwner: 'step-security/release-drafter' },
     })
     const pullRequests = Array.from({ length: 21 }, (_, index) =>
       pullRequest(index + 1, `user${index}`, '2026-01-02T00:00:00Z'),
@@ -939,7 +939,7 @@ describe('GitHub adapter response boundaries', () => {
       expect.stringContaining('findPreviousContributions'),
       expect.objectContaining({
         query0:
-          'repo:release-drafter/release-drafter is:pr is:merged author:user0 merged:<2026-01-01T00:00:00Z',
+          'repo:step-security/release-drafter is:pr is:merged author:user0 merged:<2026-01-01T00:00:00Z',
       }),
     )
     expect(octokit.graphql).toHaveBeenNthCalledWith(
@@ -947,7 +947,7 @@ describe('GitHub adapter response boundaries', () => {
       expect.stringContaining('findPreviousContributions'),
       {
         query0:
-          'repo:release-drafter/release-drafter is:pr is:merged author:user20 merged:<2026-01-02T00:00:00Z',
+          'repo:step-security/release-drafter is:pr is:merged author:user20 merged:<2026-01-02T00:00:00Z',
       },
     )
   })

@@ -40,7 +40,7 @@ export const configSchema = object({
   ),
 }).meta({
   title: "JSON schema for Release Drafter's autolabeler action config.",
-  id: 'https://github.com/release-drafter/release-drafter/blob/main/autolabeler/schema.json',
+  id: 'https://github.com/step-security/release-drafter/blob/main/autolabeler/schema.json',
 })
 
 export type Config = z.output<typeof configSchema>

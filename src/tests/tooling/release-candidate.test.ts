@@ -6,11 +6,11 @@ import {
   findReleaseCandidate,
 } from '#src/scripts/release-candidate.ts'
 
-const repository = 'release-drafter/release-drafter'
+const repository = 'step-security/release-drafter'
 const mergeSha = 'a'.repeat(40)
 const workflowSha = 'b'.repeat(40)
 const options = {
-  owner: 'release-drafter',
+  owner: 'step-security',
   repo: 'release-drafter',
   sha: workflowSha,
   version: '7.9.0',

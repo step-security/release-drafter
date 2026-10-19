@@ -15,9 +15,6 @@ const logger = {
   error: vi.fn(),
 } satisfies Logger
 
-const migrationDocumentationUrl =
-  'https://github.com/release-drafter/release-drafter/pull/1558'
-
 describe('parseCategories', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -219,9 +216,6 @@ describe('parseCategories', () => {
     expect(logger.warning).toHaveBeenCalledWith(
       expect.stringContaining("deprecated 'version-resolver.major.labels'"),
     )
-    expect(logger.warning).toHaveBeenCalledWith(
-      expect.stringContaining(migrationDocumentationUrl),
-    )
   })
 
   it('warns when collapse-after is set on non-changelog categories', () => {
@@ -334,9 +328,6 @@ describe('parseCategories', () => {
       expect.stringContaining(
         "deprecated 'categories[*].label' or 'categories[*].labels'",
       ),
-    )
-    expect(logger.warning).toHaveBeenCalledWith(
-      expect.stringContaining(migrationDocumentationUrl),
     )
   })
 

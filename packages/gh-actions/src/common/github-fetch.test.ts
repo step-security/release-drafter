@@ -49,7 +49,7 @@ describe('Action GitHub fetch', () => {
     undiciMocks.fetch.mockResolvedValueOnce(response)
     const fetch = createProxyAwareFetch(env)
     const dispatcher = undiciMocks.EnvHttpProxyAgent.mock.results.at(-1)?.value
-    const url = 'https://api.github.com/repos/release-drafter/release-drafter'
+    const url = 'https://api.github.com/repos/step-security/release-drafter'
     const init = { headers: { authorization: 'token secret' } }
 
     await expect(fetch(url, init)).resolves.toBe(response)

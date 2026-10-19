@@ -1349,8 +1349,7 @@ var stringToRegex = (search) => {
 };
 //#endregion
 //#region packages/core/src/config/parse-categories.ts
-var categoryMigrationDocumentationUrl = "https://github.com/release-drafter/release-drafter/pull/1558";
-var withMigrationDocumentationLink = (message) => `${message} Migration documentation: ${categoryMigrationDocumentationUrl}`;
+var withMigrationDocumentationLink = (message) => message;
 var normalizeConventional = (conventional, logger) => {
 	if (!conventional) return;
 	if (conventional === true) return {

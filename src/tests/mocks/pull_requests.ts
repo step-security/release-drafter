@@ -31,7 +31,7 @@ const nockSinglePrFiles = (params: {
   const payload = filenames
     ? filenames.map((filename) => ({ filename }))
     : getPrFilesPayload(files || 'files')
-  const owner = pr?.owner || 'release-drafter'
+  const owner = pr?.owner || 'step-security'
   const repo = pr?.repo || 'release-drafter'
   const number = pr?.number || 1475
 
@@ -92,7 +92,7 @@ export function nockGetPrFiles(params: {
     return params.entries.map(([number, filenames]) =>
       nockSinglePrFiles({
         pr: {
-          owner: repo?.owner || 'release-drafter',
+          owner: repo?.owner || 'step-security',
           repo: repo?.repo || 'release-drafter',
           number,
         },
@@ -117,7 +117,7 @@ export const nockPostPrLabels = (params: {
 
   return nock('https://api.github.com')
     .post(
-      `/repos/${pr?.owner || 'release-drafter'}/${pr?.repo || 'release-drafter'}/issues/${pr?.number || 1475}/labels`,
+      `/repos/${pr?.owner || 'step-security'}/${pr?.repo || 'release-drafter'}/issues/${pr?.number || 1475}/labels`,
       mocks.postPrLabelsBody,
     )
     .reply(201)

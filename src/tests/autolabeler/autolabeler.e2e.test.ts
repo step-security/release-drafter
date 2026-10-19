@@ -10,7 +10,7 @@ import {
 } from '#tests/mocks/index.ts'
 import { nockPostPrLabels } from '#tests/mocks/pull_requests.ts'
 
-const labelsPath = '/repos/release-drafter/release-drafter/issues/1475/labels'
+const labelsPath = '/repos/step-security/release-drafter/issues/1475/labels'
 const nockCurrentLabels = (labels: string[]) =>
   nock('https://api.github.com')
     .get(labelsPath)

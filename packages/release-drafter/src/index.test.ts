@@ -33,7 +33,7 @@ import {
 } from './index.ts'
 
 const repository = {
-  owner: 'release-drafter',
+  owner: 'step-security',
   name: 'release-drafter',
   serverUrl: 'https://example.test',
 }
@@ -189,28 +189,28 @@ describe('createForgeAdapter', () => {
     {
       forge: 'github',
       draftReleases: true,
-      url: 'https://api.github.com/repos/release-drafter/release-drafter/releases?per_page=100',
+      url: 'https://api.github.com/repos/step-security/release-drafter/releases?per_page=100',
       header: 'authorization',
       authorization: 'token facade-token',
     },
     {
       forge: 'gitea',
       draftReleases: true,
-      url: 'https://gitea.com/api/v1/repos/release-drafter/release-drafter/releases?page=1&limit=50',
+      url: 'https://gitea.com/api/v1/repos/step-security/release-drafter/releases?page=1&limit=50',
       header: 'authorization',
       authorization: 'token facade-token',
     },
     {
       forge: 'forgejo',
       draftReleases: true,
-      url: 'https://codeberg.org/api/v1/repos/release-drafter/release-drafter/releases?page=1&limit=50',
+      url: 'https://codeberg.org/api/v1/repos/step-security/release-drafter/releases?page=1&limit=50',
       header: 'authorization',
       authorization: 'token facade-token',
     },
     {
       forge: 'gitlab',
       draftReleases: false,
-      url: 'https://gitlab.com/api/v4/projects/release-drafter%2Frelease-drafter/releases?page=1&per_page=50',
+      url: 'https://gitlab.com/api/v4/projects/step-security%2Frelease-drafter/releases?page=1&per_page=50',
       header: 'private-token',
       authorization: 'facade-token',
     },

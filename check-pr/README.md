@@ -28,7 +28,7 @@ jobs:
   check-pr:
     runs-on: ubuntu-slim
     steps:
-      - uses: release-drafter/release-drafter/check-pr@v7
+      - uses: step-security/release-drafter/check-pr@v7
 ```
 
 The action supports the `pull_request` and `pull_request_target` events. It
@@ -85,7 +85,7 @@ the output. PR labels reflect the event snapshot; run Check PR after Autolabeler
 in a subsequent event to see labels added by that action.
 
 ```yaml
-- uses: release-drafter/release-drafter/check-pr@v7
+- uses: step-security/release-drafter/check-pr@v7
   id: check
 - name: Check user service
   if: contains(fromJSON(steps.check.outputs.labels), 'api/user')

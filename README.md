@@ -7,7 +7,7 @@
 
 <p align="center">Draft the next release notes as pull requests merge into a branch.</p>
 
-![CI](https://github.com/release-drafter/release-drafter/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/step-security/release-drafter/actions/workflows/ci.yml/badge.svg)
 
 ## Usage
 
@@ -160,7 +160,7 @@ The `.github/release-drafter.yml` file supports these keys:
 | `commitish`                      | Optional | The release target. Use a branch, commit SHA, fully qualified tag, or pull request ref. Release Drafter resolves tag and pull request refs to commit SHAs. A pull request merge ref forces dry-run mode because its merge commit is temporary. Set `dry-run: true` to suppress the warning. The default is the workflow branch, such as `main` for pushes to `main`. |
 | `filter-by-range`                | Optional | Filter releases whose tag names satisfy a SemVer range. Default: `"*"`.                                                                                                                                                                                                                                                                                              |
 | `filter-by-commitish`            | Optional | Considers only previous releases whose target matches `commitish`. Default: `false`.                                                                                                                                                                                                                                                                                 |
-| `pull-request-limit`             | Optional | Limits results from the `associatedPullRequests` API call. Use this option for long-lived non-default branches. See [#1354](https://github.com/release-drafter/release-drafter/issues/1354). Default: `5`.                                                                                                                                                           |
+| `pull-request-limit`             | Optional | Limits results from the `associatedPullRequests` API call. Use this option for long-lived non-default branches. Default: `5`.                                                                                                                                                           |
 | `history-limit`                  | Optional | The page size for repository history requests. A smaller value can prevent intermittent GitHub 502 responses. Default: `15`.                                                                                                                                                                                                                                         |
 
 ## Template variables
@@ -752,7 +752,7 @@ jobs:
     runs-on: ubuntu-slim
     steps:
       # Runs Autolabeler.
-      - uses: release-drafter/release-drafter/autolabeler@v7
+      - uses: step-security/release-drafter/autolabeler@v7
 ```
 
 The available matchers are `files` for glob patterns and `branch`, `title`, and
@@ -997,4 +997,4 @@ flow and its protected GitHub and npm environments.
 > changes remain after these steps.
 
 For help, open
-[a GitHub issue](https://github.com/release-drafter/release-drafter/issues/new).
+[a GitHub issue](https://github.com/step-security/release-drafter/issues/new).

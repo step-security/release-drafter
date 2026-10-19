@@ -1,6 +1,6 @@
 name: 'Release Drafter - Check PR'
 description: 'Check whether a pull request title or labels match configured categories.'
-author: release-drafter
+author: step-security
 branding:
   icon: check-circle
   color: orange

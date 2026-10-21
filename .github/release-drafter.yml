@@ -1,0 +1,35 @@
+name-template: 'v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+template: |
+  $CHANGES
+
+categories:
+  - title: 'Breaking Changes'
+    semver-increment: 'major'
+    when:
+      conventional:
+        breaking: true
+  - title: 'Features'
+    semver-increment: 'minor'
+    when:
+      conventional:
+        type: 'feat'
+  - title: 'Bug Fixes'
+    semver-increment: 'patch'
+    when:
+      conventional:
+        type: 'fix'
+  - title: 'Maintenance'
+    semver-increment: 'patch'
+    when:
+      conventional:
+        types:
+          - 'build'
+          - 'chore'
+          - 'ci'
+          - 'docs'
+          - 'perf'
+          - 'refactor'
+          - 'revert'
+          - 'style'
+          - 'test'

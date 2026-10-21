@@ -1,12 +1,14 @@
+[![StepSecurity Maintained Action](https://raw.githubusercontent.com/step-security/maintained-actions-assets/main/assets/maintained-action-banner.png)](https://docs.stepsecurity.io/actions/stepsecurity-maintained-actions)
+
 # Autolabeler action
 
-This folder only serves as an alias when users reference the action, which
-requires the presence of the [`action.yml`](./action.yml) file
+This directory contains the public action entrypoint for Autolabeler. Use the
+repository root to run the Drafter action.
 
 ```yaml
 steps:
-  # runs autolabeler
+  # Runs Autolabeler.
   - uses: step-security/release-drafter/autolabeler@v7
-  # ⚠️ targets root `action.yaml` - runs drafter
+  # Runs Drafter.
   - uses: step-security/release-drafter@v7
 ```

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.3/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -31,6 +31,8 @@
     "rules": {
       "preset": "recommended",
       "correctness": {
+        // TypeScript is authoritative for import and export resolution.
+        "noUnresolvedImports": "off",
         "noUnusedVariables": "error",
         "noUnusedImports": "error",
         "noUnusedFunctionParameters": "error",
@@ -79,12 +81,16 @@
       },
     },
     {
-      // Vitest catches broken imports; nock's package.json trips the resolver.
-      "includes": ["src/tests/**"],
+      "includes": ["packages/release-drafter/src/index.ts"],
       "linter": {
         "rules": {
           "correctness": {
-            "noUnresolvedImports": "off",
+            "useImportExtensions": {
+              "level": "warn",
+              "options": {
+                "forceJsExtensions": true,
+              },
+            },
           },
         },
       },

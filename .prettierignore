@@ -1,0 +1,4 @@
+# Markdown only; `!*/` lets the negation reach files below the root.
+*
+!*/
+!*.md

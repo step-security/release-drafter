@@ -1,29 +1,13 @@
-import { readFile, writeFile } from 'node:fs/promises'
 import { builtinModules } from 'node:module'
-import { defineConfig, type Plugin } from 'vitest/config'
+import { defaultClientConditions, defaultServerConditions } from 'vite'
+import { defineConfig } from 'vitest/config'
+import { readCoverageThreshold } from './src/scripts/coverage-threshold.ts'
 
-const FROM = 'main: dist/actions/drafter/run.js'
-const TO = 'main: ../dist/actions/drafter/run.js'
-
-function syncDrafterActionYml(): Plugin {
-  return {
-    name: 'sync-drafter-action-yml',
-    async closeBundle() {
-      const [src, dest] = await Promise.all([
-        readFile('action.yml', 'utf8'),
-        readFile('drafter/action.yml', 'utf8'),
-      ])
-      const expected = src.includes(FROM) ? src.replace(FROM, TO) : src
-      if (dest !== expected) {
-        await writeFile('drafter/action.yml', expected)
-      }
-    },
-  }
-}
+const WORKSPACE_SOURCE_CONDITION = 'release-drafter-source'
 
 export default defineConfig({
-  plugins: [syncDrafterActionYml()],
   resolve: {
+    conditions: [WORKSPACE_SOURCE_CONDITION, ...defaultClientConditions],
     tsconfigPaths: true,
   },
   // GitHub Actions libraries read inputs and context from process.env at runtime.
@@ -33,22 +17,34 @@ export default defineConfig({
     client: {
       keepProcessEnv: true,
     },
+    ssr: {
+      resolve: {
+        conditions: [WORKSPACE_SOURCE_CONDITION, ...defaultServerConditions],
+      },
+    },
   },
   build: {
     target: 'node24',
-    rollupOptions: {
+    rolldownOptions: {
       // platform: 'node' makes rolldown generate a createRequire-based __require
       // for CJS modules (e.g. undici via @actions/github) instead of the default
       // stub that throws in ESM environments without a global `require`.
-      // @ts-expect-error remove this when vite support for rolldown is stable
       platform: 'node',
       external: (id) => id.startsWith('node:') || builtinModules.includes(id),
       input: {
-        'actions/drafter/run': 'src/actions/drafter/run.ts',
-        'actions/autolabeler/run': 'src/actions/autolabeler/run.ts',
+        'actions/drafter/run': 'packages/gh-actions/src/drafter/run.ts',
+        'actions/autolabeler/run': 'packages/gh-actions/src/autolabeler/run.ts',
+        'actions/check-pr/run': 'packages/gh-actions/src/check-pr/run.ts',
       },
       output: {
         format: 'es',
+        // Keep dependency Unicode literals visible to repository scanners while
+        // preserving their runtime values and readable, unminified output.
+        minify: {
+          compress: false,
+          mangle: false,
+          codegen: { asciiOnly: true, removeWhitespace: false },
+        },
         entryFileNames: '[name].js',
         chunkFileNames: 'chunks/[name].js',
         paths: (id) => (builtinModules.includes(id) ? `node:${id}` : id),
@@ -57,17 +53,32 @@ export default defineConfig({
     minify: false,
   },
   test: {
-    include: ['src/tests/**/*.test.ts'],
+    include: ['src/tests/**/*.test.ts', 'packages/*/src/**/*.test.ts'],
+    // Real-forge suites require Docker and unrestricted network access. Keep
+    // them opt-in through their dedicated Vitest configurations.
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/*.container.test.ts',
+      'src/tests/artifacts/**',
+    ],
     testTimeout: 60000,
     setupFiles: ['src/tests/setup.ts'],
     coverage: {
       enabled: true,
       reporter: ['json-summary'],
-      include: ['src/**/*.ts'],
+      reportOnFailure: true,
+      thresholds: {
+        statements: readCoverageThreshold('COVERAGE_THRESHOLD'),
+        branches: readCoverageThreshold('BRANCH_COVERAGE_THRESHOLD'),
+      },
+      include: ['src/**/*.ts', 'packages/*/src/**/*.ts'],
       exclude: [
         'src/tests/**/*.ts',
+        'packages/*/src/**/*.test.ts',
         'src/scripts/**/*',
         'src/**/*.generated.ts',
+        'packages/*/src/**/*.generated.ts',
       ],
     },
   },

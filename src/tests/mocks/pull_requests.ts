@@ -31,13 +31,33 @@ const nockSinglePrFiles = (params: {
   const payload = filenames
     ? filenames.map((filename) => ({ filename }))
     : getPrFilesPayload(files || 'files')
+  const owner = pr?.owner || 'step-security'
+  const repo = pr?.repo || 'release-drafter'
+  const number = pr?.number || 1475
 
   return nock('https://api.github.com')
-    .get(
-      `/repos/${pr?.owner || 'release-drafter'}/${pr?.repo || 'release-drafter'}/pulls/${pr?.number || 1475}/files`,
+    .post(
+      '/graphql',
+      (body) =>
+        body.query.includes('query findPullRequestChangedFiles') &&
+        body.variables.owner === owner &&
+        body.variables.name === repo &&
+        body.variables.number === number,
     )
-    .query(true)
-    .reply(200, payload)
+    .reply(200, {
+      data: {
+        repository: {
+          pullRequest: {
+            files: {
+              pageInfo: { hasNextPage: false, endCursor: null },
+              nodes: payload.map(({ filename }: { filename: string }) => ({
+                path: filename,
+              })),
+            },
+          },
+        },
+      },
+    })
 }
 
 export function nockGetPrFiles(params: {
@@ -72,7 +92,7 @@ export function nockGetPrFiles(params: {
     return params.entries.map(([number, filenames]) =>
       nockSinglePrFiles({
         pr: {
-          owner: repo?.owner || 'release-drafter',
+          owner: repo?.owner || 'step-security',
           repo: repo?.repo || 'release-drafter',
           number,
         },
@@ -97,7 +117,7 @@ export const nockPostPrLabels = (params: {
 
   return nock('https://api.github.com')
     .post(
-      `/repos/${pr?.owner || 'release-drafter'}/${pr?.repo || 'release-drafter'}/issues/${pr?.number || 1475}/labels`,
+      `/repos/${pr?.owner || 'step-security'}/${pr?.repo || 'release-drafter'}/issues/${pr?.number || 1475}/labels`,
       mocks.postPrLabelsBody,
     )
     .reply(201)

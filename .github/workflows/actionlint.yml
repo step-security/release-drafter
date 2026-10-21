@@ -1,0 +1,37 @@
+name: Lint GitHub Actions
+
+on:
+  pull_request:
+    paths:
+      - '.github/actionlint.yaml'
+      - '.github/workflows/**'
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/actionlint.yaml'
+      - '.github/workflows/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  actionlint:
+    name: actionlint
+    runs-on: ubuntu-26.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: Lint workflow files
+        uses: reviewdog/action-actionlint@2085657ab2c7f48c58edcc767fba576f63bea76b # v1.77.0
+        with:
+          reporter: github-annotations
+          filter_mode: nofilter
+          fail_level: error
